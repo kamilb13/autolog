@@ -189,6 +189,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                   padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
                     selected: expensesState.selectedCategory == null,
+                    showCheckmark: false,
                     label: const Text('Wszystkie kategorie'),
                     onSelected: (_) => ref
                         .read(expensesNotifierProvider.notifier)
@@ -200,6 +201,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                     padding: const EdgeInsets.only(right: 6),
                     child: FilterChip(
                       selected: expensesState.selectedCategory == cat,
+                      showCheckmark: false,
                       avatar: Icon(
                         cat.icon,
                         size: 15,

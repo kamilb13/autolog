@@ -138,6 +138,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                   padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
                     selected: remindersState.selectedSeverity == null,
+                    showCheckmark: false,
                     label: const Text('Wszystkie'),
                     onSelected: (_) => ref
                         .read(remindersNotifierProvider.notifier)
@@ -148,6 +149,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                   padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
                     selected: remindersState.selectedSeverity == AlertSeverity.critical,
+                    showCheckmark: false,
                     label: const Text('Krytyczne'),
                     avatar: Icon(Icons.error_outline_rounded, size: 16, color: Colors.red.shade700),
                     onSelected: (selected) {
@@ -161,6 +163,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                   padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
                     selected: remindersState.selectedSeverity == AlertSeverity.warning,
+                    showCheckmark: false,
                     label: const Text('Ostrzeżenia'),
                     avatar: Icon(Icons.warning_amber_rounded, size: 16, color: Colors.orange.shade700),
                     onSelected: (selected) {
@@ -174,6 +177,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                   padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
                     selected: remindersState.selectedSeverity == AlertSeverity.info,
+                    showCheckmark: false,
                     label: const Text('Informacyjne'),
                     avatar: Icon(Icons.info_outline_rounded, size: 16, color: Colors.blue.shade700),
                     onSelected: (selected) {
@@ -194,7 +198,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
               padding: const EdgeInsets.symmetric(vertical: 48),
               alignment: Alignment.center,
               child: Column(
-                 children: [
+                children: [
                   Icon(Icons.notifications_off_outlined, size: 56, color: Colors.grey.shade400),
                   const SizedBox(height: 12),
                   const Text(
@@ -236,13 +240,29 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                           }
                         },
                         onDelete: () async {
+                          final deletedReminder = reminder;
                           final messenger = ScaffoldMessenger.of(context);
+                          messenger.hideCurrentSnackBar();
+
                           await ref
                               .read(remindersNotifierProvider.notifier)
-                              .deleteReminder(reminder.id);
+                              .deleteReminder(deletedReminder.id);
+
                           if (mounted) {
                             messenger.showSnackBar(
-                              SnackBar(content: Text('Usunięto przypomnienie: ${reminder.title}')),
+                              SnackBar(
+                                content: Text('Usunięto przypomnienie: ${deletedReminder.title}'),
+                                duration: const Duration(seconds: 5),
+                                action: SnackBarAction(
+                                  label: 'COFNIJ',
+                                  textColor: Colors.amberAccent,
+                                  onPressed: () async {
+                                    await ref
+                                        .read(remindersNotifierProvider.notifier)
+                                        .addReminder(deletedReminder);
+                                  },
+                                ),
+                              ),
                             );
                           }
                         },

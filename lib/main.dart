@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'core/theme/app_theme.dart';
-import 'data/database/app_database.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 
 void main() async {
@@ -18,9 +17,7 @@ void main() async {
     databaseFactory = databaseFactoryFfi;
   }
 
-  // Pre-initialize database on startup
-  await AppDatabase.instance.database;
-
+  // Non-blocking initialization - database is loaded lazily on first access
   runApp(
     const ProviderScope(
       child: AutoLogApp(),

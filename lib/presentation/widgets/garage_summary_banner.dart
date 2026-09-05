@@ -13,105 +13,124 @@ class GarageSummaryBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final vehicleWord = vehicleCount == 1
+        ? 'pojazd'
+        : vehicleCount < 5
+            ? 'pojazdy'
+            : 'pojazdów';
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primary.withValues(alpha: 0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: isDark
+            ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
+            : theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.06),
         ),
-        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withValues(alpha: 0.25),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'TWÓJ GARAŻ',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$vehicleCount ${vehicleCount == 1 ? 'Pojazd' : vehicleCount < 5 ? 'Pojazdy' : 'Pojazdów'}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 22,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.directions_car_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
+          // Vehicle count icon badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              color: theme.colorScheme.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
+            child: Icon(
+              Icons.directions_car_rounded,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 14),
+
+          // Main Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  activeAlertsCount > 0
-                      ? Icons.warning_amber_rounded
-                      : Icons.check_circle_rounded,
-                  color: activeAlertsCount > 0
-                      ? const Color(0xFFFFCC00)
-                      : const Color(0xFF81C784),
-                  size: 18,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    activeAlertsCount > 0
-                        ? '$activeAlertsCount pilne alerty serwisowe/terminy!'
-                        : 'Wszystkie terminy i serwisy są aktualne',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                Row(
+                  children: [
+                    Text(
+                      '$vehicleCount',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
+                    const SizedBox(width: 6),
+                    Text(
+                      vehicleWord,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  activeAlertsCount > 0
+                      ? '$activeAlertsCount ${activeAlertsCount == 1 ? 'aktywny alert' : 'aktywne alerty'}'
+                      : 'Wszystkie terminy aktualne',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                    color: activeAlertsCount > 0
+                        ? (isDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100))
+                        : (isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32)),
                   ),
                 ),
               ],
             ),
           ),
+
+          // Trailing Action Indicator
+          if (activeAlertsCount > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.orange : Colors.orange.shade700).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.notifications_active_rounded,
+                    size: 14,
+                    color: isDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Sprawdź',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );

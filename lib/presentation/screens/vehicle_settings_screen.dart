@@ -259,49 +259,25 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                     )
                   : const Text('Zapisz zmiany'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 12),
 
-            // Danger Zone Card
-            Card(
-              color: Colors.red.shade50,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-                side: BorderSide(color: Colors.red.shade200),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Strefa niebezpieczna',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red.shade900,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Usunięcie auta z garażu spowoduje trwałe usunięcie wpisów historii serwisowej oraz alertów przypisanych do tego pojazdu.',
-                      style: TextStyle(fontSize: 12, color: Colors.red.shade800),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: _showDeleteDialog,
-                      icon: const Icon(Icons.delete_forever_rounded, color: Colors.red),
-                      label: const Text('Usuń auto z garażu', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.red),
-                        minimumSize: const Size(double.infinity, 44),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                  ],
+            // Clean Vehicle Management Action
+            Center(
+              child: TextButton.icon(
+                onPressed: _showDeleteDialog,
+                icon: const Icon(Icons.delete_outline_rounded, size: 20, color: Colors.red),
+                label: const Text(
+                  'Usuń pojazd z garażu',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
         ),
       ),

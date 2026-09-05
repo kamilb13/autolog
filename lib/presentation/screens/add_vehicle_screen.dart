@@ -336,6 +336,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
                       selected: isSelected,
+                      showCheckmark: false,
                       label: Text(fuel),
                       onSelected: (selected) {
                         if (selected) setState(() => _selectedFuelType = fuel);

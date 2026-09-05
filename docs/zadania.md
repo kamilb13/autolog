@@ -53,3 +53,52 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
 - [x] Test widżetowy (`test/widget_test.dart`).
 - [x] Weryfikacja statyczna `flutter analyze` (0 błędów).
 - [x] Zbudowanie APK i uruchomienie na fizycznym telefonie Motorola Edge 30 Neo.
+
+## 🎨 Faza 8: Refaktoryzacja UI, eliminacja AI slop i eksport PDF
+- [x] Usunięcie niepotrzebnych napisów w nagłówku ekranu głównego (`Mój Garaż 100% offline...`).
+- [x] Redesign baneru floty (`GarageSummaryBanner`) na minimalistyczny, elegancki kafelek bez krzykliwych gradientów.
+- [x] Całkowite usunięcie pomarańczowych/czerwonych grubych ramek wokół kart aut (`VehicleCard`) i wdrożenie nowoczesnego, subtelnego stylu automotive.
+- [x] Wdrożenie serwisu generowania dokumentów PDF (`PdfReportService`) z obsługą formatu A4, polskich znaków i tabel historii serwisowej.
+- [x] Dodanie do okna raportu kupującego (`BuyerReportDialog`) akcji: Podgląd/Drukuj PDF oraz Udostępnij PDF.
+- [x] Odświeżenie kart przypomnień (`ReminderCard`) i wydatków (`TimelineExpenseItem`) w trybie jasnym i ciemnym.
+
+## ⚡ Faza 9: Poprawa tablic PL, eliminacja ANR, alerty w pulpicie auta i UX
+- [x] Nowy, realistyczny design polskiej tablicy rejestracyjnej z Eurobandem (okrąg 12 gwiazd UE, flaga PL, przetłoczenia) w `PolishLicensePlate`.
+- [x] Eliminacja błędu ANR ("AutoLog isn't responding") poprzez asynchroniczne, nieblokujące ładowanie bazy SQLite poza `main()`.
+- [x] Dodanie dedykowanej sekcji alertów i przypomnień w Pulpicie Pojazdu (`VehicleDashboardScreen`).
+- [x] Usunięcie przesadzonej „Strefy niebezpiecznej” w ustawieniach pojazdu (`VehicleSettingsScreen`) na rzecz eleganckiego zarządzania pojazdem.
+- [x] Usunięcie nakładającego się znacznika wyboru (fistaszek/check) z ikon kategorii w filtrach (`showCheckmark: false`).
+- [x] Dodanie 5-sekundowego paska z opcją „COFNIJ” (Undo) przy usuwaniu przypomnienia w `RemindersScreen`.
+
+---
+
+## 🔮 Zadania na przyszłość (Backlog / Rozwój)
+- [ ] **Wielojęzyczność i słownik (i18n / l10n)**:
+  - Wdrożenie systemu lokalizacji opartego o pliki słownikowe ARB (`app_pl.arb`, `app_en.arb`) lub moduł `intl`.
+  - Obsługa języka **polskiego (PL)** oraz **angielskiego (EN)** z możliwością łatwego dodawania kolejnych języków.
+  - Przełącznik języka w ustawieniach aplikacji z opcją wykrywania języka systemowego telefonu.
+  - Dostosowanie formatowania walut i jednostek miary (PLN/EUR/USD, km/mi).
+- [ ] **Cena zakupu pojazdu (Purchase Price)**:
+  - Rozszerzenie modelu pojazdu (`Vehicle`), tabeli SQLite i formularzy o pole `purchase_price_pln`.
+  - Prezentacja ceny nabycia na pulpicie pojazdu oraz w statystykach.
+- [ ] **Poprawka formatowania udziału procentowego w raporcie PDF**:
+  - Przeliczenie ułamka udziału kategorii (`fraction * 100`) w tabeli PDF, aby `0.70` wyświetlało się jako `70.0%` zamiast `0.7%`.
+- [ ] **Uproszczenie etykiety alertów na karcie pojazdu w garażu**:
+  - Zmiana opisu alertu w `VehicleCard` na minimalistyczny zapis np. `2 alerty` / `2 aktywne alerty` (bez długiego rozwinięcia tytułu).
+- [ ] **Nowy selektor pojazdu w formularzu „Nowy wydatek” (`AddExpenseScreen`)**:
+  - Zastąpienie surowego dropdownu nowoczesnym selektorem kafelkowym / poziomą listą kart pojazdów ze stylizowaną polską tablicą rejestracyjną.
+- [ ] **Przebudowa kafelka przypomnienia (`ReminderCard`) i ergonomia usuwania**:
+  - Przeniesienie akcji usuwania do menu nagłówka (3-kropki lub ikona w prawym górnym rogu) bądź gest przesunięcia (swipe-to-delete), aby dolny pasek był czysty i zbalansowany z przyciskiem „Oznacz jako wykonane”.
+- [ ] **Dynamiczne filtrowanie podpowiedzi marek/modeli w `AddVehicleScreen`**:
+  - W trakcie wpisywania tekstu w polu Marka (np. "vol"), dolne kafelki podpowiedzi natychmiast filtrują się i pokazują tylko pasujące marki (np. Volkswagen, Volvo).
+- [ ] **Skaner paragonów i faktur (OCR - On-Device)**:
+  - Wdrożenie prostego, 100% lokalnego skanera paragonów z użyciem ML Kit (`google_mlkit_text_recognition`).
+  - Przepływ: Zdjęcie paragonu $\to$ parsowanie tekstu (wyszukiwanie kwoty końcowej `PLN`, daty i nazwy stacji/warsztatu) $\to$ wstępne wypełnienie formularza „Nowy wydatek” do weryfikacji i akceptacji przez użytkownika (brak automatycznego zapisu w tle).
+- [ ] **Poprawa komunikatów alertów w sekcji Terminy (`RemindersScreen`)**:
+  - Rozdzielenie alertów krytycznych (np. przeterminowane) od ostrzeżeń (zbliżające się za X km/dni) zamiast nazywania każdego ostrzeżenia „pilnym alertem”.
+- [ ] **Poprawa błędu overflow i selektora aut w „Nowy termin” (`AddReminderDialog`)**:
+  - Usunięcie błędu przepełnienia pikseli (`overflowed by 42px`) poprzez elastyczną wysokość modala i `SingleChildScrollView`.
+  - Nowoczesny, zgrabny selektor pojazdów zamiast surowego dropdownu rozjeżdżającego się na całą szerokość.
+- [ ] **Wymuszenie podania przebiegu przy wydatkach na paliwo (`AddExpenseScreen`)**:
+  - Dodanie bezwzględnej walidacji przebiegu dla kategorii Paliwo (wymóg podania aktualnego stanu licznika).
+  - Kluczowe dla precyzyjnego wyliczania kosztu 1 km (TCO) oraz aktualizacji interwałów przypomnień.

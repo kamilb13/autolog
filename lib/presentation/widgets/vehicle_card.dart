@@ -18,32 +18,40 @@ class VehicleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-    Color borderColor = Colors.grey.shade200;
-    if (vehicle.hasCriticalAlerts) {
-      borderColor = Colors.red.shade400;
-    } else if (vehicle.hasWarnings) {
-      borderColor = Colors.orange.shade400;
-    }
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: borderColor, width: 1.2),
-      ),
+    return Material(
+      color: isDark
+          ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.65)
+          : Colors.white,
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onClick,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: 0.07),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header: Brand Model & Fuel Badge
+              // Header: Brand Model & Generation/Year & Fuel Tag
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Column(
@@ -52,43 +60,41 @@ class VehicleCard extends StatelessWidget {
                         Text(
                           '${vehicle.brand} ${vehicle.model}',
                           style: const TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (vehicle.generationOrTrim.isNotEmpty)
-                          Text(
-                            '${vehicle.generationOrTrim} • ${vehicle.year}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
-                            ),
-                          )
-                        else
-                          Text(
-                            'Rocznik: ${vehicle.year}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
-                            ),
+                        const SizedBox(height: 2),
+                        Text(
+                          vehicle.generationOrTrim.isNotEmpty
+                              ? '${vehicle.generationOrTrim} • ${vehicle.year}'
+                              : 'Rocznik: ${vehicle.year}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w500,
                           ),
+                        ),
                       ],
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(8),
+                      color: isDark
+                          ? theme.colorScheme.surfaceContainerHighest
+                          : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       vehicle.fuelType,
                       style: TextStyle(
-                        color: theme.colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11.5,
                       ),
                     ),
                   ),
@@ -96,144 +102,102 @@ class VehicleCard extends StatelessWidget {
               ),
               const SizedBox(height: 14),
 
-              // License Plate & Mileage
+              // License Plate & Mileage Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  PolishLicensePlate(plateText: vehicle.licensePlate),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  PolishLicensePlate(
+                    plateText: vehicle.licensePlate,
+                    scale: 0.95,
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Stan licznika',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
+                          Text(
+                            'Przebieg',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                           Text(
                             AppFormatters.mileage(vehicle.mileageKm),
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w700,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
-                          if (onUpdateMileageClick != null) ...[
-                            const SizedBox(width: 4),
-                            InkWell(
-                              onTap: onUpdateMileageClick,
-                              borderRadius: BorderRadius.circular(6),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Icon(
-                                  Icons.edit_rounded,
-                                  size: 14,
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ]
                         ],
                       ),
+                      if (onUpdateMileageClick != null) ...[
+                        const SizedBox(width: 8),
+                        IconButton(
+                          onPressed: onUpdateMileageClick,
+                          icon: const Icon(Icons.edit_outlined, size: 16),
+                          style: IconButton.styleFrom(
+                            padding: const EdgeInsets.all(6),
+                            minimumSize: const Size(28, 28),
+                            backgroundColor: isDark
+                                ? Colors.white.withValues(alpha: 0.06)
+                                : Colors.black.withValues(alpha: 0.04),
+                            foregroundColor: theme.colorScheme.primary,
+                          ),
+                          tooltip: 'Zaktualizuj licznik',
+                        ),
+                      ],
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              const Divider(height: 1),
-              const SizedBox(height: 10),
 
-              // Alerts list or all ok status
-              if (vehicle.alerts.isNotEmpty)
-                Column(
-                  children: vehicle.alerts.map((alert) {
-                    final isCritical = alert.severity == AlertSeverity.critical;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isCritical ? Colors.red.shade50 : Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isCritical ? Colors.red.shade200 : Colors.orange.shade200,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isCritical ? Icons.error_outline : Icons.warning_amber_rounded,
-                            size: 16,
-                            color: isCritical ? Colors.red.shade800 : Colors.orange.shade800,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              '${alert.title} — ${alert.description}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: isCritical ? Colors.red.shade900 : Colors.orange.shade900,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                )
-              else
+              // Alerts section if any
+              if (vehicle.alerts.isNotEmpty) ...[
+                const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: (vehicle.hasCriticalAlerts
+                            ? (isDark ? Colors.red.shade900 : Colors.red.shade50)
+                            : (isDark ? Colors.amber.shade900 : Colors.amber.shade50))
+                        .withValues(alpha: isDark ? 0.3 : 0.7),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.check_circle_outline_rounded, size: 16, color: Colors.green.shade700),
+                      Icon(
+                        vehicle.hasCriticalAlerts
+                            ? Icons.error_outline_rounded
+                            : Icons.warning_amber_rounded,
+                        size: 14,
+                        color: vehicle.hasCriticalAlerts
+                            ? (isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828))
+                            : (isDark ? const Color(0xFFFFD54F) : const Color(0xFFE65100)),
+                      ),
                       const SizedBox(width: 6),
-                      Text(
-                        'Wszystkie serwisy i terminy aktualne',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.green.shade900,
+                      Expanded(
+                        child: Text(
+                          '${vehicle.alerts.length} ${vehicle.alerts.length == 1 ? 'alert' : 'alerty'}: ${vehicle.alerts.first.title}',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: vehicle.hasCriticalAlerts
+                                ? (isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828))
+                                : (isDark ? const Color(0xFFFFD54F) : const Color(0xFFE65100)),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
                 ),
-
-              const SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'Pulpit pojazdu',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 12,
-                    color: theme.colorScheme.primary,
-                  ),
-                ],
-              ),
+              ],
             ],
           ),
         ),

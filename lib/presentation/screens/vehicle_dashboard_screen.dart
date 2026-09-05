@@ -4,9 +4,11 @@ import '../../core/utils/formatters.dart';
 import '../../domain/models/expense.dart';
 import '../providers/app_providers.dart';
 import '../widgets/polish_license_plate.dart';
+import '../widgets/reminder_card.dart';
 import '../widgets/timeline_expense_item.dart';
 import '../widgets/update_mileage_dialog.dart';
 import 'add_expense_screen.dart';
+import 'add_reminder_dialog.dart';
 import 'vehicle_settings_screen.dart';
 
 class VehicleDashboardScreen extends ConsumerStatefulWidget {
@@ -28,7 +30,9 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
   Widget build(BuildContext context) {
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
     final expensesState = ref.watch(expensesNotifierProvider);
+    final remindersState = ref.watch(remindersNotifierProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return vehiclesAsync.when(
       loading: () => const Scaffold(
@@ -47,6 +51,11 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
             body: const Center(child: Text('Nie znaleziono wybranego pojazdu.')),
           );
         }
+
+        // Active reminders for this vehicle
+        final vehicleReminders = remindersState.reminders
+            .where((r) => r.vehicleId == vehicle.id && !r.isCompleted)
+            .toList();
 
         // Filter expenses for this vehicle
         var vehicleExpenses = expensesState.expenses.where((e) => e.vehicleId == vehicle.id).toList();
@@ -96,113 +105,85 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
               );
             },
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Nowy wpis', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text('Nowy wydatek', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           body: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             children: [
               // Dashboard Vehicle Header Card
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.65)
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.07),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 '${vehicle.brand} ${vehicle.model}',
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
                               ),
-                              if (vehicle.generationOrTrim.isNotEmpty)
-                                Text(
-                                  '${vehicle.generationOrTrim} • ${vehicle.year}',
-                                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                                )
-                              else
-                                Text(
-                                  'Rocznik: ${vehicle.year}',
-                                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                                ),
+                              const SizedBox(height: 2),
+                              Text(
+                                vehicle.generationOrTrim.isNotEmpty
+                                    ? '${vehicle.generationOrTrim} • ${vehicle.year} • ${vehicle.fuelType}'
+                                    : 'Rocznik: ${vehicle.year} • ${vehicle.fuelType}',
+                                style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                              ),
                             ],
                           ),
-                          PolishLicensePlate(plateText: vehicle.licensePlate),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Divider(height: 1),
-                      const SizedBox(height: 14),
+                        ),
+                        PolishLicensePlate(plateText: vehicle.licensePlate, scale: 0.95),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Divider(height: 1, color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06)),
+                    const SizedBox(height: 14),
 
-                      // Mileage & Total Spent KPI
-                      Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (_) => UpdateMileageDialog(
-                                    currentMileageKm: vehicle.mileageKm,
-                                    onConfirm: (newMileage) {
-                                      ref
-                                          .read(vehiclesNotifierProvider.notifier)
-                                          .updateMileage(vehicle.id, newMileage);
-                                    },
-                                  ),
-                                );
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.primaryContainer.withValues(alpha: 0.35),
-                                  borderRadius: BorderRadius.circular(12),
+                    // Mileage & Total Spent KPI
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => UpdateMileageDialog(
+                                  currentMileageKm: vehicle.mileageKm,
+                                  onConfirm: (newMileage) {
+                                    ref
+                                        .read(vehiclesNotifierProvider.notifier)
+                                        .updateMileage(vehicle.id, newMileage);
+                                  },
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.speed_rounded, size: 14, color: theme.colorScheme.primary),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'STAN LICZNIKA',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: theme.colorScheme.primary,
-                                          ),
-                                        ),
-                                        const Spacer(),
-                                        Icon(Icons.edit_rounded, size: 13, color: theme.colorScheme.primary),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      AppFormatters.mileage(vehicle.mileageKm),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: theme.colorScheme.onSurface,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceContainerHighest,
+                                color: theme.colorScheme.primaryContainer.withValues(alpha: isDark ? 0.25 : 0.35),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -210,21 +191,23 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.receipt_long_rounded, size: 14, color: Colors.grey.shade700),
+                                      Icon(Icons.speed_rounded, size: 14, color: theme.colorScheme.primary),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'SUMA WYDATKÓW',
+                                        'STAN LICZNIKA',
                                         style: TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.grey.shade700,
+                                          color: theme.colorScheme.primary,
                                         ),
                                       ),
+                                      const Spacer(),
+                                      Icon(Icons.edit_rounded, size: 13, color: theme.colorScheme.primary),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    AppFormatters.shortCurrency(totalVehicleExpenses),
+                                    AppFormatters.mileage(vehicle.mileageKm),
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w900,
@@ -235,15 +218,161 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.receipt_long_rounded, size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'SUMA WYDATKÓW',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  AppFormatters.shortCurrency(totalVehicleExpenses),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w900,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 18),
 
-              // Category Filter Chips
+              // ALERTS & REMINDERS SECTION (Visible in Dashboard!)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        vehicleReminders.isNotEmpty
+                            ? Icons.notifications_active_rounded
+                            : Icons.check_circle_outline_rounded,
+                        size: 18,
+                        color: vehicleReminders.isNotEmpty
+                            ? (isDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100))
+                            : const Color(0xFF2E7D32),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Alerty i terminy (${vehicleReminders.length})',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AddReminderDialog(
+                          initialVehicleId: vehicle.id,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add_rounded, size: 16),
+                    label: const Text('Dodaj termin', style: TextStyle(fontSize: 12.5)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+
+              if (vehicleReminders.isEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: (isDark ? Colors.green.shade900 : Colors.green.shade50).withValues(alpha: isDark ? 0.2 : 0.6),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: (isDark ? Colors.green.shade700 : Colors.green.shade200).withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32), size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Wszystkie serwisy i opłaty dla tego auta są aktualne',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? const Color(0xFFA5D6A7) : const Color(0xFF1B5E20),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ...vehicleReminders.map(
+                  (rem) => ReminderCard(
+                    reminder: rem,
+                    vehicle: vehicle,
+                    onMarkCompleted: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      await ref.read(remindersNotifierProvider.notifier).markCompleted(rem.id);
+                      if (mounted) {
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Oznaczono jako wykonane: ${rem.title}'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    },
+                    onDelete: () async {
+                      final deletedReminder = rem;
+                      final messenger = ScaffoldMessenger.of(context);
+                      messenger.hideCurrentSnackBar();
+                      await ref.read(remindersNotifierProvider.notifier).deleteReminder(deletedReminder.id);
+                      if (mounted) {
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Usunięto przypomnienie: ${deletedReminder.title}'),
+                            duration: const Duration(seconds: 5),
+                            action: SnackBarAction(
+                              label: 'COFNIJ',
+                              textColor: Colors.amberAccent,
+                              onPressed: () async {
+                                await ref.read(remindersNotifierProvider.notifier).addReminder(deletedReminder);
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+
+              const SizedBox(height: 20),
+
+              // Category Filter Chips & Timeline
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -262,6 +391,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                       padding: const EdgeInsets.only(right: 6),
                       child: FilterChip(
                         selected: _selectedCategory == null,
+                        showCheckmark: false,
                         label: const Text('Wszystkie'),
                         onSelected: (_) => setState(() => _selectedCategory = null),
                       ),
@@ -271,6 +401,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                         padding: const EdgeInsets.only(right: 6),
                         child: FilterChip(
                           selected: _selectedCategory == cat,
+                          showCheckmark: false,
                           avatar: Icon(cat.icon, size: 15, color: _selectedCategory == cat ? null : cat.color),
                           label: Text(cat.displayName),
                           onSelected: (selected) {

@@ -52,6 +52,7 @@ class StatsScreen extends ConsumerWidget {
                                 padding: const EdgeInsets.only(right: 6),
                                 child: FilterChip(
                                   selected: statsState.selectedVehicleId == null,
+                                  showCheckmark: false,
                                   label: const Text('Wszystkie pojazdy'),
                                   onSelected: (_) => statsNotifier.selectVehicle(null),
                                 ),
@@ -61,6 +62,7 @@ class StatsScreen extends ConsumerWidget {
                                   padding: const EdgeInsets.only(right: 6),
                                   child: FilterChip(
                                     selected: statsState.selectedVehicleId == v.id,
+                                    showCheckmark: false,
                                     label: Text('${v.brand} ${v.model}'),
                                     onSelected: (_) => statsNotifier.selectVehicle(v.id),
                                   ),

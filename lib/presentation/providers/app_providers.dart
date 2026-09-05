@@ -130,7 +130,7 @@ class ExpensesNotifier extends StateNotifier<ExpensesState> {
   }
 
   Future<void> setVehicleFilter(String? vehicleId) async {
-    if (state.selectedVehicleId == vehicleId) {
+    if (vehicleId == null || state.selectedVehicleId == vehicleId) {
       state = state.copyWith(clearVehicleId: true);
     } else {
       state = state.copyWith(selectedVehicleId: vehicleId);
@@ -139,7 +139,7 @@ class ExpensesNotifier extends StateNotifier<ExpensesState> {
   }
 
   Future<void> setCategoryFilter(ExpenseCategory? category) async {
-    if (state.selectedCategory == category) {
+    if (category == null || state.selectedCategory == category) {
       state = state.copyWith(clearCategory: true);
     } else {
       state = state.copyWith(selectedCategory: category);
@@ -231,7 +231,7 @@ class RemindersNotifier extends StateNotifier<RemindersState> {
   }
 
   Future<void> setVehicleFilter(String? vehicleId) async {
-    if (state.selectedVehicleId == vehicleId) {
+    if (vehicleId == null || state.selectedVehicleId == vehicleId) {
       state = state.copyWith(clearVehicleId: true);
     } else {
       state = state.copyWith(selectedVehicleId: vehicleId);
@@ -240,7 +240,7 @@ class RemindersNotifier extends StateNotifier<RemindersState> {
   }
 
   Future<void> setSeverityFilter(AlertSeverity? severity) async {
-    if (state.selectedSeverity == severity) {
+    if (severity == null || state.selectedSeverity == severity) {
       state = state.copyWith(clearSeverity: true);
     } else {
       state = state.copyWith(selectedSeverity: severity);
@@ -323,7 +323,11 @@ class StatsNotifier extends StateNotifier<StatsState> {
   }
 
   Future<void> loadStats([String? vehicleId]) async {
-    state = state.copyWith(isLoading: true, selectedVehicleId: vehicleId);
+    state = state.copyWith(
+      isLoading: true,
+      selectedVehicleId: vehicleId,
+      clearVehicleId: vehicleId == null,
+    );
     final stats = await _repository.getTcoStats(vehicleId);
     state = state.copyWith(stats: stats, isLoading: false);
   }

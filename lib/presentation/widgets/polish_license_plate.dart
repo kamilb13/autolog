@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class PolishLicensePlate extends StatelessWidget {
@@ -12,74 +13,107 @@ class PolishLicensePlate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Format plate text with space between district code and registration characters if needed
+    final cleanText = plateText.trim().toUpperCase();
+
     return Container(
+      height: 32 * scale,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(4 * scale),
-        border: Border.all(color: Colors.black, width: 1.5 * scale),
+        borderRadius: BorderRadius.circular(5 * scale),
+        border: Border.all(color: const Color(0xFF1A1A1A), width: 1.6 * scale),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
-            blurRadius: 2 * scale,
-            offset: Offset(0, 1 * scale),
-          )
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: 3 * scale,
+            offset: Offset(0, 1.5 * scale),
+          ),
         ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Blue PL Euroband
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 4 * scale,
-              vertical: 3 * scale,
-            ),
-            decoration: BoxDecoration(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(3.4 * scale),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Authentic EU Blue Euroband
+            Container(
+              width: 22 * scale,
               color: const Color(0xFF003399),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(2.5 * scale),
-                bottomLeft: Radius.circular(2.5 * scale),
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.star,
-                  size: 6 * scale,
-                  color: const Color(0xFFFFCC00),
-                ),
-                Text(
-                  'PL',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 9 * scale,
-                    fontWeight: FontWeight.w900,
-                    height: 1.0,
+              padding: EdgeInsets.symmetric(vertical: 2 * scale),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // EU 12-star circle emulation
+                  SizedBox(
+                    width: 12 * scale,
+                    height: 12 * scale,
+                    child: CustomPaint(
+                      painter: _EuStarsPainter(color: const Color(0xFFFFCC00)),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          // Plate text
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 8 * scale,
-              vertical: 2 * scale,
-            ),
-            child: Text(
-              plateText.toUpperCase(),
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'monospace',
-                fontSize: 14 * scale,
-                letterSpacing: 1.2 * scale,
+                  // White Polish country code
+                  Text(
+                    'PL',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 8.5 * scale,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5 * scale,
+                      height: 1.0,
+                      fontFamily: 'sans-serif',
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+
+            // Embossed License Plate Characters
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: 9 * scale),
+              child: Text(
+                cleanText,
+                style: TextStyle(
+                  color: const Color(0xFF111111),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16 * scale,
+                  letterSpacing: 1.6 * scale,
+                  height: 1.0,
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class _EuStarsPainter extends CustomPainter {
+  final Color color;
+
+  _EuStarsPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2.3;
+    const count = 12;
+
+    for (int i = 0; i < count; i++) {
+      final angle = (i * 2 * math.pi / count) - (math.pi / 2);
+      final x = center.dx + radius * math.cos(angle);
+      final y = center.dy + radius * math.sin(angle);
+      canvas.drawCircle(Offset(x, y), size.width * 0.08, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -17,13 +17,26 @@ class TimelineExpenseItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final category = expense.category;
 
-    return Card(
-      elevation: 0.8,
-      shape: RoundedRectangleBorder(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark
+            ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
+            : Colors.white,
         borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: InkWell(
         onTap: onTap,
@@ -35,7 +48,7 @@ class TimelineExpenseItem extends StatelessWidget {
             children: [
               // Category Icon
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
                   color: category.color.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
@@ -43,7 +56,7 @@ class TimelineExpenseItem extends StatelessWidget {
                 child: Icon(
                   category.icon,
                   color: category.color,
-                  size: 22,
+                  size: 20,
                 ),
               ),
               const SizedBox(width: 12),
@@ -61,8 +74,8 @@ class TimelineExpenseItem extends StatelessWidget {
                           child: Text(
                             expense.title,
                             style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w700,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -72,14 +85,14 @@ class TimelineExpenseItem extends StatelessWidget {
                         Text(
                           AppFormatters.currency(expense.amountPln),
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w800,
                             color: theme.colorScheme.primary,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
 
                     // Date & Mileage
                     Row(
@@ -88,19 +101,19 @@ class TimelineExpenseItem extends StatelessWidget {
                           AppFormatters.formatDisplayDate(expense.date),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade600,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
                           ' • ',
-                          style: TextStyle(color: Colors.grey.shade400),
+                          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
                         ),
                         Text(
                           AppFormatters.mileage(expense.mileageKm),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade600,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -110,17 +123,17 @@ class TimelineExpenseItem extends StatelessWidget {
                     // Workshop / Location
                     if (expense.workshopOrLocation != null &&
                         expense.workshopOrLocation!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Row(
                         children: [
-                          Icon(Icons.location_on_outlined, size: 13, color: Colors.grey.shade500),
-                          const SizedBox(width: 4),
+                          Icon(Icons.location_on_outlined, size: 12.5, color: theme.colorScheme.onSurface.withValues(alpha: 0.45)),
+                          const SizedBox(width: 3),
                           Expanded(
                             child: Text(
                               expense.workshopOrLocation!,
                               style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade700,
+                                fontSize: 11.5,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -132,19 +145,19 @@ class TimelineExpenseItem extends StatelessWidget {
 
                     // Note
                     if (expense.note != null && expense.note!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 5),
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           expense.note!,
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.grey.shade800,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -154,14 +167,16 @@ class TimelineExpenseItem extends StatelessWidget {
                 ),
               ),
 
-              if (onDelete != null)
+              if (onDelete != null) ...[
+                const SizedBox(width: 4),
                 IconButton(
                   icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                  color: Colors.grey.shade400,
+                  color: Colors.grey.withValues(alpha: 0.6),
                   onPressed: onDelete,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
+              ],
             ],
           ),
         ),

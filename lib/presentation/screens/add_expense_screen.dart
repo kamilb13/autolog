@@ -202,6 +202,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     padding: const EdgeInsets.only(right: 6),
                     child: FilterChip(
                       selected: isSelected,
+                      showCheckmark: false,
                       avatar: Icon(cat.icon, size: 16, color: isSelected ? null : cat.color),
                       label: Text(cat.displayName),
                       onSelected: (selected) {

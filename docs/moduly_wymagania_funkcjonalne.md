@@ -33,3 +33,8 @@
 * 100% działanie w trybie offline bez zewnętrznego serwera backendowego (lokalna baza SQLite).
 * Synchronizacja kopii zapasowej z chmurą Google Drive (AppData folder) z opcją ręcznego pobrania i przywrócenia bazy.
 * Eksport i import bazy danych w formacie JSON.
+
+### Wielojęzyczność i Słownik (Planowane)
+* Architektura słownikowa (i18n / l10n) przygotowana na wiele języków (na start: Polski `pl` i Angielski `en`).
+* Dynamiczny wybór języka w aplikacji oraz automatyczne dopasowanie do języka urządzenia.
+* Elastyczne formatowanie walut (PLN, EUR, USD) i jednostek miary (km, mile).
