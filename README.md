@@ -1,4 +1,4 @@
-# AutoLog 🚗
+# AutoLog
 
 Prosta, szybka i prywatna aplikacja mobilna do prowadzenia dziennika kosztów i serwisu Twoich samochodów. 
 
