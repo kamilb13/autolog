@@ -27,6 +27,7 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
   late TextEditingController _licensePlateController;
   late TextEditingController _mileageController;
   late TextEditingController _vinController;
+  late TextEditingController _purchasePriceController;
   late String _selectedFuelType;
 
   bool _isSaving = false;
@@ -50,6 +51,13 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
     _licensePlateController = TextEditingController(text: v.licensePlate);
     _mileageController = TextEditingController(text: v.mileageKm.toString());
     _vinController = TextEditingController(text: v.vin);
+    _purchasePriceController = TextEditingController(
+      text: v.purchasePricePln != null
+          ? (v.purchasePricePln! % 1 == 0
+              ? v.purchasePricePln!.toInt().toString()
+              : v.purchasePricePln!.toString())
+          : '',
+    );
     _selectedFuelType = v.fuelType;
   }
 
@@ -62,6 +70,7 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
     _licensePlateController.dispose();
     _mileageController.dispose();
     _vinController.dispose();
+    _purchasePriceController.dispose();
     super.dispose();
   }
 
@@ -71,6 +80,10 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
     setState(() => _isSaving = true);
 
     try {
+      final purchasePrice = _purchasePriceController.text.trim().isNotEmpty
+          ? double.tryParse(_purchasePriceController.text.trim().replaceAll(',', '.'))
+          : null;
+
       final updated = widget.vehicle.copyWith(
         brand: _brandController.text.trim(),
         model: _modelController.text.trim(),
@@ -80,6 +93,8 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
         mileageKm: int.parse(_mileageController.text.trim()),
         fuelType: _selectedFuelType,
         vin: _vinController.text.trim().toUpperCase(),
+        purchasePricePln: purchasePrice,
+        clearPurchasePrice: purchasePrice == null,
       );
 
       await ref.read(vehiclesNotifierProvider.notifier).updateVehicle(updated);
@@ -246,6 +261,18 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
               ),
               style: const TextStyle(fontFamily: 'monospace'),
               textCapitalization: TextCapitalization.characters,
+            ),
+            const SizedBox(height: 14),
+
+            TextFormField(
+              controller: _purchasePriceController,
+              decoration: const InputDecoration(
+                labelText: 'Cena zakupu auta (opcjonalnie)',
+                hintText: 'np. 85000',
+                suffixText: 'PLN',
+                prefixIcon: Icon(Icons.shopping_bag_outlined),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 24),
 

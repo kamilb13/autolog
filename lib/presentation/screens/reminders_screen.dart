@@ -26,6 +26,26 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
     final remindersState = ref.watch(remindersNotifierProvider);
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
 
+    final criticalCount = remindersState.criticalCount;
+    final warningCount = remindersState.warningCount;
+
+    String subtitleText;
+    Color subtitleColor;
+
+    if (criticalCount > 0 && warningCount > 0) {
+      subtitleText = '$criticalCount ${criticalCount == 1 ? "krytyczny" : "krytyczne"}, $warningCount ${warningCount == 1 ? "ostrzeżenie" : "ostrzeżenia"}';
+      subtitleColor = Colors.red.shade600;
+    } else if (criticalCount > 0) {
+      subtitleText = '$criticalCount ${criticalCount == 1 ? "przeterminowany termin" : "przeterminowane terminy"}';
+      subtitleColor = Colors.red.shade600;
+    } else if (warningCount > 0) {
+      subtitleText = '$warningCount ${warningCount == 1 ? "zbliżający się termin" : "zbliżające się terminy"}';
+      subtitleColor = Colors.orange.shade800;
+    } else {
+      subtitleText = 'Wszystkie terminy pod kontrolą';
+      subtitleColor = Colors.grey.shade600;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -36,13 +56,11 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             Text(
-              remindersState.urgentCount > 0
-                  ? '${remindersState.urgentCount} pilne alerty do wykonania'
-                  : 'Wszystkie terminy pod kontrolą',
+              subtitleText,
               style: TextStyle(
                 fontSize: 12,
-                color: remindersState.urgentCount > 0 ? Colors.red : Colors.grey.shade600,
-                fontWeight: remindersState.urgentCount > 0 ? FontWeight.bold : FontWeight.normal,
+                color: subtitleColor,
+                fontWeight: (criticalCount > 0 || warningCount > 0) ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ],
@@ -255,7 +273,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                                 duration: const Duration(seconds: 5),
                                 action: SnackBarAction(
                                   label: 'COFNIJ',
-                                  textColor: Colors.amberAccent,
+                                  textColor: Colors.black,
                                   onPressed: () async {
                                     await ref
                                         .read(remindersNotifierProvider.notifier)

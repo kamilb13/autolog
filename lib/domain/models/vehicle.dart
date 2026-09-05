@@ -105,6 +105,7 @@ class Vehicle {
   final int mileageKm;
   final String fuelType;
   final String vin;
+  final double? purchasePricePln;
   final List<VehicleAlert> alerts;
 
   const Vehicle({
@@ -117,6 +118,7 @@ class Vehicle {
     required this.mileageKm,
     required this.fuelType,
     this.vin = '',
+    this.purchasePricePln,
     this.alerts = const [],
   });
 
@@ -136,6 +138,8 @@ class Vehicle {
     int? mileageKm,
     String? fuelType,
     String? vin,
+    double? purchasePricePln,
+    bool clearPurchasePrice = false,
     List<VehicleAlert>? alerts,
   }) {
     return Vehicle(
@@ -148,6 +152,7 @@ class Vehicle {
       mileageKm: mileageKm ?? this.mileageKm,
       fuelType: fuelType ?? this.fuelType,
       vin: vin ?? this.vin,
+      purchasePricePln: clearPurchasePrice ? null : (purchasePricePln ?? this.purchasePricePln),
       alerts: alerts ?? this.alerts,
     );
   }
@@ -163,6 +168,7 @@ class Vehicle {
       'mileage_km': mileageKm,
       'fuel_type': fuelType,
       'vin': vin,
+      'purchase_price_pln': purchasePricePln,
     };
   }
 
@@ -177,6 +183,11 @@ class Vehicle {
       mileageKm: (map['mileage_km'] ?? map['mileageKm'] as num).toInt(),
       fuelType: (map['fuel_type'] ?? map['fuelType'] ?? 'Benzyna') as String,
       vin: (map['vin'] ?? '') as String,
+      purchasePricePln: map['purchase_price_pln'] != null
+          ? (map['purchase_price_pln'] as num).toDouble()
+          : (map['purchasePricePln'] != null
+              ? (map['purchasePricePln'] as num).toDouble()
+              : null),
       alerts: alerts,
     );
   }

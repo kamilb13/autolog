@@ -69,10 +69,9 @@ class ReminderCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Row: Title & Badge
+          // Top Row: Title & Badge & 3-dots Menu
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: Column(
@@ -85,7 +84,8 @@ class ReminderCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    if (vehicle != null)
+                    if (vehicle != null) ...[
+                      const SizedBox(height: 2),
                       Text(
                         '${vehicle!.brand} ${vehicle!.model} • ${vehicle!.licensePlate}',
                         style: TextStyle(
@@ -94,30 +94,68 @@ class ReminderCard extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                decoration: BoxDecoration(
-                  color: badgeBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(severityIcon, size: 13, color: badgeText),
-                    const SizedBox(width: 4),
-                    Text(
-                      statusLabel,
-                      style: TextStyle(
-                        color: badgeText,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11.5,
+              const SizedBox(width: 8),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: badgeBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(severityIcon, size: 13, color: badgeText),
+                        const SizedBox(width: 4),
+                        Text(
+                          statusLabel,
+                          style: TextStyle(
+                            color: badgeText,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (onDelete != null) ...[
+                    const SizedBox(width: 2),
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert_rounded,
+                        size: 18,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: 'Opcje',
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      onSelected: (val) {
+                        if (val == 'delete' && onDelete != null) {
+                          onDelete!();
+                        }
+                      },
+                      itemBuilder: (ctx) => [
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red.shade700),
+                              const SizedBox(width: 8),
+                              Text('Usuń termin', style: TextStyle(color: Colors.red.shade700, fontSize: 13)),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
+                ],
               ),
             ],
           ),
@@ -179,38 +217,24 @@ class ReminderCard extends StatelessWidget {
 
           const SizedBox(height: 12),
           Divider(height: 1, color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
-          // Action row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (onDelete != null)
-                IconButton(
-                  onPressed: onDelete,
-                  icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                  tooltip: 'Usuń przypomnienie',
-                  style: IconButton.styleFrom(
-                    foregroundColor: Colors.grey,
-                    minimumSize: const Size(36, 36),
-                  ),
-                )
-              else
-                const SizedBox(),
-              ElevatedButton.icon(
-                onPressed: onMarkCompleted,
-                icon: const Icon(Icons.check_rounded, size: 16),
-                label: const Text('Oznacz jako wykonane'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(160, 36),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  backgroundColor: const Color(0xFF2E7D32),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
-                ),
+          // Action button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onMarkCompleted,
+              icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
+              label: const Text('Oznacz jako wykonane'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(38),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                backgroundColor: const Color(0xFF2E7D32),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
               ),
-            ],
+            ),
           ),
         ],
       ),

@@ -69,7 +69,22 @@ void main() {
       );
 
       final label = AppFormatters.reminderStatusLabel(reminderPast);
-      expect(label, 'Wygasło!');
+      expect(label, 'Przeterminowane (5 dni temu)');
+
+      final reminderOverdueKm = const ServiceReminder(
+        id: '4',
+        vehicleId: 'v1',
+        title: 'Wymiana oleju',
+        description: 'Serwis',
+        dueMileageKm: 160000,
+        kmRemaining: -500,
+        severity: AlertSeverity.critical,
+        type: AlertType.oilService,
+      );
+
+      final labelKm = AppFormatters.reminderStatusLabel(reminderOverdueKm);
+      expect(labelKm, contains('Przekroczono o'));
+      expect(labelKm, contains('500 km'));
     });
   });
 }

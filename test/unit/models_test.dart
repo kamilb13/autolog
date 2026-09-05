@@ -16,6 +16,7 @@ void main() {
         vin: 'WAUZZZ8K1CA123456',
         mileageKm: 215000,
         fuelType: 'DIESEL',
+        purchasePricePln: 45000.0,
         alerts: [
           const VehicleAlert(
             id: 'a1',
@@ -31,10 +32,12 @@ void main() {
       expect(map['id'], 'v123');
       expect(map['brand'], 'Audi');
       expect(map['license_plate'], 'KR 12345');
+      expect(map['purchase_price_pln'], 45000.0);
 
       final fromMap = Vehicle.fromMap(map, alerts: vehicle.alerts);
       expect(fromMap.id, vehicle.id);
       expect(fromMap.brand, vehicle.brand);
+      expect(fromMap.purchasePricePln, 45000.0);
       expect(fromMap.alerts.length, 1);
       expect(fromMap.alerts.first.severity, AlertSeverity.critical);
     });

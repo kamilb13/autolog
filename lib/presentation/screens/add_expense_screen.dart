@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/utils/formatters.dart';
 import '../../domain/models/expense.dart';
 import '../providers/app_providers.dart';
+import '../widgets/vehicle_selector.dart';
 
 class AddExpenseScreen extends ConsumerStatefulWidget {
   final String? initialVehicleId;
@@ -147,7 +148,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           children: [
-            // Vehicle Picker Dropdown
+            // Vehicle Selector
+            const Text(
+              'Pojazd',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
             vehiclesAsync.when(
               data: (vehicles) {
                 if (vehicles.isEmpty) {
@@ -156,28 +162,23 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
                 if (_selectedVehicleId == null && vehicles.isNotEmpty) {
                   _selectedVehicleId = vehicles.first.id;
-                  _mileageController.text = vehicles.first.mileageKm.toString();
+                  if (_mileageController.text.isEmpty) {
+                    _mileageController.text = vehicles.first.mileageKm.toString();
+                  }
+                } else if (_selectedVehicleId != null && _mileageController.text.isEmpty) {
+                  final v = vehicles.where((element) => element.id == _selectedVehicleId).firstOrNull;
+                  if (v != null) {
+                    _mileageController.text = v.mileageKm.toString();
+                  }
                 }
 
-                return DropdownButtonFormField<String>(
-                  initialValue: _selectedVehicleId,
-                  decoration: const InputDecoration(
-                    labelText: 'Pojazd *',
-                    prefixIcon: Icon(Icons.directions_car_rounded),
-                  ),
-                  items: vehicles.map((v) {
-                    return DropdownMenuItem(
-                      value: v.id,
-                      child: Text('${v.brand} ${v.model} (${v.licensePlate})'),
-                    );
-                  }).toList(),
-                  onChanged: (val) {
+                return VehicleSelector(
+                  vehicles: vehicles,
+                  selectedVehicleId: _selectedVehicleId,
+                  onSelected: (v) {
                     setState(() {
-                      _selectedVehicleId = val;
-                      final v = vehicles.where((element) => element.id == val).firstOrNull;
-                      if (v != null) {
-                        _mileageController.text = v.mileageKm.toString();
-                      }
+                      _selectedVehicleId = v.id;
+                      _mileageController.text = v.mileageKm.toString();
                     });
                   },
                 );
@@ -283,14 +284,28 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _mileageController,
-                    decoration: const InputDecoration(
-                      labelText: 'Przebieg *',
+                    decoration: InputDecoration(
+                      labelText: _selectedCategory == ExpenseCategory.fuel
+                          ? 'Stan licznika *'
+                          : 'Przebieg *',
                       suffixText: 'km',
-                      prefixIcon: Icon(Icons.speed_rounded),
+                      prefixIcon: const Icon(Icons.speed_rounded),
+                      helperText: _selectedCategory == ExpenseCategory.fuel
+                          ? 'Wymagany do statystyk'
+                          : null,
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => int.tryParse(v ?? '') == null ? 'Podaj przebieg' : null,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return _selectedCategory == ExpenseCategory.fuel
+                            ? 'Wymagany stan licznika'
+                            : 'Podaj przebieg';
+                      }
+                      final km = int.tryParse(v.trim());
+                      if (km == null || km < 0) return 'Nieprawidłowy przebieg';
+                      return null;
+                    },
                   ),
                 ),
               ],

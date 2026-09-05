@@ -183,10 +183,22 @@ class PdfReportService {
                           ),
                         ],
                       ),
+                      if (vehicle.purchasePricePln != null)
+                        pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text('Cena zakupu:', style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
+                            pw.SizedBox(height: 2),
+                            pw.Text(
+                              AppFormatters.currency(vehicle.purchasePricePln!),
+                              style: pw.TextStyle(fontSize: 10.5, fontWeight: pw.FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          pw.Text('Suma zarejestrowanych wydatków:', style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
+                          pw.Text('Suma wydatków:', style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
                           pw.SizedBox(height: 2),
                           pw.Text(
                             AppFormatters.currency(report.totalCostPln),
@@ -254,7 +266,7 @@ class PdfReportService {
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(6),
-                          child: pw.Text('${cat.percentage.toStringAsFixed(1)}%', style: const pw.TextStyle(fontSize: 9), textAlign: pw.TextAlign.right),
+                          child: pw.Text('${(cat.percentage * 100).toStringAsFixed(1)}%', style: const pw.TextStyle(fontSize: 9), textAlign: pw.TextAlign.right),
                         ),
                       ],
                     );

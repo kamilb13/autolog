@@ -70,35 +70,36 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
 - [x] Usunięcie nakładającego się znacznika wyboru (fistaszek/check) z ikon kategorii w filtrach (`showCheckmark: false`).
 - [x] Dodanie 5-sekundowego paska z opcją „COFNIJ” (Undo) przy usuwaniu przypomnienia w `RemindersScreen`.
 
+## 🛠️ Faza 10: Dopracowanie formularzy, ergonomia UX, selektory aut i cena zakupu
+- [x] **Poprawka formatowania udziału procentowego w raporcie PDF**:
+  - Poprawiono mnożnik `cat.percentage * 100` w tabeli `PdfReportService`, dzięki czemu wartości (np. `70.0%`) renderują się prawidłowo.
+- [x] **Eliminacja błędu overflow i intuicyjny kreator terminów (`AddReminderDialog`)**:
+  - Usunięto overflow 42px i zastąpiono dropdown nowym selektorem `VehicleSelector`.
+  - **Naprawiono błąd ujemnego przebiegu**: wpisanie np. `2 km` lub `10 000 km` w trybie „Za ile km od teraz” automatycznie dodaje tę wartość do aktualnego stanu licznika auta (np. $164\,250 + 10\,000 = 174\,250\text{ km}$) z podglądem na żywo.
+  - W trybie „Przy stanie licznika” dodano walidację uniemożliwiającą wpisanie wartości mniejszej niż bieżący licznik.
+  - **Uproszczono cykliczność**: zamiast niezrozumiałych pól tekstowych dodano przełącznik *„Powtarzaj cyklicznie”* z jasnym wyjaśnieniem i szybkimi chipami interwałów.
+  - **Poprawiono formater statusów**: wyeliminowano napisy typu *„Za -164248 km”* na rzecz czytelnego *„Przekroczono o X km”* lub *„Przeterminowane (X dni temu)”*.
+- [x] **Wymuszenie i ulepszenie walidacji stanu licznika przy tankowaniu (`AddExpenseScreen`)**:
+  - Wymóg podania aktualnego stanu licznika dla kategorii Paliwo wraz z czytelnym komunikatem pomocniczym.
+- [x] **Nowy selektor pojazdów w formularzu „Nowy wydatek” (`AddExpenseScreen`)**:
+  - Wdrożono `VehicleSelector` ze stylizowanymi kartami pojazdów i miniaturą tablicy rejestracyjnej.
+- [x] **Dynamiczne filtrowanie podpowiedzi marek i modeli (`AddVehicleScreen`)**:
+  - Natychmiastowe zawężanie chipów marek podczas wpisywania (np. "vol" $\to$ Volkswagen, Volvo) oraz automatyczne podpowiedzi popularnych modeli danej marki.
+- [x] **Precyzyjne komunikaty alertów w sekcji Terminy (`RemindersScreen`)**:
+  - Rozróżnienie przeterminowanych/krytycznych terminów od zbliżających się ostrzeżeń w nagłówku i kolorystyce.
+- [x] **Przebudowa kafelka przypomnienia (`ReminderCard`) i ergonomia usuwania**:
+  - Przeniesienie akcji usuwania do menu 3-kropek w prawym górnym rogu kafelka i wyśrodkowanie pełnowymiarowego przycisku „Oznacz jako wykonane”.
+- [x] **Obsługa ceny zakupu pojazdu (`purchase_price_pln`)**:
+  - Rozszerzono model `Vehicle`, migrację bazy SQLite do wersji 2, formularz dodawania/edycji auta, pulpit KPI pojazdu oraz raport PDF.
+
 ---
 
 ## 🔮 Zadania na przyszłość (Backlog / Rozwój)
+- [ ] **Skaner paragonów i faktur (OCR - On-Device)**:
+  - Wdrożenie prostego, 100% lokalnego skanera paragonów z użyciem ML Kit (`google_mlkit_text_recognition`).
+  - Przepływ: Zdjęcie paragonu $\to$ parsowanie tekstu (wyszukiwanie kwoty końcowej `PLN`, daty i nazwy stacji/warsztatu) $\to$ wstępne wypełnienie formularza „Nowy wydatek” do weryfikacji i akceptacji przez użytkownika (brak automatycznego zapisu w tle).
 - [ ] **Wielojęzyczność i słownik (i18n / l10n)**:
   - Wdrożenie systemu lokalizacji opartego o pliki słownikowe ARB (`app_pl.arb`, `app_en.arb`) lub moduł `intl`.
   - Obsługa języka **polskiego (PL)** oraz **angielskiego (EN)** z możliwością łatwego dodawania kolejnych języków.
   - Przełącznik języka w ustawieniach aplikacji z opcją wykrywania języka systemowego telefonu.
   - Dostosowanie formatowania walut i jednostek miary (PLN/EUR/USD, km/mi).
-- [ ] **Cena zakupu pojazdu (Purchase Price)**:
-  - Rozszerzenie modelu pojazdu (`Vehicle`), tabeli SQLite i formularzy o pole `purchase_price_pln`.
-  - Prezentacja ceny nabycia na pulpicie pojazdu oraz w statystykach.
-- [ ] **Poprawka formatowania udziału procentowego w raporcie PDF**:
-  - Przeliczenie ułamka udziału kategorii (`fraction * 100`) w tabeli PDF, aby `0.70` wyświetlało się jako `70.0%` zamiast `0.7%`.
-- [ ] **Uproszczenie etykiety alertów na karcie pojazdu w garażu**:
-  - Zmiana opisu alertu w `VehicleCard` na minimalistyczny zapis np. `2 alerty` / `2 aktywne alerty` (bez długiego rozwinięcia tytułu).
-- [ ] **Nowy selektor pojazdu w formularzu „Nowy wydatek” (`AddExpenseScreen`)**:
-  - Zastąpienie surowego dropdownu nowoczesnym selektorem kafelkowym / poziomą listą kart pojazdów ze stylizowaną polską tablicą rejestracyjną.
-- [ ] **Przebudowa kafelka przypomnienia (`ReminderCard`) i ergonomia usuwania**:
-  - Przeniesienie akcji usuwania do menu nagłówka (3-kropki lub ikona w prawym górnym rogu) bądź gest przesunięcia (swipe-to-delete), aby dolny pasek był czysty i zbalansowany z przyciskiem „Oznacz jako wykonane”.
-- [ ] **Dynamiczne filtrowanie podpowiedzi marek/modeli w `AddVehicleScreen`**:
-  - W trakcie wpisywania tekstu w polu Marka (np. "vol"), dolne kafelki podpowiedzi natychmiast filtrują się i pokazują tylko pasujące marki (np. Volkswagen, Volvo).
-- [ ] **Skaner paragonów i faktur (OCR - On-Device)**:
-  - Wdrożenie prostego, 100% lokalnego skanera paragonów z użyciem ML Kit (`google_mlkit_text_recognition`).
-  - Przepływ: Zdjęcie paragonu $\to$ parsowanie tekstu (wyszukiwanie kwoty końcowej `PLN`, daty i nazwy stacji/warsztatu) $\to$ wstępne wypełnienie formularza „Nowy wydatek” do weryfikacji i akceptacji przez użytkownika (brak automatycznego zapisu w tle).
-- [ ] **Poprawa komunikatów alertów w sekcji Terminy (`RemindersScreen`)**:
-  - Rozdzielenie alertów krytycznych (np. przeterminowane) od ostrzeżeń (zbliżające się za X km/dni) zamiast nazywania każdego ostrzeżenia „pilnym alertem”.
-- [ ] **Poprawa błędu overflow i selektora aut w „Nowy termin” (`AddReminderDialog`)**:
-  - Usunięcie błędu przepełnienia pikseli (`overflowed by 42px`) poprzez elastyczną wysokość modala i `SingleChildScrollView`.
-  - Nowoczesny, zgrabny selektor pojazdów zamiast surowego dropdownu rozjeżdżającego się na całą szerokość.
-- [ ] **Wymuszenie podania przebiegu przy wydatkach na paliwo (`AddExpenseScreen`)**:
-  - Dodanie bezwzględnej walidacji przebiegu dla kategorii Paliwo (wymóg podania aktualnego stanu licznika).
-  - Kluczowe dla precyzyjnego wyliczania kosztu 1 km (TCO) oraz aktualizacji interwałów przypomnień.

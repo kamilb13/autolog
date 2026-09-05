@@ -182,9 +182,9 @@ class VehicleCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          '${vehicle.alerts.length} ${vehicle.alerts.length == 1 ? 'alert' : 'alerty'}: ${vehicle.alerts.first.title}',
+                          '${vehicle.alerts.length} ${vehicle.alerts.length == 1 ? 'aktywny alert' : vehicle.alerts.length < 5 ? 'aktywne alerty' : 'aktywnych alertów'}',
                           style: TextStyle(
-                            fontSize: 11.5,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: vehicle.hasCriticalAlerts
                                 ? (isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828))

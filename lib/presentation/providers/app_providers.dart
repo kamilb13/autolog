@@ -191,7 +191,9 @@ class RemindersState {
     this.isLoading = false,
   });
 
-  int get urgentCount => reminders.where((r) => r.severity == AlertSeverity.critical || r.severity == AlertSeverity.warning).length;
+  int get criticalCount => reminders.where((r) => r.severity == AlertSeverity.critical).length;
+  int get warningCount => reminders.where((r) => r.severity == AlertSeverity.warning).length;
+  int get urgentCount => criticalCount + warningCount;
 
   RemindersState copyWith({
     List<ServiceReminder>? reminders,

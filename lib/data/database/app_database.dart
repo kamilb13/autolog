@@ -27,12 +27,21 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      try {
+        await db.execute('ALTER TABLE vehicles ADD COLUMN purchase_price_pln REAL');
+      } catch (_) {}
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -47,6 +56,7 @@ class AppDatabase {
         mileage_km INTEGER NOT NULL,
         fuel_type TEXT NOT NULL,
         vin TEXT,
+        purchase_price_pln REAL,
         created_at INTEGER
       )
     ''');
@@ -110,6 +120,7 @@ class AppDatabase {
       'mileage_km': 164250,
       'fuel_type': 'Diesel',
       'vin': 'WBA6L71080F123456',
+      'purchase_price_pln': 125000.0,
       'created_at': now,
     });
 
@@ -124,6 +135,7 @@ class AppDatabase {
       'mileage_km': 48120,
       'fuel_type': 'Hybryda',
       'vin': 'SB1ZE3BE60E654321',
+      'purchase_price_pln': 98000.0,
       'created_at': now,
     });
 

@@ -85,37 +85,38 @@ class AppFormatters {
     return null;
   }
 
-  /// Safe status label for reminder cards without "za null dni"
+  /// Safe status label for reminder cards with human friendly Polish phrasing
   static String reminderStatusLabel(ServiceReminder reminder) {
+    if (reminder.daysRemaining != null) {
+      final days = reminder.daysRemaining!;
+      if (days < 0) {
+        return 'Przeterminowane (${days.abs()} dni temu)';
+      } else if (days == 0) {
+        return 'Termin dzisiaj!';
+      } else if (days == 1) {
+        return 'Termin jutro!';
+      } else {
+        return 'Za $days dni';
+      }
+    }
+
+    if (reminder.kmRemaining != null) {
+      final km = reminder.kmRemaining!;
+      if (km < 0) {
+        return 'Przekroczono o ${mileage(km.abs())}';
+      } else if (km == 0) {
+        return 'Limit osiągnięty!';
+      } else {
+        return 'Za ${mileage(km)}';
+      }
+    }
+
     switch (reminder.severity) {
       case AlertSeverity.critical:
-        if (reminder.daysRemaining != null && reminder.daysRemaining! <= 0) {
-          return 'Wygasło!';
-        }
-        if (reminder.daysRemaining != null) {
-          return 'Za ${reminder.daysRemaining} dni';
-        }
-        if (reminder.kmRemaining != null) {
-          return 'Za ${_mileageFormat.format(reminder.kmRemaining)} km';
-        }
         return 'Pilne!';
-
       case AlertSeverity.warning:
-        if (reminder.kmRemaining != null) {
-          return 'Za ${_mileageFormat.format(reminder.kmRemaining)} km';
-        }
-        if (reminder.daysRemaining != null) {
-          return 'Za ${reminder.daysRemaining} dni';
-        }
         return 'Wkrótce';
-
       case AlertSeverity.info:
-        if (reminder.daysRemaining != null) {
-          return 'Za ${reminder.daysRemaining} dni';
-        }
-        if (reminder.kmRemaining != null) {
-          return 'Za ${_mileageFormat.format(reminder.kmRemaining)} km';
-        }
         return 'Zaplanowane';
     }
   }

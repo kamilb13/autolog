@@ -161,7 +161,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                     Divider(height: 1, color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06)),
                     const SizedBox(height: 14),
 
-                    // Mileage & Total Spent KPI
+                    // Mileage & Total Spent & Purchase Price KPI
                     Row(
                       children: [
                         Expanded(
@@ -181,7 +181,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.all(12),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                               decoration: BoxDecoration(
                                 color: theme.colorScheme.primaryContainer.withValues(alpha: isDark ? 0.25 : 0.35),
                                 borderRadius: BorderRadius.circular(12),
@@ -191,38 +191,40 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.speed_rounded, size: 14, color: theme.colorScheme.primary),
-                                      const SizedBox(width: 4),
+                                      Icon(Icons.speed_rounded, size: 13, color: theme.colorScheme.primary),
+                                      const SizedBox(width: 3),
                                       Text(
-                                        'STAN LICZNIKA',
+                                        'LICZNIK',
                                         style: TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 9.5,
                                           fontWeight: FontWeight.bold,
                                           color: theme.colorScheme.primary,
                                         ),
                                       ),
                                       const Spacer(),
-                                      Icon(Icons.edit_rounded, size: 13, color: theme.colorScheme.primary),
+                                      Icon(Icons.edit_rounded, size: 12, color: theme.colorScheme.primary),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     AppFormatters.mileage(vehicle.mileageKm),
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: vehicle.purchasePricePln != null ? 14 : 16,
                                       fontWeight: FontWeight.w900,
                                       color: theme.colorScheme.onSurface,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
                               borderRadius: BorderRadius.circular(12),
@@ -232,12 +234,12 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.receipt_long_rounded, size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
-                                    const SizedBox(width: 4),
+                                    Icon(Icons.receipt_long_rounded, size: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                                    const SizedBox(width: 3),
                                     Text(
-                                      'SUMA WYDATKÓW',
+                                      'WYDATKI',
                                       style: TextStyle(
-                                        fontSize: 10,
+                                        fontSize: 9.5,
                                         fontWeight: FontWeight.bold,
                                         color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                                       ),
@@ -248,15 +250,58 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                 Text(
                                   AppFormatters.shortCurrency(totalVehicleExpenses),
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: vehicle.purchasePricePln != null ? 14 : 16,
                                     fontWeight: FontWeight.w900,
                                     color: theme.colorScheme.onSurface,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
                           ),
                         ),
+                        if (vehicle.purchasePricePln != null) ...[
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.shopping_bag_outlined, size: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        'ZAKUP',
+                                        style: TextStyle(
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    AppFormatters.shortCurrency(vehicle.purchasePricePln!),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],

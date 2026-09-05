@@ -146,9 +146,15 @@ class VehicleRepository {
         .map((r) {
       String desc = r.description;
       if (r.daysRemaining != null && r.daysRemaining! <= 0) {
-        desc = 'Termin minął ${r.daysRemaining!.abs()} dni temu!';
+        desc = r.daysRemaining == 0
+            ? 'Termin upływa dzisiaj!'
+            : 'Termin minął ${r.daysRemaining!.abs()} dni temu!';
       } else if (r.daysRemaining != null) {
         desc = 'Wygasa za ${r.daysRemaining} dni (${r.dueDate ?? ''})';
+      } else if (r.kmRemaining != null && r.kmRemaining! <= 0) {
+        desc = r.kmRemaining == 0
+            ? 'Osiągnięto limit przebiegu (${r.dueMileageKm} km)'
+            : 'Przekroczono limit o ${r.kmRemaining!.abs()} km (limit: ${r.dueMileageKm} km)';
       } else if (r.kmRemaining != null) {
         desc = 'Pozostało ${r.kmRemaining} km do limitu (${r.dueMileageKm} km)';
       }
