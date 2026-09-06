@@ -47,7 +47,7 @@ class AutoLogApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      locale: settings.language.locale,
+      locale: settings.language.locale ?? const Locale('pl'),
       home: const MainNavigationScreen(),
     );
   }

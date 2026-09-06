@@ -319,18 +319,20 @@ class TimelineExpenseItem extends ConsumerWidget {
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Text(
-                                    ' • ',
-                                    style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
-                                  ),
-                                  Text(
-                                    AppFormatters.mileage(expense.mileageKm, unit: settings.distanceUnit.label),
-                                    style: TextStyle(
-                                      fontSize: 11.5,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                                      fontWeight: FontWeight.w500,
+                                  if (expense.mileageKm != null) ...[
+                                    Text(
+                                      ' • ',
+                                      style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
                                     ),
-                                  ),
+                                    Text(
+                                      AppFormatters.mileage(expense.mileageKm, unit: settings.distanceUnit.label),
+                                      style: TextStyle(
+                                        fontSize: 11.5,
+                                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                   const Spacer(),
                                   if (onDelete != null)
                                     IconButton(

@@ -28,9 +28,9 @@ enum AppLanguage {
   }
 
   static AppLanguage fromCode(String? code) {
-    if (code == 'pl') return AppLanguage.pl;
     if (code == 'en') return AppLanguage.en;
-    return AppLanguage.system;
+    if (code == 'system') return AppLanguage.system;
+    return AppLanguage.pl;
   }
 }
 
@@ -101,7 +101,7 @@ class AppSettings {
   final ThemeMode themeMode;
 
   const AppSettings({
-    this.language = AppLanguage.system,
+    this.language = AppLanguage.pl,
     this.currency = AppCurrency.pln,
     this.distanceUnit = DistanceUnit.km,
     this.themeMode = ThemeMode.system,

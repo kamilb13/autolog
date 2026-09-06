@@ -2,8 +2,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:autolog/data/database/app_database.dart';
+import 'package:autolog/data/repositories/expense_repository.dart';
 import 'package:autolog/data/repositories/vehicle_repository.dart';
 import 'package:autolog/data/services/google_drive_service.dart';
+import 'package:autolog/domain/models/expense.dart';
 import 'package:autolog/domain/models/vehicle.dart';
 
 void main() {
@@ -62,6 +64,27 @@ void main() {
       final result = await GoogleDriveService.instance.importFromRawJson(jsonBackup);
       expect(result.isSuccess, isTrue);
       expect(result.message, contains('Pomyślnie przywrócono bazę'));
+    });
+
+    test('Expenses with null mileage_km can be inserted and fetched', () async {
+      final db = AppDatabase.instance;
+      final exp = Expense(
+        id: 'test-null-mileage-exp',
+        vehicleId: 'test-sync-1',
+        category: ExpenseCategory.parts,
+        title: 'Zakup kosmetyków samochodowych',
+        amountPln: 79.99,
+        date: '2026-09-06',
+        mileageKm: null,
+      );
+
+      final expRepo = ExpenseRepository(db);
+      await expRepo.addExpense(exp);
+
+      final fetched = await expRepo.getExpenseById('test-null-mileage-exp');
+      expect(fetched, isNotNull);
+      expect(fetched!.mileageKm, isNull);
+      expect(fetched.title, equals('Zakup kosmetyków samochodowych'));
     });
   });
 }

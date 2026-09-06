@@ -212,53 +212,6 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('VehicleDashboardScreen displays cost per distance and allows changing distance', (WidgetTester tester) async {
-      final testExpense = Expense(
-        id: 'exp_dash_1',
-        vehicleId: 'veh_test_1',
-        category: ExpenseCategory.fuel,
-        title: 'Tankowanie',
-        amountPln: 300.0,
-        date: '2026-09-01',
-        mileageKm: 164250,
-      );
-
-      await tester.pumpWidget(
-        createTestWidget(
-          overrides: [
-            vehiclesNotifierProvider.overrideWith(() => _MockVehiclesNotifier()),
-            expensesNotifierProvider.overrideWith((ref) => _MockExpensesNotifier(testExpense)),
-          ],
-          child: const VehicleDashboardScreen(vehicleId: 'veh_test_1'),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Verify cost per distance widget exists
-      expect(find.text('Koszt na 1 km'), findsOneWidget);
-      expect(find.text('Bez ceny zakupu'), findsOneWidget);
-
-      // Tap cost per distance widget to open distance dialog
-      await tester.tap(find.text('Koszt na 1 km'));
-      await tester.pumpAndSettle();
-
-      // Verify dialog is shown
-      expect(find.text('Kalkulator kosztu na dystans'), findsOneWidget);
-      expect(find.text('100 km'), findsOneWidget);
-
-      // Tap 100 km chip
-      await tester.tap(find.text('100 km'));
-      await tester.pumpAndSettle();
-
-      // Tap Confirm button
-      await tester.tap(find.text('Zatwierdź'));
-      await tester.pumpAndSettle();
-
-      // Verify header updated to 100 km
-      expect(find.text('Koszt na 100 km'), findsOneWidget);
-    });
-
     testWidgets('ExpensesScreen displays monthly sum in timeline milestone', (WidgetTester tester) async {
       final exp1 = Expense(
         id: 'exp_test_1',

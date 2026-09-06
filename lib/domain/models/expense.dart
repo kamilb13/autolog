@@ -77,7 +77,7 @@ class Expense {
   final String title;
   final double amountPln;
   final String date; // format YYYY-MM-DD or DD.MM.YYYY
-  final int mileageKm;
+  final int? mileageKm;
   final String? workshopOrLocation;
   final String? note;
 
@@ -88,7 +88,7 @@ class Expense {
     required this.title,
     required this.amountPln,
     required this.date,
-    required this.mileageKm,
+    this.mileageKm,
     this.workshopOrLocation,
     this.note,
   });
@@ -101,6 +101,7 @@ class Expense {
     double? amountPln,
     String? date,
     int? mileageKm,
+    bool clearMileage = false,
     String? workshopOrLocation,
     String? note,
   }) {
@@ -111,7 +112,7 @@ class Expense {
       title: title ?? this.title,
       amountPln: amountPln ?? this.amountPln,
       date: date ?? this.date,
-      mileageKm: mileageKm ?? this.mileageKm,
+      mileageKm: clearMileage ? null : (mileageKm ?? this.mileageKm),
       workshopOrLocation: workshopOrLocation ?? this.workshopOrLocation,
       note: note ?? this.note,
     );
@@ -139,7 +140,9 @@ class Expense {
       title: map['title'] as String,
       amountPln: (map['amount_pln'] ?? map['amountPln'] as num).toDouble(),
       date: map['date'] as String,
-      mileageKm: (map['mileage_km'] ?? map['mileageKm'] as num).toInt(),
+      mileageKm: (map['mileage_km'] ?? map['mileageKm']) != null
+          ? ((map['mileage_km'] ?? map['mileageKm']) as num).toInt()
+          : null,
       workshopOrLocation: map['workshop_or_location'] ?? map['workshopOrLocation'] as String?,
       note: map['note'] as String?,
     );

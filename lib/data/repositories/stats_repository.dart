@@ -37,7 +37,7 @@ class StatsRepository {
     if (vehicleId != null && vehicleId.isNotEmpty) {
       final vehicle = vehicles.where((v) => v.id == vehicleId).firstOrNull;
       if (vehicle != null && vehicle.mileageKm > 0) {
-        final mileages = expenses.map((e) => e.mileageKm).where((km) => km > 0).toList();
+        final mileages = expenses.map((e) => e.mileageKm).whereType<int>().where((km) => km > 0).toList();
         if (mileages.isNotEmpty) {
           mileages.sort();
           final delta = mileages.last - mileages.first;
@@ -98,7 +98,11 @@ class StatsRepository {
     final stats = await getTcoStats(vehicleId);
 
     final sortedExpenses = List<Expense>.from(expenses)
-      ..sort((a, b) => b.mileageKm.compareTo(a.mileageKm));
+      ..sort((a, b) {
+        final dateCmp = b.date.compareTo(a.date);
+        if (dateCmp != 0) return dateCmp;
+        return (b.mileageKm ?? 0).compareTo(a.mileageKm ?? 0);
+      });
 
     final nowStr = AppFormatters.formatDate(DateTime.now());
 
@@ -120,7 +124,8 @@ class StatsRepository {
 
     for (final exp in sortedExpenses) {
       final dateStr = AppFormatters.formatDisplayDate(exp.date);
-      buffer.writeln('• $dateStr | ${AppFormatters.mileage(exp.mileageKm)}: ${exp.title}');
+      final mileageStr = exp.mileageKm != null ? ' | ${AppFormatters.mileage(exp.mileageKm)}' : '';
+      buffer.writeln('• $dateStr$mileageStr: ${exp.title}');
       buffer.writeln('  Kwota: ${AppFormatters.currency(exp.amountPln)} [${exp.category.displayName}]');
       if (exp.workshopOrLocation != null && exp.workshopOrLocation!.isNotEmpty) {
         buffer.writeln('  Miejsce/Warsztat: ${exp.workshopOrLocation}');

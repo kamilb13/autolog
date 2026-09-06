@@ -66,16 +66,16 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
   Future<void> updateMileage(String vehicleId, int newMileage) async {
     await ref.read(vehicleRepositoryProvider).updateMileage(vehicleId, newMileage);
     await refresh();
-    ref.read(remindersNotifierProvider.notifier).refresh();
-    ref.read(statsNotifierProvider.notifier).refresh();
+    await ref.read(remindersNotifierProvider.notifier).refresh();
+    await ref.read(statsNotifierProvider.notifier).refresh();
   }
 
   Future<void> deleteVehicle(String vehicleId) async {
     await ref.read(vehicleRepositoryProvider).deleteVehicle(vehicleId);
     await refresh();
-    ref.read(expensesNotifierProvider.notifier).refresh();
-    ref.read(remindersNotifierProvider.notifier).refresh();
-    ref.read(statsNotifierProvider.notifier).refresh();
+    await ref.read(expensesNotifierProvider.notifier).refresh();
+    await ref.read(remindersNotifierProvider.notifier).refresh();
+    await ref.read(statsNotifierProvider.notifier).refresh();
   }
 }
 
@@ -164,26 +164,26 @@ class ExpensesNotifier extends StateNotifier<ExpensesState> {
   Future<void> addExpense(Expense expense) async {
     await _repository.addExpense(expense);
     await loadExpenses();
-    _ref.read(vehiclesNotifierProvider.notifier).refresh();
-    _ref.read(remindersNotifierProvider.notifier).refresh();
-    _ref.read(statsNotifierProvider.notifier).refresh();
+    await _ref.read(vehiclesNotifierProvider.notifier).refresh();
+    await _ref.read(remindersNotifierProvider.notifier).refresh();
+    await _ref.read(statsNotifierProvider.notifier).refresh();
     _ref.invalidate(expenseSuggestionsProvider);
   }
 
   Future<void> updateExpense(Expense expense) async {
     await _repository.updateExpense(expense);
     await loadExpenses();
-    _ref.read(vehiclesNotifierProvider.notifier).refresh();
-    _ref.read(remindersNotifierProvider.notifier).refresh();
-    _ref.read(statsNotifierProvider.notifier).refresh();
+    await _ref.read(vehiclesNotifierProvider.notifier).refresh();
+    await _ref.read(remindersNotifierProvider.notifier).refresh();
+    await _ref.read(statsNotifierProvider.notifier).refresh();
     _ref.invalidate(expenseSuggestionsProvider);
   }
 
   Future<void> deleteExpense(String expenseId) async {
     await _repository.deleteExpense(expenseId);
     await loadExpenses();
-    _ref.read(statsNotifierProvider.notifier).refresh();
-    _ref.read(vehiclesNotifierProvider.notifier).refresh();
+    await _ref.read(statsNotifierProvider.notifier).refresh();
+    await _ref.read(vehiclesNotifierProvider.notifier).refresh();
     _ref.invalidate(expenseSuggestionsProvider);
   }
 

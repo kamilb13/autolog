@@ -305,11 +305,13 @@ class _BuyerReportDialogState extends State<BuyerReportDialog> {
                                     AppFormatters.formatDisplayDate(exp.date),
                                     style: TextStyle(fontSize: 11.5, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                                   ),
-                                  Text('•', style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withValues(alpha: 0.3))),
-                                  Text(
-                                    AppFormatters.mileage(exp.mileageKm),
-                                    style: TextStyle(fontSize: 11.5, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
-                                  ),
+                                  if (exp.mileageKm != null) ...[
+                                    Text('•', style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withValues(alpha: 0.3))),
+                                    Text(
+                                      AppFormatters.mileage(exp.mileageKm),
+                                      style: TextStyle(fontSize: 11.5, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                                    ),
+                                  ],
                                   if (exp.workshopOrLocation != null && exp.workshopOrLocation!.isNotEmpty) ...[
                                     Text('•', style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withValues(alpha: 0.3))),
                                     Text(

@@ -27,7 +27,7 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onConfigure: (db) async {
@@ -40,6 +40,33 @@ class AppDatabase {
     if (oldVersion < 2) {
       try {
         await db.execute('ALTER TABLE vehicles ADD COLUMN purchase_price_pln REAL');
+      } catch (_) {}
+    }
+    if (oldVersion < 3) {
+      try {
+        await db.execute('PRAGMA foreign_keys = OFF');
+        await db.execute('''
+          CREATE TABLE expenses_temp (
+            id TEXT PRIMARY KEY,
+            vehicle_id TEXT NOT NULL,
+            category TEXT NOT NULL,
+            title TEXT NOT NULL,
+            amount_pln REAL NOT NULL,
+            date TEXT NOT NULL,
+            mileage_km INTEGER,
+            workshop_or_location TEXT,
+            note TEXT,
+            created_at INTEGER,
+            FOREIGN KEY (vehicle_id) REFERENCES vehicles (id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute('''
+          INSERT INTO expenses_temp (id, vehicle_id, category, title, amount_pln, date, mileage_km, workshop_or_location, note, created_at)
+          SELECT id, vehicle_id, category, title, amount_pln, date, mileage_km, workshop_or_location, note, created_at FROM expenses
+        ''');
+        await db.execute('DROP TABLE expenses');
+        await db.execute('ALTER TABLE expenses_temp RENAME TO expenses');
+        await db.execute('PRAGMA foreign_keys = ON');
       } catch (_) {}
     }
   }
@@ -69,7 +96,7 @@ class AppDatabase {
         title TEXT NOT NULL,
         amount_pln REAL NOT NULL,
         date TEXT NOT NULL,
-        mileage_km INTEGER NOT NULL,
+        mileage_km INTEGER,
         workshop_or_location TEXT,
         note TEXT,
         created_at INTEGER,

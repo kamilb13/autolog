@@ -63,7 +63,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           : editExp.amountPln.toStringAsFixed(2);
       _dateController.text = editExp.date;
       _selectedDate = DateTime.tryParse(editExp.date) ?? DateTime.now();
-      _mileageController.text = editExp.mileageKm.toString();
+      _mileageController.text = editExp.mileageKm != null ? editExp.mileageKm.toString() : '';
       _locationController.text = editExp.workshopOrLocation ?? '';
       _noteController.text = editExp.note ?? '';
     } else {
@@ -111,6 +111,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         _selectedDate = picked;
         _dateController.text = AppFormatters.formatIsoDate(picked);
       });
+      _formKey.currentState?.validate();
     }
   }
 
@@ -252,7 +253,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
     try {
       final amount = double.parse(_amountController.text.trim().replaceAll(',', '.'));
-      final mileage = int.parse(_mileageController.text.trim());
+      final mileage = _mileageController.text.trim().isNotEmpty
+          ? int.tryParse(_mileageController.text.trim())
+          : null;
 
       if (widget.initialExpense != null) {
         final updatedExpense = widget.initialExpense!.copyWith(
@@ -262,6 +265,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           amountPln: amount,
           date: _dateController.text.trim(),
           mileageKm: mileage,
+          clearMileage: mileage == null,
           workshopOrLocation: _locationController.text.trim().isNotEmpty
               ? _locationController.text.trim()
               : null,
@@ -320,6 +324,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
+    final vehicles = vehiclesAsync.valueOrNull ?? [];
+    final selectedVehicle = vehicles.where((v) => v.id == _selectedVehicleId).firstOrNull;
     final learnedSuggestionsAsync = ref.watch(expenseSuggestionsProvider);
     final learnedSuggestions = learnedSuggestionsAsync.valueOrNull ?? [];
     final settings = ref.watch(settingsNotifierProvider);
@@ -463,14 +469,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
                 if (_selectedVehicleId == null && vehicles.isNotEmpty) {
                   _selectedVehicleId = vehicles.first.id;
-                  if (_mileageController.text.isEmpty) {
-                    _mileageController.text = vehicles.first.mileageKm.toString();
-                  }
-                } else if (_selectedVehicleId != null && _mileageController.text.isEmpty) {
-                  final v = vehicles.where((element) => element.id == _selectedVehicleId).firstOrNull;
-                  if (v != null) {
-                    _mileageController.text = v.mileageKm.toString();
-                  }
                 }
 
                 return VehicleSelector(
@@ -479,7 +477,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   onSelected: (v) {
                     setState(() {
                       _selectedVehicleId = v.id;
-                      _mileageController.text = v.mileageKm.toString();
                     });
                   },
                 );
@@ -669,25 +666,47 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   child: TextFormField(
                     controller: _mileageController,
                     decoration: InputDecoration(
-                      labelText: _selectedCategory == ExpenseCategory.fuel
-                          ? 'Stan licznika *'
-                          : 'Przebieg *',
+                      labelText: 'Przebieg (opcjonalnie)',
+                      hintText: selectedVehicle != null ? 'np. ${selectedVehicle.mileageKm}' : null,
                       suffixText: settings.distanceUnit.label,
                       prefixIcon: const Icon(Icons.speed_rounded),
-                      helperText: _selectedCategory == ExpenseCategory.fuel
-                          ? 'Wymagany do statystyk'
-                          : null,
+                      helperText: selectedVehicle != null
+                          ? () {
+                              final now = DateTime.now();
+                              final today = DateTime(now.year, now.month, now.day);
+                              final expenseDate = DateTime.tryParse(_dateController.text.trim()) ?? today;
+                              final expenseDateOnly = DateTime(expenseDate.year, expenseDate.month, expenseDate.day);
+                              final isHistorical = expenseDateOnly.isBefore(today);
+
+                              if (isHistorical) {
+                                return 'Wpis wsteczny (opcjonalny przebieg)';
+                              } else {
+                                return 'Aktualny licznik: ${AppFormatters.mileage(selectedVehicle.mileageKm, unit: settings.distanceUnit.label)}';
+                              }
+                            }()
+                          : 'Opcjonalnie',
+                      helperMaxLines: 2,
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
-                        return _selectedCategory == ExpenseCategory.fuel
-                            ? 'Wymagany stan licznika'
-                            : 'Podaj przebieg';
+                        return null; // Opcjonalne!
                       }
                       final km = int.tryParse(v.trim());
                       if (km == null || km < 0) return 'Nieprawidłowy przebieg';
+
+                      if (selectedVehicle != null) {
+                        final now = DateTime.now();
+                        final today = DateTime(now.year, now.month, now.day);
+                        final expenseDate = DateTime.tryParse(_dateController.text.trim()) ?? today;
+                        final expenseDateOnly = DateTime(expenseDate.year, expenseDate.month, expenseDate.day);
+                        final isHistorical = expenseDateOnly.isBefore(today);
+
+                        if (!isHistorical && km < selectedVehicle.mileageKm) {
+                          return 'Min. ${AppFormatters.mileage(selectedVehicle.mileageKm, unit: settings.distanceUnit.label)} (aktualny stan)';
+                        }
+                      }
                       return null;
                     },
                   ),

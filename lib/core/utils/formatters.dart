@@ -63,7 +63,8 @@ class AppFormatters {
     ).format(amount);
   }
 
-  static String mileage(int distance, {String unit = 'km'}) {
+  static String mileage(int? distance, {String unit = 'km'}) {
+    if (distance == null) return '—';
     return '${_mileageFormat.format(distance)} $unit';
   }
 

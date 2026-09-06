@@ -141,28 +141,6 @@ class StatsScreen extends ConsumerWidget {
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.speed_rounded, size: 15, color: theme.colorScheme.onPrimaryContainer),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      AppFormatters.costPerDistance(stats.costPerKmPln, currencyCode: settings.currency.code, unit: settings.distanceUnit.label),
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: theme.colorScheme.onPrimaryContainer,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
                                     Icon(Icons.receipt_long_rounded, size: 15, color: theme.colorScheme.onPrimaryContainer),
                                     const SizedBox(width: 4),
                                     Text(

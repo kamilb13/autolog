@@ -75,9 +75,9 @@ class ExpenseRepository {
         whereArgs: [expense.vehicleId],
       );
 
-      if (vehMap.isNotEmpty) {
+      if (vehMap.isNotEmpty && expense.mileageKm != null) {
         final currentKm = (vehMap.first['mileage_km'] as num).toInt();
-        if (expense.mileageKm > currentKm) {
+        if (expense.mileageKm! > currentKm) {
           await txn.update(
             'vehicles',
             {'mileage_km': expense.mileageKm},
@@ -107,9 +107,9 @@ class ExpenseRepository {
         whereArgs: [expense.vehicleId],
       );
 
-      if (vehMap.isNotEmpty) {
+      if (vehMap.isNotEmpty && expense.mileageKm != null) {
         final currentKm = (vehMap.first['mileage_km'] as num).toInt();
-        if (expense.mileageKm > currentKm) {
+        if (expense.mileageKm! > currentKm) {
           await txn.update(
             'vehicles',
             {'mileage_km': expense.mileageKm},
