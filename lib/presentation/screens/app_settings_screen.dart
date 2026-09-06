@@ -32,16 +32,16 @@ class AppSettingsScreen extends ConsumerWidget {
             isDark,
             child: Column(
               children: [
-                _buildRadioTile<AppLanguage>(
-                  title: l10n?.settingsLanguageSystem ?? 'Domyślny systemowy',
-                  subtitle: l10n?.settingsLanguageSystemSubtitle ?? 'Automatyczne dopasowanie do telefonu',
-                  value: AppLanguage.system,
-                  groupValue: settings.language,
-                  onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setLanguage(val);
-                  },
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
+                // _buildRadioTile<AppLanguage>(
+                //   title: l10n?.settingsLanguageSystem ?? 'Domyślny systemowy',
+                //   subtitle: l10n?.settingsLanguageSystemSubtitle ?? 'Automatyczne dopasowanie do telefonu',
+                //   value: AppLanguage.system,
+                //   groupValue: settings.language,
+                //   onChanged: (val) {
+                //     if (val != null) ref.read(settingsNotifierProvider.notifier).setLanguage(val);
+                //   },
+                // ),
+                // const Divider(height: 1, indent: 16, endIndent: 16),
                 _buildRadioTile<AppLanguage>(
                   title: l10n?.settingsLanguagePl ?? 'Polski (PL)',
                   subtitle: l10n?.settingsLanguagePlSubtitle ?? 'Język polski',
@@ -51,16 +51,16 @@ class AppSettingsScreen extends ConsumerWidget {
                     if (val != null) ref.read(settingsNotifierProvider.notifier).setLanguage(val);
                   },
                 ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                _buildRadioTile<AppLanguage>(
-                  title: l10n?.settingsLanguageEn ?? 'English (EN)',
-                  subtitle: l10n?.settingsLanguageEnSubtitle ?? 'Język angielski',
-                  value: AppLanguage.en,
-                  groupValue: settings.language,
-                  onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setLanguage(val);
-                  },
-                ),
+                // const Divider(height: 1, indent: 16, endIndent: 16),
+                // _buildRadioTile<AppLanguage>(
+                //   title: l10n?.settingsLanguageEn ?? 'English (EN)',
+                //   subtitle: l10n?.settingsLanguageEnSubtitle ?? 'Język angielski',
+                //   value: AppLanguage.en,
+                //   groupValue: settings.language,
+                //   onChanged: (val) {
+                //     if (val != null) ref.read(settingsNotifierProvider.notifier).setLanguage(val);
+                //   },
+                // ),
               ],
             ),
           ),
@@ -81,24 +81,24 @@ class AppSettingsScreen extends ConsumerWidget {
                     if (val != null) ref.read(settingsNotifierProvider.notifier).setCurrency(val);
                   },
                 ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                _buildRadioTile<AppCurrency>(
-                  title: l10n?.settingsCurrencyEur ?? 'Euro (EUR / €)',
-                  value: AppCurrency.eur,
-                  groupValue: settings.currency,
-                  onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setCurrency(val);
-                  },
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                _buildRadioTile<AppCurrency>(
-                  title: l10n?.settingsCurrencyUsd ?? 'Dolar amerykański (USD / \$)',
-                  value: AppCurrency.usd,
-                  groupValue: settings.currency,
-                  onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setCurrency(val);
-                  },
-                ),
+                // const Divider(height: 1, indent: 16, endIndent: 16),
+                // _buildRadioTile<AppCurrency>(
+                //   title: l10n?.settingsCurrencyEur ?? 'Euro (EUR / €)',
+                //   value: AppCurrency.eur,
+                //   groupValue: settings.currency,
+                //   onChanged: (val) {
+                //     if (val != null) ref.read(settingsNotifierProvider.notifier).setCurrency(val);
+                //   },
+                // ),
+                // const Divider(height: 1, indent: 16, endIndent: 16),
+                // _buildRadioTile<AppCurrency>(
+                //   title: l10n?.settingsCurrencyUsd ?? 'Dolar amerykański (USD / \$)',
+                //   value: AppCurrency.usd,
+                //   groupValue: settings.currency,
+                //   onChanged: (val) {
+                //     if (val != null) ref.read(settingsNotifierProvider.notifier).setCurrency(val);
+                //   },
+                // ),
               ],
             ),
           ),
@@ -119,15 +119,15 @@ class AppSettingsScreen extends ConsumerWidget {
                     if (val != null) ref.read(settingsNotifierProvider.notifier).setDistanceUnit(val);
                   },
                 ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                _buildRadioTile<DistanceUnit>(
-                  title: l10n?.settingsUnitMi ?? 'Mile (mi)',
-                  value: DistanceUnit.mi,
-                  groupValue: settings.distanceUnit,
-                  onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setDistanceUnit(val);
-                  },
-                ),
+                // const Divider(height: 1, indent: 16, endIndent: 16),
+                // _buildRadioTile<DistanceUnit>(
+                //   title: l10n?.settingsUnitMi ?? 'Mile (mi)',
+                //   value: DistanceUnit.mi,
+                //   groupValue: settings.distanceUnit,
+                //   onChanged: (val) {
+                //     if (val != null) ref.read(settingsNotifierProvider.notifier).setDistanceUnit(val);
+                //   },
+                // ),
               ],
             ),
           ),

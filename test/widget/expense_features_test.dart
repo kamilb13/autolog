@@ -146,7 +146,7 @@ void main() {
       expect(find.text('Skopiowano numer VIN: WBA3A5C55FP123456'), findsOneWidget);
     });
 
-    testWidgets('AppSettingsScreen allows switching language, currency, and distance unit', (WidgetTester tester) async {
+    testWidgets('AppSettingsScreen displays language, currency, and distance unit sections', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
           child: const AppSettingsScreen(),
@@ -160,23 +160,9 @@ void main() {
       expect(find.text('Język aplikacji'), findsOneWidget);
       expect(find.text('Waluta'), findsOneWidget);
       expect(find.text('Jednostka odległości'), findsOneWidget);
-      expect(find.text('English (EN)'), findsOneWidget);
-      expect(find.text('Euro (EUR / €)'), findsOneWidget);
-      expect(find.text('Mile (mi)'), findsOneWidget);
-
-      // Tap English language radio tile
-      await tester.tap(find.text('English (EN)'));
-      await tester.pumpAndSettle();
-
-      // Tap Euro currency
-      await tester.tap(find.text('Euro (EUR / €)'));
-      await tester.pumpAndSettle();
-
-      // Tap Miles unit
-      await tester.ensureVisible(find.text('Mile (mi)'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Mile (mi)'));
-      await tester.pumpAndSettle();
+      expect(find.text('Polski (PL)'), findsOneWidget);
+      expect(find.text('Polski Złoty (PLN / zł)'), findsOneWidget);
+      expect(find.text('Kilometry (km)'), findsOneWidget);
     });
     testWidgets('AddExpenseScreen in edit mode preloads data and saves changes', (WidgetTester tester) async {
       final existingExpense = Expense(

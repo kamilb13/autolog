@@ -125,8 +125,6 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
   - Wstępne wypełnienie formularza „Nowy wydatek” (`AddExpenseScreen`) z zielonym banerem weryfikacji danych do edycji i akceptacji przez użytkownika (brak automatycznego zapisu w tle).
   - Pełne testy jednostkowe parsera paragonów (`test/unit/receipt_parser_test.dart`) dla stacji Orlen, Shell, warsztatów, myjni i sklepów motoryzacyjnych.
 
----
-
 ## ✏️ Faza 14: Edycja wydatków i kalkulator kosztu na dystans
 - [x] **Możliwość edycji istniejących wydatków**:
   - Kliknięcie w dowolną pozycję na osi czasu (`ExpensesScreen` oraz `VehicleDashboardScreen`) otwiera formularz w trybie edycji (`AddExpenseScreen` z predefiniowanymi danymi).
@@ -134,6 +132,29 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
 - [x] **Kompaktowy kalkulator kosztu na dystans w Pulpicie Pojazdu (`VehicleDashboardScreen`)**:
   - Mały, elegancki i prosty widżet w karcie pojazdu wyliczający koszt eksploatacji pojazdu na 1 km (lub mi) z wyłączeniem ceny zakupu auta.
   - Szybka edycja dystansu (szybkie chipy 1 km, 10 km, 100 km, 1 000 km lub wpisanie dowolnej wartości) z natychmiastowym przeliczeniem w wybranej walucie (PLN/EUR/USD).
+
+---
+
+## 🌐 Faza 15: Kompleksowa architektura i18n/l10n i pełna lokalizacja treści (Backlog)
+- [ ] **Kompleksowa refaktoryzacja i18n / l10n**:
+  - **Dynamiczne podpowiedzi i słowniki (`ExpenseSuggestionsService`)**:
+    - Rozdzielenie predefiniowanych podpowiedzi wydatków na bazy językowe (PL: *"Wycieraczki szyb"*, *"Wymiana oleju"*; EN: *"Windshield wipers"*, *"Engine oil change"*).
+    - Rozszerzenie algorytmu autokategoryzacji o wielojęzyczne słowa kluczowe (PL + EN).
+  - **Prezentacja modeli domenowych i typów paliwa**:
+    - Usunięcie sztywnych napisów z modeli (np. `ExpenseCategory.displayName` na rzecz `category.getLocalizedName(l10n)`).
+    - Mapowanie rodzajów paliwa (`Benzyna` $\to$ *Gasoline*, `Diesel` $\to$ *Diesel*, itd.) we wszystkich kartach pojazdów i formularzach.
+  - **Formatowanie statusów i alertów (`AppFormatters`)**:
+    - Przekazywanie kontekstu/`AppLocalizations` do formatowania statusów przypomnień (*"Za 5 dni"* / *"In 5 days"*, *"Przekroczono o 200 km"* / *"Exceeded by 200 km"*).
+  - **Pełne audytowanie i wyczyszczenie hardcoded strings w UI**:
+    - `GarageScreen`: "Rocznik: {year}", odznaki alertów floty, stany puste.
+    - `RemindersScreen`: chipy filtrów (*"Wszystkie"*, *"Krytyczne"*, *"Ostrzeżenia"*), nagłówki list.
+    - `StatsScreen`: *"Podział kosztów według kategorii"*, sekcje wykresów, legenda.
+    - `VehicleDashboardScreen`: *"Alerty i terminy"*, *"Oś czasu zdarzeń"*, stany puste, chipy VIN.
+    - `BuyerReport`: pełna lokalizacja generatora raportu tekstowego i dokumentu PDF.
+  - **Jednostki miary i waluty**:
+    - Konwersja prezentacji przebiegu (km $\leftrightarrow$ mi) oraz formatowanie kosztów.
+  - **Przywrócenie przełączników w Ustawieniach**:
+    - Ponowne aktywowanie przełącznika języka (PL / EN / System) oraz walut/jednostek po zakończeniu 100% lokalizacji wszystkich warstw aplikacji.
 
 
 
