@@ -182,10 +182,10 @@ class AppSettingsScreen extends ConsumerWidget {
             child: ListTile(
               leading: Icon(Icons.cloud_sync_rounded, color: theme.colorScheme.primary),
               title: Text(
-                l10n?.settingsBackupDialogBtn ?? 'Zarządzaj kopią zapasową (JSON)',
+                l10n?.settingsBackupDialogBtn ?? 'Zarządzaj kopią zapasową',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              subtitle: Text(l10n?.settingsBackupSubtitle ?? 'Eksportuj lub importuj bazę danych w formacie JSON'),
+              subtitle: Text(l10n?.settingsBackupSubtitle ?? 'Eksportuj lub importuj bazę danych (JSON)'),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () {
                 showDialog(

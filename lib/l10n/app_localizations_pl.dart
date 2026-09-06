@@ -146,11 +146,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsBackupSection => 'Kopia zapasowa i dane';
 
   @override
-  String get settingsBackupDialogBtn => 'Zarządzaj kopią zapasową (JSON)';
+  String get settingsBackupDialogBtn => 'Zarządzaj kopią zapasową';
 
   @override
   String get settingsBackupSubtitle =>
-      'Eksportuj lub importuj bazę danych w formacie JSON';
+      'Eksportuj lub importuj bazę danych (JSON)';
 
   @override
   String get settingsAboutSection => 'O aplikacji';

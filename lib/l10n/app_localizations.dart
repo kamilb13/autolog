@@ -371,13 +371,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupDialogBtn.
   ///
   /// In pl, this message translates to:
-  /// **'Zarządzaj kopią zapasową (JSON)'**
+  /// **'Zarządzaj kopią zapasową'**
   String get settingsBackupDialogBtn;
 
   /// No description provided for @settingsBackupSubtitle.
   ///
   /// In pl, this message translates to:
-  /// **'Eksportuj lub importuj bazę danych w formacie JSON'**
+  /// **'Eksportuj lub importuj bazę danych (JSON)'**
   String get settingsBackupSubtitle;
 
   /// No description provided for @settingsAboutSection.
