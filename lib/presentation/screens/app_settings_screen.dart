@@ -235,7 +235,7 @@ class AppSettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    l10n?.settingsAppDesc ?? '100% lokalny, bezpieczny dziennik serwisowy i kosztów pojazdów.',
+                    l10n?.settingsAppDesc ?? 'Lokalny, dziennik serwisowy i kosztów pojazdów.',
                     style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
                   ),
                 ],

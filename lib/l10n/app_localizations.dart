@@ -395,7 +395,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppDesc.
   ///
   /// In pl, this message translates to:
-  /// **'100% lokalny, bezpieczny dziennik serwisowy i kosztów pojazdów.'**
+  /// **'Lokalny, dziennik serwisowy i kosztów pojazdów.'**
   String get settingsAppDesc;
 
   /// No description provided for @garageTitle.

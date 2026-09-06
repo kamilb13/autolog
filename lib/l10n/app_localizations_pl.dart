@@ -160,7 +160,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsAppDesc =>
-      '100% lokalny, bezpieczny dziennik serwisowy i kosztów pojazdów.';
+      'Lokalny, dziennik serwisowy i kosztów pojazdów.';
 
   @override
   String get garageTitle => 'Garaż';
