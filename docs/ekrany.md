@@ -25,6 +25,7 @@ Aplikacja posiada 5 głównych modułów w dolnej nawigacji (`BottomNavigationBa
 * Filtry horyzontalne według pojazdu i kategorii.
 * Usuwanie wpisów z osi czasu z 5-sekundowym paskiem **„COFNIJ” (Undo)**.
 * Formularz **Nowy wydatek (`AddExpenseScreen`)**:
+  * **Skaner paragonów i faktur (OCR)**: Przycisk aparatu w pasku i baner w formularzu z wyborem aparatu lub galerii. Rozpoznaje kwotę, datę, nazwę stacji i kategorię bezpośrednio na urządzeniu (On-Device ML Kit) i wstępnie uzupełnia pola.
   * Inteligentne podpowiedzi (autocomplete) podczas wpisywania tytułu (np. "Wycier" $\to$ "Wycieraczki szyb").
   * Automatyczne dopasowanie kategorii (np. wybór "Wycieraczki szyb" $\to$ kategoria *Części i eksploatacja*).
   * Predefiniowana baza pozycji oraz dynamiczne uczenie się z historii wpisów użytkownika.

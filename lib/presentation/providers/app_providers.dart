@@ -7,6 +7,7 @@ import '../../data/repositories/settings_repository.dart';
 import '../../data/repositories/stats_repository.dart';
 import '../../data/repositories/vehicle_repository.dart';
 import '../../data/services/google_drive_service.dart';
+import '../../data/services/receipt_ocr_service.dart';
 import '../../domain/models/app_settings.dart';
 import '../../domain/models/buyer_report.dart';
 import '../../domain/models/expense.dart';
@@ -34,6 +35,10 @@ final statsRepositoryProvider = Provider<StatsRepository>((ref) {
 
 final googleDriveServiceProvider = Provider<GoogleDriveService>((ref) {
   return GoogleDriveService.instance;
+});
+
+final receiptOcrServiceProvider = Provider<ReceiptOcrService>((ref) {
+  return ReceiptOcrService();
 });
 
 // --- Vehicles Notifier & State --- //

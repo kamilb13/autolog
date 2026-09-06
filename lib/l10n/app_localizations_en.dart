@@ -627,4 +627,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fuelTypeElectric => 'Electric';
+
+  @override
+  String get ocrScanReceipt => 'Scan receipt / invoice';
+
+  @override
+  String get ocrScanReceiptTooltip => 'Scan receipt or invoice using camera';
+
+  @override
+  String get ocrSourceCamera => 'Take photo with camera';
+
+  @override
+  String get ocrSourceGallery => 'Choose from gallery';
+
+  @override
+  String get ocrScanning => 'Recognizing receipt text...';
+
+  @override
+  String get ocrSuccessBanner =>
+      'Extracted receipt data. Please verify and confirm.';
+
+  @override
+  String get ocrNoDataFound =>
+      'Could not detect amount or date from this image.';
 }

@@ -637,4 +637,27 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get fuelTypeElectric => 'Elektryczny';
+
+  @override
+  String get ocrScanReceipt => 'Zeskanuj paragon / fakturę';
+
+  @override
+  String get ocrScanReceiptTooltip => 'Zeskanuj paragon lub fakturę aparatem';
+
+  @override
+  String get ocrSourceCamera => 'Zrób zdjęcie aparatem';
+
+  @override
+  String get ocrSourceGallery => 'Wybierz z galerii';
+
+  @override
+  String get ocrScanning => 'Rozpoznawanie tekstu z paragonu...';
+
+  @override
+  String get ocrSuccessBanner =>
+      'Odczytano dane z paragonu. Zweryfikuj i zatwierdź.';
+
+  @override
+  String get ocrNoDataFound =>
+      'Nie udało się odczytać kwoty ani daty ze zdjęcia.';
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/services/expense_suggestions_service.dart';
+import '../../data/services/receipt_ocr_service.dart';
 import '../../domain/models/expense.dart';
 import '../../domain/models/expense_suggestion.dart';
 import 'package:autolog/l10n/app_localizations.dart';
@@ -40,6 +42,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
+  bool _isScanningReceipt = false;
+  ParsedReceiptData? _lastScanResult;
 
   @override
   void initState() {
@@ -87,6 +91,130 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         _selectedDate = picked;
         _dateController.text = AppFormatters.formatIsoDate(picked);
       });
+    }
+  }
+
+  Future<void> _showOcrPickerSheet() async {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.document_scanner_rounded, color: theme.colorScheme.primary, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      l10n?.ocrScanReceipt ?? 'Zeskanuj paragon / fakturę',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt_rounded),
+                  title: Text(l10n?.ocrSourceCamera ?? 'Zrób zdjęcie aparatem'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _processReceiptOcr(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library_rounded),
+                  title: Text(l10n?.ocrSourceGallery ?? 'Wybierz z galerii'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _processReceiptOcr(ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _processReceiptOcr(ImageSource source) async {
+    final l10n = AppLocalizations.of(context);
+    setState(() => _isScanningReceipt = true);
+
+    try {
+      final ocrService = ref.read(receiptOcrServiceProvider);
+      final result = await ocrService.pickAndScan(source: source);
+
+      if (!mounted) return;
+
+      if (result != null && result.hasAnyData) {
+        setState(() {
+          _lastScanResult = result;
+
+          if (result.amount != null) {
+            _amountController.text = (result.amount! % 1 == 0
+                ? result.amount!.toInt().toString()
+                : result.amount!.toStringAsFixed(2));
+          }
+
+          if (result.date != null) {
+            _selectedDate = result.date!;
+            _dateController.text = AppFormatters.formatIsoDate(result.date!);
+          }
+
+          if (result.location != null && result.location!.isNotEmpty) {
+            _locationController.text = result.location!;
+          }
+
+          if (result.suggestedTitle != null && result.suggestedTitle!.isNotEmpty) {
+            _titleController.text = result.suggestedTitle!;
+          }
+
+          _selectedCategory = result.suggestedCategory;
+          _userManuallyChangedCategory = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n?.ocrSuccessBanner ?? 'Odczytano dane z paragonu. Zweryfikuj i zatwierdź.'),
+            backgroundColor: Colors.green.shade700,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      } else if (result != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n?.ocrNoDataFound ?? 'Nie udało się odczytać kwoty ani daty ze zdjęcia.'),
+            backgroundColor: Colors.orange.shade800,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd skanera: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isScanningReceipt = false);
     }
   }
 
@@ -148,6 +276,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final learnedSuggestions = learnedSuggestionsAsync.valueOrNull ?? [];
     final settings = ref.watch(settingsNotifierProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context);
 
     final query = _titleController.text.trim();
@@ -161,12 +290,112 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n?.addExpenseTitle ?? 'Nowy Wydatek', style: const TextStyle(fontWeight: FontWeight.bold)),
+        actions: [
+          IconButton(
+            icon: _isScanningReceipt
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.document_scanner_rounded),
+            tooltip: l10n?.ocrScanReceiptTooltip ?? 'Zeskanuj paragon lub fakturę aparatem',
+            onPressed: _isScanningReceipt ? null : _showOcrPickerSheet,
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           children: [
+            // OCR Scan Prompt Banner Card
+            Container(
+              margin: const EdgeInsets.only(bottom: 14),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? theme.colorScheme.primaryContainer.withValues(alpha: 0.35)
+                    : theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.25),
+                ),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: _isScanningReceipt ? null : _showOcrPickerSheet,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.document_scanner_rounded, color: Colors.white, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n?.ocrScanReceipt ?? 'Zeskanuj paragon / fakturę',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (_isScanningReceipt)
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else
+                          const Icon(Icons.chevron_right_rounded, size: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // OCR Extraction Result Banner
+            if (_lastScanResult != null) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade500.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        l10n?.ocrSuccessBanner ?? 'Odczytano dane z paragonu. Zweryfikuj i zatwierdź.',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.green),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => setState(() => _lastScanResult = null),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             // Vehicle Selector
             const Text(
               'Pojazd',
@@ -250,8 +479,20 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     child: FilterChip(
                       selected: isSelected,
                       showCheckmark: false,
-                      avatar: Icon(cat.icon, size: 16, color: isSelected ? null : cat.color),
-                      label: Text(cat.displayName),
+                      avatar: Icon(
+                        cat.icon,
+                        size: 16,
+                        color: isSelected ? Colors.white : cat.color,
+                      ),
+                      label: Text(
+                        cat.displayName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? Colors.white : null,
+                        ),
+                      ),
+                      selectedColor: cat.color,
                       onSelected: (selected) {
                         if (selected) {
                           setState(() {
@@ -271,132 +512,84 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             TextFormField(
               controller: _amountController,
               decoration: InputDecoration(
-                labelText: l10n?.addExpenseAmount != null ? '${l10n?.addExpenseAmount} *' : 'Kwota *',
-                hintText: 'np. 350.00',
-                suffixText: settings.currency.symbol,
-                prefixIcon: const Icon(Icons.payments_rounded),
+                labelText: 'Kwota *',
+                hintText: '0.00',
+                prefixIcon: const Icon(Icons.payments_outlined),
+                suffixText: settings.currency.code,
               ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d{0,2}')),
+              ],
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return l10n?.addExpenseInvalidAmount ?? 'Podaj kwotę';
-                final n = double.tryParse(v.trim().replaceAll(',', '.'));
-                if (n == null || n <= 0) return l10n?.addExpenseInvalidAmount ?? 'Nieprawidłowa kwota';
+                if (v == null || v.trim().isEmpty) return 'Podaj kwotę';
+                final normalized = v.replaceAll(',', '.');
+                final num = double.tryParse(normalized);
+                if (num == null || num <= 0) return 'Wprowadź prawidłową kwotę większą od zera';
                 return null;
               },
             ),
             const SizedBox(height: 14),
 
-            // Title & Suggestions
+            // Title / Description Field (with Auto-categorization listener)
             TextFormField(
               controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Tytuł / Nazwa wpisu *',
-                hintText: 'np. Tankowanie Pb95, Wycieraczki szyb, Wymiana oleju',
-                prefixIcon: const Icon(Icons.edit_note_rounded),
-                suffixIcon: query.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear_rounded, size: 20),
-                        tooltip: 'Wyczyść pole',
-                        onPressed: () {
-                          _titleController.clear();
-                          setState(() {
-                            _userManuallyChangedCategory = false;
-                          });
-                        },
-                      )
-                    : null,
+              decoration: const InputDecoration(
+                labelText: 'Tytuł / Usługa *',
+                hintText: 'np. Tankowanie, Wymiana oleju, Wycieraczki...',
+                prefixIcon: Icon(Icons.edit_note_rounded),
               ),
               textCapitalization: TextCapitalization.sentences,
               onChanged: (text) {
                 if (!_userManuallyChangedCategory) {
-                  final inferred = ExpenseSuggestionsService.inferCategory(
-                    text,
-                    customSuggestions: learnedSuggestions,
-                  );
-                  if (inferred != null && inferred != _selectedCategory) {
-                    setState(() {
-                      _selectedCategory = inferred;
-                    });
+                  final detectedCat = ExpenseSuggestionsService.inferCategory(text);
+                  if (detectedCat != null && detectedCat != _selectedCategory) {
+                    setState(() => _selectedCategory = detectedCat);
                   }
                 }
               },
               validator: (v) => v == null || v.trim().isEmpty ? 'Podaj tytuł wydatku' : null,
             ),
-            const SizedBox(height: 8),
 
-            // Suggestion Chips / Autocomplete Options
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  query.isEmpty
-                      ? 'Popularne w kategorii (${suggestions.length}):'
-                      : 'Podpowiedzi (${suggestions.length}):',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                if (query.isNotEmpty)
-                  Text(
-                    'Wybór ustawi kategorię',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      color: theme.colorScheme.primary,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            if (suggestions.isEmpty)
+            // Autocomplete / Suggestions chips bar
+            if (suggestions.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text(
-                  'Brak pasujących podpowiedzi. Nowy wpis zostanie zapamiętany w historii.',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: Colors.grey.shade600,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              )
-            else
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: suggestions.map((sug) {
-                    final isDifferentCategory = sug.category != _selectedCategory;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: ActionChip(
-                        avatar: Icon(
-                          sug.category.icon,
-                          size: 14.5,
-                          color: sug.category.color,
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.auto_awesome, size: 14, color: theme.colorScheme.primary),
+                        const SizedBox(width: 4),
+                        Text(
+                          query.isEmpty ? 'Popularne wpisy:' : 'Podpowiedzi:',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.primary,
+                          ),
                         ),
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(sug.title, style: const TextStyle(fontSize: 12)),
-                            if (sug.isCustom) ...[
-                              const SizedBox(width: 4),
-                              Icon(Icons.history_rounded, size: 12, color: Colors.grey.shade600),
-                            ],
-                          ],
-                        ),
-                        backgroundColor: isDifferentCategory
-                            ? sug.category.color.withValues(alpha: 0.08)
-                            : null,
-                        side: isDifferentCategory
-                            ? BorderSide(color: sug.category.color.withValues(alpha: 0.35))
-                            : null,
-                        tooltip: 'Kategoria: ${sug.category.displayName}${sug.isCustom ? ' (z Twojej historii)' : ''}',
-                        onPressed: () => _applySuggestion(sug),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: suggestions.map((sug) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: ActionChip(
+                              avatar: Icon(sug.category.icon, size: 14, color: sug.category.color),
+                              label: Text(sug.title, style: const TextStyle(fontSize: 12)),
+                              onPressed: () => _applySuggestion(sug),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ],
                 ),
               ),
             const SizedBox(height: 14),

@@ -1205,6 +1205,48 @@ abstract class AppLocalizations {
   /// In pl, this message translates to:
   /// **'Elektryczny'**
   String get fuelTypeElectric;
+
+  /// No description provided for @ocrScanReceipt.
+  ///
+  /// In pl, this message translates to:
+  /// **'Zeskanuj paragon / fakturę'**
+  String get ocrScanReceipt;
+
+  /// No description provided for @ocrScanReceiptTooltip.
+  ///
+  /// In pl, this message translates to:
+  /// **'Zeskanuj paragon lub fakturę aparatem'**
+  String get ocrScanReceiptTooltip;
+
+  /// No description provided for @ocrSourceCamera.
+  ///
+  /// In pl, this message translates to:
+  /// **'Zrób zdjęcie aparatem'**
+  String get ocrSourceCamera;
+
+  /// No description provided for @ocrSourceGallery.
+  ///
+  /// In pl, this message translates to:
+  /// **'Wybierz z galerii'**
+  String get ocrSourceGallery;
+
+  /// No description provided for @ocrScanning.
+  ///
+  /// In pl, this message translates to:
+  /// **'Rozpoznawanie tekstu z paragonu...'**
+  String get ocrScanning;
+
+  /// No description provided for @ocrSuccessBanner.
+  ///
+  /// In pl, this message translates to:
+  /// **'Odczytano dane z paragonu. Zweryfikuj i zatwierdź.'**
+  String get ocrSuccessBanner;
+
+  /// No description provided for @ocrNoDataFound.
+  ///
+  /// In pl, this message translates to:
+  /// **'Nie udało się odczytać kwoty ani daty ze zdjęcia.'**
+  String get ocrNoDataFound;
 }
 
 class _AppLocalizationsDelegate

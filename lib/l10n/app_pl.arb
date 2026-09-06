@@ -199,5 +199,13 @@
   "fuelTypeDiesel": "Diesel",
   "fuelTypeHybrid": "Hybryda",
   "fuelTypeLpg": "LPG",
-  "fuelTypeElectric": "Elektryczny"
+  "fuelTypeElectric": "Elektryczny",
+
+  "ocrScanReceipt": "Zeskanuj paragon / fakturę",
+  "ocrScanReceiptTooltip": "Zeskanuj paragon lub fakturę aparatem",
+  "ocrSourceCamera": "Zrób zdjęcie aparatem",
+  "ocrSourceGallery": "Wybierz z galerii",
+  "ocrScanning": "Rozpoznawanie tekstu z paragonu...",
+  "ocrSuccessBanner": "Odczytano dane z paragonu. Zweryfikuj i zatwierdź.",
+  "ocrNoDataFound": "Nie udało się odczytać kwoty ani daty ze zdjęcia."
 }

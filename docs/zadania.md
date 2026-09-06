@@ -118,10 +118,12 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
 
 ---
 
-## 🔮 Zadania na przyszłość (Backlog / Rozwój)
-- [ ] **Skaner paragonów i faktur (OCR - On-Device)**:
-  - Wdrożenie prostego, 100% lokalnego skanera paragonów z użyciem ML Kit (`google_mlkit_text_recognition`).
-  - Przepływ: Zdjęcie paragonu $\to$ parsowanie tekstu (wyszukiwanie kwoty końcowej `PLN`, daty i nazwy stacji/warsztatu) $\to$ wstępne wypełnienie formularza „Nowy wydatek” do weryfikacji i akceptacji przez użytkownika (brak automatycznego zapisu w tle).
+## 📷 Faza 13: Skaner paragonów i faktur (OCR - On-Device)
+- [x] **Skaner paragonów i faktur (OCR - On-Device)**:
+  - Wdrożenie 100% lokalnego skanera paragonów z użyciem ML Kit (`google_mlkit_text_recognition`) i `image_picker`.
+  - Przepływ: Zdjęcie paragonu lub wybór z galerii $\to$ on-device rozpoznanie tekstu $\to$ inteligentny parser (`ReceiptParser`): kwota, data, stacja/warsztat, automatyczna kategoria i tytuł.
+  - Wstępne wypełnienie formularza „Nowy wydatek” (`AddExpenseScreen`) z zielonym banerem weryfikacji danych do edycji i akceptacji przez użytkownika (brak automatycznego zapisu w tle).
+  - Pełne testy jednostkowe parsera paragonów (`test/unit/receipt_parser_test.dart`) dla stacji Orlen, Shell, warsztatów, myjni i sklepów motoryzacyjnych.
 
 
 

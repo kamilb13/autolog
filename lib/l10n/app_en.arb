@@ -199,5 +199,13 @@
   "fuelTypeDiesel": "Diesel",
   "fuelTypeHybrid": "Hybrid",
   "fuelTypeLpg": "LPG",
-  "fuelTypeElectric": "Electric"
+  "fuelTypeElectric": "Electric",
+
+  "ocrScanReceipt": "Scan receipt / invoice",
+  "ocrScanReceiptTooltip": "Scan receipt or invoice using camera",
+  "ocrSourceCamera": "Take photo with camera",
+  "ocrSourceGallery": "Choose from gallery",
+  "ocrScanning": "Recognizing receipt text...",
+  "ocrSuccessBanner": "Extracted receipt data. Please verify and confirm.",
+  "ocrNoDataFound": "Could not detect amount or date from this image."
 }
