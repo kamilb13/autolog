@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../../core/utils/formatters.dart';
 import '../../domain/models/vehicle.dart';
 import '../providers/app_providers.dart';
@@ -158,6 +159,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final brand = _brandController.text.trim();
     final model = _modelController.text.trim();
     final plate = _licensePlateController.text.trim();
@@ -182,7 +184,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dodaj Pojazd', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(l10n?.vehicleAddTitle ?? 'Dodaj Pojazd', style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Form(
         key: _formKey,
@@ -209,7 +211,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                               Text(
                                 brand.isNotEmpty || model.isNotEmpty
                                     ? '$brand $model'.trim()
-                                    : 'Nowy Pojazd',
+                                    : (l10n?.garageAddFirstVehicle ?? 'Nowy Pojazd'),
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
                               ),
                               Text(
@@ -237,7 +239,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            'Rocznik: ${_yearController.text}',
+                            '${l10n?.vehicleYear ?? "Rocznik"}: ${_yearController.text}',
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                           ),
                         ),
@@ -273,10 +275,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             // Brand Field & Filtered Suggestion Chips
             TextFormField(
               controller: _brandController,
-              decoration: const InputDecoration(
-                labelText: 'Marka *',
+              decoration: InputDecoration(
+                labelText: '${l10n?.vehicleBrand ?? "Marka"} *',
                 hintText: 'np. BMW, Toyota, Audi, Volkswagen',
-                prefixIcon: Icon(Icons.directions_car_rounded),
+                prefixIcon: const Icon(Icons.directions_car_rounded),
               ),
               textCapitalization: TextCapitalization.words,
               validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź markę pojazdu' : null,
@@ -308,10 +310,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             // Model & Filtered Suggestion Chips
             TextFormField(
               controller: _modelController,
-              decoration: const InputDecoration(
-                labelText: 'Model *',
+              decoration: InputDecoration(
+                labelText: '${l10n?.vehicleModel ?? "Model"} *',
                 hintText: 'np. Seria 3, Corolla, Golf',
-                prefixIcon: Icon(Icons.car_repair_rounded),
+                prefixIcon: const Icon(Icons.car_repair_rounded),
               ),
               textCapitalization: TextCapitalization.words,
               validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź model pojazdu' : null,
@@ -343,10 +345,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             // Generation / Trim
             TextFormField(
               controller: _generationController,
-              decoration: const InputDecoration(
-                labelText: 'Generacja / Wersja wyposażenia',
+              decoration: InputDecoration(
+                labelText: l10n?.vehicleGeneration ?? 'Generacja / Wersja wyposażenia',
                 hintText: 'np. 320d xDrive (G21), 1.8 Hybrid GR Sport',
-                prefixIcon: Icon(Icons.tune_rounded),
+                prefixIcon: const Icon(Icons.tune_rounded),
               ),
               textCapitalization: TextCapitalization.words,
             ),
@@ -359,10 +361,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                   flex: 3,
                   child: TextFormField(
                     controller: _licensePlateController,
-                    decoration: const InputDecoration(
-                      labelText: 'Numer rej. *',
+                    decoration: InputDecoration(
+                      labelText: '${l10n?.vehiclePlate ?? "Numer rej."} *',
                       hintText: 'KR 7AK89',
-                      prefixIcon: Icon(Icons.badge_rounded),
+                      prefixIcon: const Icon(Icons.badge_rounded),
                     ),
                     textCapitalization: TextCapitalization.characters,
                     validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź tablicę' : null,
@@ -373,9 +375,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                   flex: 2,
                   child: TextFormField(
                     controller: _yearController,
-                    decoration: const InputDecoration(
-                      labelText: 'Rocznik *',
-                      prefixIcon: Icon(Icons.calendar_today_rounded),
+                    decoration: InputDecoration(
+                      labelText: '${l10n?.vehicleYear ?? "Rocznik"} *',
+                      prefixIcon: const Icon(Icons.calendar_today_rounded),
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -395,11 +397,11 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             // Mileage
             TextFormField(
               controller: _mileageController,
-              decoration: const InputDecoration(
-                labelText: 'Bieżący stan licznika *',
+              decoration: InputDecoration(
+                labelText: '${l10n?.garageCurrentMileage ?? "Bieżący stan licznika"} *',
                 hintText: 'np. 164250',
                 suffixText: 'km',
-                prefixIcon: Icon(Icons.speed_rounded),
+                prefixIcon: const Icon(Icons.speed_rounded),
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -408,9 +410,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             const SizedBox(height: 14),
 
             // Fuel Type Selector
-            const Text(
-              'Rodzaj paliwa',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            Text(
+              l10n?.vehicleFuel ?? 'Rodzaj paliwa',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
             SingleChildScrollView(
@@ -437,10 +439,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             // VIN
             TextFormField(
               controller: _vinController,
-              decoration: const InputDecoration(
-                labelText: 'Numer VIN (opcjonalnie)',
+              decoration: InputDecoration(
+                labelText: l10n?.vehicleVin ?? 'Numer VIN (opcjonalnie)',
                 hintText: '17-znakowy numer nadwozia',
-                prefixIcon: Icon(Icons.pin_rounded),
+                prefixIcon: const Icon(Icons.pin_rounded),
               ),
               style: const TextStyle(fontFamily: 'monospace'),
               textCapitalization: TextCapitalization.characters,
@@ -450,11 +452,11 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             // Purchase Price
             TextFormField(
               controller: _purchasePriceController,
-              decoration: const InputDecoration(
-                labelText: 'Cena zakupu auta (opcjonalnie)',
+              decoration: InputDecoration(
+                labelText: l10n?.vehiclePurchasePrice ?? 'Cena zakupu auta (opcjonalnie)',
                 hintText: 'np. 85000',
                 suffixText: 'PLN',
-                prefixIcon: Icon(Icons.shopping_bag_outlined),
+                prefixIcon: const Icon(Icons.shopping_bag_outlined),
               ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
@@ -469,7 +471,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                       width: 20,
                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                     )
-                  : const Text('Zapisz i dodaj do Garażu'),
+                  : Text(l10n?.commonSave ?? 'Zapisz i dodaj do Garażu'),
             ),
             const SizedBox(height: 24),
           ],

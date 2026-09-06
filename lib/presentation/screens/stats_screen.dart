@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/formatters.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../widgets/buyer_report_dialog.dart';
 
@@ -13,20 +14,22 @@ class StatsScreen extends ConsumerWidget {
     final statsState = ref.watch(statsNotifierProvider);
     final statsNotifier = ref.read(statsNotifierProvider.notifier);
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
+    final settings = ref.watch(settingsNotifierProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     final stats = statsState.stats;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Statystyki i TCO',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        title: Text(
+          l10n?.statsTitle ?? 'Statystyki i TCO',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Odśwież',
+            tooltip: l10n?.commonRefresh ?? 'Odśwież',
             onPressed: () => statsNotifier.refresh(),
           ),
         ],
@@ -53,7 +56,7 @@ class StatsScreen extends ConsumerWidget {
                                 child: FilterChip(
                                   selected: statsState.selectedVehicleId == null,
                                   showCheckmark: false,
-                                  label: const Text('Wszystkie pojazdy'),
+                                  label: Text(l10n?.expensesFilterAllVehicles ?? 'Wszystkie pojazdy'),
                                   onSelected: (_) => statsNotifier.selectVehicle(null),
                                 ),
                               ),
@@ -94,7 +97,7 @@ class StatsScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'CAŁKOWITY KOSZT (TCO)',
+                                    l10n?.statsTotalCost ?? 'CAŁKOWITY KOSZT (TCO)',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
@@ -104,7 +107,7 @@ class StatsScreen extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    AppFormatters.currency(stats.totalCostPln),
+                                    AppFormatters.currency(stats.totalCostPln, currencyCode: settings.currency.code),
                                     style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.w900,
@@ -141,7 +144,7 @@ class StatsScreen extends ConsumerWidget {
                                     Icon(Icons.speed_rounded, size: 15, color: theme.colorScheme.onPrimaryContainer),
                                     const SizedBox(width: 4),
                                     Text(
-                                      AppFormatters.costPerKm(stats.costPerKmPln),
+                                      AppFormatters.costPerDistance(stats.costPerKmPln, currencyCode: settings.currency.code, unit: settings.distanceUnit.label),
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold,

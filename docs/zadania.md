@@ -106,15 +106,22 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
 
 ---
 
+## 🌐 Faza 12: Wielojęzyczność, Ustawienia i Formatowanie (i18n / l10n)
+- [x] **Wielojęzyczność i słownik (i18n / l10n)**:
+  - Wdrożenie systemu lokalizacji opartego o pliki słownikowe ARB (`app_pl.arb`, `app_en.arb`) i generator `flutter gen-l10n`.
+  - Pełna obsługa języka **polskiego (PL)** oraz **angielskiego (EN)** z obsługą zmiennych, odmian liczby mnogiej (`plural`) i łatwą rozbudową o kolejne języki.
+  - Przełącznik języka w nowym ekranie Ustawień (`AppSettingsScreen`) z opcją wykrywania języka systemowego telefonu (`AppLanguage.system`).
+  - Dostosowanie formatowania walut i jednostek miary (PLN/EUR/USD, km/mi) w `AppFormatters` i na wszystkich ekranach.
+  - Przełącznik motywu aplikacji (Systemowy / Jasny / Ciemny).
+  - Zarządzanie lokalną kopią zapasową bazy danych (Eksport/Import JSON) w sekcji Ustawień.
+  - Dodanie 5. zakładki nawigacji „Ustawienia” (`AppSettingsScreen`) w `MainNavigationScreen`.
+
+---
+
 ## 🔮 Zadania na przyszłość (Backlog / Rozwój)
 - [ ] **Skaner paragonów i faktur (OCR - On-Device)**:
   - Wdrożenie prostego, 100% lokalnego skanera paragonów z użyciem ML Kit (`google_mlkit_text_recognition`).
   - Przepływ: Zdjęcie paragonu $\to$ parsowanie tekstu (wyszukiwanie kwoty końcowej `PLN`, daty i nazwy stacji/warsztatu) $\to$ wstępne wypełnienie formularza „Nowy wydatek” do weryfikacji i akceptacji przez użytkownika (brak automatycznego zapisu w tle).
-- [ ] **Wielojęzyczność i słownik (i18n / l10n)**:
-  - Wdrożenie systemu lokalizacji opartego o pliki słownikowe ARB (`app_pl.arb`, `app_en.arb`) lub moduł `intl`.
-  - Obsługa języka **polskiego (PL)** oraz **angielskiego (EN)** z możliwością łatwego dodawania kolejnych języków.
-  - Przełącznik języka w ustawieniach aplikacji z opcją wykrywania języka systemowego telefonu.
-  - Dostosowanie formatowania walut i jednostek miary (PLN/EUR/USD, km/mi).
 
 
 

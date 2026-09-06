@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 
 class GarageSummaryBanner extends StatelessWidget {
   final int vehicleCount;
@@ -14,12 +15,7 @@ class GarageSummaryBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-
-    final vehicleWord = vehicleCount == 1
-        ? 'pojazd'
-        : vehicleCount < 5
-            ? 'pojazdy'
-            : 'pojazdów';
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       width: double.infinity,
@@ -69,28 +65,18 @@ class GarageSummaryBanner extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '$vehicleCount',
+                      l10n?.garageTotalVehicles(vehicleCount) ?? '$vehicleCount pojazdów',
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 16.5,
                         fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      vehicleWord,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  activeAlertsCount > 0
-                      ? '$activeAlertsCount ${activeAlertsCount == 1 ? 'aktywny alert' : 'aktywne alerty'}'
-                      : 'Wszystkie terminy aktualne',
+                  l10n?.garageActiveAlerts(activeAlertsCount) ??
+                      (activeAlertsCount > 0 ? '$activeAlertsCount alertów' : 'Wszystkie terminy aktualne'),
                   style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,

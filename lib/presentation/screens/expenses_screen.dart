@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/formatters.dart';
 import '../../domain/models/expense.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../widgets/timeline_expense_item.dart';
 import 'add_expense_screen.dart';
@@ -26,19 +27,21 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
   Widget build(BuildContext context) {
     final expensesState = ref.watch(expensesNotifierProvider);
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
+    final settings = ref.watch(settingsNotifierProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Dziennik Wydatków',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            Text(
+              l10n?.expensesTitle ?? 'Dziennik Wydatków',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             Text(
-              '${expensesState.expenses.length} wpisów • Łącznie: ${AppFormatters.currency(expensesState.totalSum)}',
+              '${expensesState.expenses.length} wpisów • ${AppFormatters.currency(expensesState.totalSum, currencyCode: settings.currency.code)}',
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],
@@ -46,7 +49,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Odśwież',
+            tooltip: l10n?.commonRefresh ?? 'Odśwież',
             onPressed: () => ref.read(expensesNotifierProvider.notifier).refresh(),
           ),
         ],
@@ -60,7 +63,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
           );
         },
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Nowy wydatek', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(l10n?.dashboardNewExpense ?? 'Nowy wydatek', style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -79,7 +82,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'SUMA WYDATKÓW',
+                        l10n?.expensesTotalKpi ?? 'SUMA WYDATKÓW',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
@@ -106,7 +109,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    AppFormatters.currency(expensesState.totalSum),
+                    AppFormatters.currency(expensesState.totalSum, currencyCode: settings.currency.code),
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w900,

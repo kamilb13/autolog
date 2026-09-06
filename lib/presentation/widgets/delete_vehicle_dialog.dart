@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../../domain/models/vehicle.dart';
 
 class DeleteVehicleDialog extends StatefulWidget {
@@ -63,6 +64,7 @@ class _DeleteVehicleDialogState extends State<DeleteVehicleDialog>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -84,10 +86,10 @@ class _DeleteVehicleDialogState extends State<DeleteVehicleDialog>
                   child: const Icon(Icons.delete_forever_rounded, color: Colors.red, size: 24),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Usuwanie pojazdu',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    l10n?.vehicleDeleteTitle ?? 'Usuwanie pojazdu',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -95,7 +97,8 @@ class _DeleteVehicleDialogState extends State<DeleteVehicleDialog>
             const SizedBox(height: 16),
 
             Text(
-              'Czy na pewno chcesz trwale usunąć pojazd ${widget.vehicle.brand} ${widget.vehicle.model} (${widget.vehicle.licensePlate})?',
+              l10n?.vehicleDeletePrompt('${widget.vehicle.brand} ${widget.vehicle.model}', widget.vehicle.licensePlate) ??
+                  'Czy na pewno chcesz trwale usunąć pojazd ${widget.vehicle.brand} ${widget.vehicle.model} (${widget.vehicle.licensePlate})?',
               style: const TextStyle(fontSize: 14.5, height: 1.4),
             ),
             const SizedBox(height: 12),
@@ -119,7 +122,8 @@ class _DeleteVehicleDialogState extends State<DeleteVehicleDialog>
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Wszystkie zarejestrowane wydatki, historia serwisowa i alerty tego auta zostaną bezpowrotnie usunięte.',
+                      l10n?.vehicleDeleteWarning ??
+                          'Wszystkie zarejestrowane wydatki, historia serwisowa i alerty tego auta zostaną bezpowrotnie usunięte.',
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828),
@@ -135,7 +139,7 @@ class _DeleteVehicleDialogState extends State<DeleteVehicleDialog>
             // Instructional label
             Center(
               child: Text(
-                'Naciśnij i przytrzymaj czerwony przycisk, aby zatwierdzić',
+                l10n?.vehicleDeleteHoldInstruction ?? 'Naciśnij i przytrzymaj czerwony przycisk, aby zatwierdzić',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
@@ -197,8 +201,8 @@ class _DeleteVehicleDialogState extends State<DeleteVehicleDialog>
                                 const SizedBox(width: 8),
                                 Text(
                                   isHolding
-                                      ? 'Trzymaj jeszcze ${remainingSec}s...'
-                                      : 'Przytrzymaj, aby usunąć',
+                                      ? (l10n?.vehicleDeleteHoldingBtn(remainingSec) ?? 'Trzymaj jeszcze ${remainingSec}s...')
+                                      : (l10n?.vehicleDeleteHoldBtn ?? 'Przytrzymaj, aby usunąć'),
                                   style: TextStyle(
                                     fontSize: 14.5,
                                     fontWeight: FontWeight.bold,
@@ -221,7 +225,7 @@ class _DeleteVehicleDialogState extends State<DeleteVehicleDialog>
             Center(
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Anuluj'),
+                child: Text(l10n?.commonCancel ?? 'Anuluj'),
               ),
             ),
           ],

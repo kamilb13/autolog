@@ -1,6 +1,6 @@
 # Ekrany aplikacji AutoLog (Flutter)
 
-Aplikacja posiada 4 główne moduły w dolnej nawigacji (`BottomNavigationBar`) z dynamicznymi odznakami alertów:
+Aplikacja posiada 5 głównych modułów w dolnej nawigacji (`BottomNavigationBar` / `NavigationBar`) z dynamicznymi odznakami alertów oraz pełną lokalizacją i18n (PL/EN):
 
 ---
 
@@ -20,7 +20,7 @@ Aplikacja posiada 4 główne moduły w dolnej nawigacji (`BottomNavigationBar`) 
 * Przycisk ustawień / edycji / usunięcia auta (`VehicleSettingsScreen`).
 
 ## 3. Wydatki (`ExpensesScreen`)
-* Karta KPI z sumą wydatków w PLN i liczbą pozycji.
+* Karta KPI z sumą wydatków w wybranej walucie (PLN/EUR/USD) i liczbą pozycji.
 * Wyszukiwarka tekstowa (tytuł, notatka, warsztat).
 * Filtry horyzontalne według pojazdu i kategorii.
 * Usuwanie wpisów z osi czasu z 5-sekundowym paskiem **„COFNIJ” (Undo)**.
@@ -38,7 +38,15 @@ Aplikacja posiada 4 główne moduły w dolnej nawigacji (`BottomNavigationBar`) 
 
 ## 5. Statystyki & TCO (`StatsScreen`)
 * Filtrowanie statystyk dla całego garażu lub wybranego pojazdu.
-* Karty wskaźników: Całkowity koszt (TCO) oraz Koszt za 1 km.
+* Karty wskaźników: Całkowity koszt (TCO) oraz Koszt za 1 km / 1 mi w wybranej walucie.
 * Wykres kołowy wydatków (`fl_chart`) z legendą.
 * Paski postępu i kwoty dla poszczególnych kategorii.
-* Przycisk generowania Raportu dla Kupującego (`BuyerReportDialog`).
+* Przycisk generowania Raportu dla Kupującego (`BuyerReportDialog`) z eksportem do PDF.
+
+## 6. Ustawienia (`AppSettingsScreen`)
+* **Język aplikacji**: Wybór języka (Domyślny systemowy, Polski PL, English EN) z natychmiastowym przełączeniem całego UI.
+* **Waluta**: Wybór waluty (PLN / zł, EUR / €, USD / $) z automatycznym przeliczaniem prezentacji.
+* **Jednostka odległości**: Wybór jednostki (Kilometry km, Mile mi) z dynamicznym formatowaniem kosztu za jednostkę.
+* **Motyw aplikacji**: Systemowy, Jasny, Ciemny.
+* **Kopia zapasowa**: Eksport bazy do pliku JSON oraz Import z pliku.
+* **O aplikacji**: Wersja, status bazy SQLite (Offline-first) oraz informacja o licencji.

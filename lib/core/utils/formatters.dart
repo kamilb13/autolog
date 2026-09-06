@@ -19,20 +19,60 @@ class AppFormatters {
 
   static final NumberFormat _mileageFormat = NumberFormat.decimalPattern('pl_PL');
 
-  static String currency(double amount) {
-    return _currencyFormat.format(amount);
+  static String _getCurrencySymbol(String currencyCode) {
+    switch (currencyCode.toUpperCase()) {
+      case 'EUR':
+        return '€';
+      case 'USD':
+        return '\$';
+      case 'PLN':
+      default:
+        return 'zł';
+    }
   }
 
-  static String shortCurrency(double amount) {
-    return _shortCurrencyFormat.format(amount);
+  static String currency(double amount, {String currencyCode = 'PLN'}) {
+    if (currencyCode == 'PLN') {
+      return _currencyFormat.format(amount);
+    }
+    final symbol = _getCurrencySymbol(currencyCode);
+    if (currencyCode == 'USD') {
+      return NumberFormat.currency(locale: 'en_US', symbol: symbol, decimalDigits: 2).format(amount);
+    }
+    return NumberFormat.currency(
+      locale: 'de_DE',
+      symbol: symbol,
+      decimalDigits: 2,
+      customPattern: '#,##0.00 \u00a4',
+    ).format(amount);
   }
 
-  static String mileage(int km) {
-    return '${_mileageFormat.format(km)} km';
+  static String shortCurrency(double amount, {String currencyCode = 'PLN'}) {
+    if (currencyCode == 'PLN') {
+      return _shortCurrencyFormat.format(amount);
+    }
+    final symbol = _getCurrencySymbol(currencyCode);
+    if (currencyCode == 'USD') {
+      return NumberFormat.currency(locale: 'en_US', symbol: symbol, decimalDigits: 0).format(amount);
+    }
+    return NumberFormat.currency(
+      locale: 'de_DE',
+      symbol: symbol,
+      decimalDigits: 0,
+      customPattern: '#,##0 \u00a4',
+    ).format(amount);
   }
 
-  static String costPerKm(double cost) {
-    return '${_currencyFormat.format(cost)}/km';
+  static String mileage(int distance, {String unit = 'km'}) {
+    return '${_mileageFormat.format(distance)} $unit';
+  }
+
+  static String costPerKm(double cost, {String currencyCode = 'PLN'}) {
+    return costPerDistance(cost, currencyCode: currencyCode, unit: 'km');
+  }
+
+  static String costPerDistance(double cost, {String currencyCode = 'PLN', String unit = 'km'}) {
+    return '${currency(cost, currencyCode: currencyCode)}/$unit';
   }
 
   static String formatDate(DateTime date) {

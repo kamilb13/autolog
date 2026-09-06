@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 
 class DriveSyncDialog extends ConsumerWidget {
@@ -11,6 +12,7 @@ class DriveSyncDialog extends ConsumerWidget {
     final driveNotifier = ref.read(driveSyncNotifierProvider.notifier);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -37,12 +39,12 @@ class DriveSyncDialog extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Kopia Zapasowa',
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      Text(
+                        l10n?.backupDialogTitle ?? 'Kopia Zapasowa',
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'Lokalny plik JSON',
+                        l10n?.backupDialogSubtitle ?? 'Lokalny plik JSON',
                         style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                       ),
                     ],
@@ -60,14 +62,14 @@ class DriveSyncDialog extends ConsumerWidget {
 
             // Loading Indicator
             if (driveState.isSyncing) ...[
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Column(
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 12),
-                      Text('Przetwarzanie operacji na pliku bazy danych...'),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 12),
+                      Text(l10n?.backupProcessing ?? 'Przetwarzanie operacji na pliku bazy danych...'),
                     ],
                   ),
                 ),
@@ -79,7 +81,7 @@ class DriveSyncDialog extends ConsumerWidget {
                   await driveNotifier.shareLocalBackup();
                 },
                 icon: const Icon(Icons.file_upload_rounded),
-                label: const Text('Eksportuj kopię bazy'),
+                label: Text(l10n?.backupExportBtn ?? 'Eksportuj kopię bazy'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 46),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -104,7 +106,7 @@ class DriveSyncDialog extends ConsumerWidget {
                   }
                 },
                 icon: const Icon(Icons.file_download_rounded),
-                label: const Text('Importuj i przywróć bazę'),
+                label: Text(l10n?.backupImportBtn ?? 'Importuj i przywróć bazę'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 46),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -116,41 +118,19 @@ class DriveSyncDialog extends ConsumerWidget {
             Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
             const SizedBox(height: 12),
 
-            // Notice about Google Cloud Sync (Disabled for now)
+            // Notice about Local JSON Backup
             Row(
               children: [
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Twoje dane są zapisane lokalnie w telefonie. Przed odinstalowaniem aplikacji lub zmianą telefonu wyeksportuj plik JSON i zapisz go na dysku lub wyślij mailem.',
+                    l10n?.backupLocalNotice ??
+                        'Twoje dane są zapisane lokalnie w telefonie. Przed odinstalowaniem aplikacji lub zmianą telefonu wyeksportuj plik JSON i zapisz go na dysku lub wyślij mailem.',
                     style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                   ),
                 ),
               ],
             ),
-
-            /*
-            // --- GOOGLE DRIVE DIRECT SYNC (Commented out until OAuth SHA-1 client ID is configured in Google Cloud) ---
-            if (driveState.isSignedIn) ...[
-              ElevatedButton.icon(
-                onPressed: () => driveNotifier.backup(),
-                icon: const Icon(Icons.cloud_upload_rounded),
-                label: const Text('Kopia w Google Drive'),
-              ),
-              OutlinedButton.icon(
-                onPressed: () => driveNotifier.restore(),
-                icon: const Icon(Icons.cloud_download_rounded),
-                label: const Text('Przywróć z Google Drive'),
-              ),
-            ] else ...[
-              ElevatedButton.icon(
-                onPressed: () => driveNotifier.signIn(),
-                icon: const Icon(Icons.login_rounded),
-                label: const Text('Zaloguj przez Google'),
-              ),
-            ],
-            // --------------------------------------------------------------------------------------------------------
-            */
           ],
         ),
       ),

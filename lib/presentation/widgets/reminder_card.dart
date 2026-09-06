@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/formatters.dart';
 import '../../domain/models/service_reminder.dart';
 import '../../domain/models/vehicle.dart';
+import 'package:autolog/l10n/app_localizations.dart';
+import '../providers/app_providers.dart';
 
-class ReminderCard extends StatelessWidget {
+class ReminderCard extends ConsumerWidget {
   final ServiceReminder reminder;
   final Vehicle? vehicle;
   final VoidCallback onMarkCompleted;
@@ -18,9 +21,11 @@ class ReminderCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final settings = ref.watch(settingsNotifierProvider);
+    final l10n = AppLocalizations.of(context);
     final statusLabel = AppFormatters.reminderStatusLabel(reminder);
 
     Color badgeBg;
@@ -190,7 +195,7 @@ class ReminderCard extends StatelessWidget {
                 Icon(Icons.speed_rounded, size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
                 const SizedBox(width: 4),
                 Text(
-                  'Limit: ${AppFormatters.mileage(reminder.dueMileageKm!)}',
+                  'Limit: ${AppFormatters.mileage(reminder.dueMileageKm!, unit: settings.distanceUnit.label)}',
                   style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withValues(alpha: 0.65)),
                 ),
               ],
@@ -207,7 +212,7 @@ class ReminderCard extends StatelessWidget {
                 Text(
                   'Cykl: ${[
                     if (reminder.intervalMonths != null) 'co ${reminder.intervalMonths} msc',
-                    if (reminder.intervalKm != null) 'co ${AppFormatters.mileage(reminder.intervalKm!)}',
+                    if (reminder.intervalKm != null) 'co ${AppFormatters.mileage(reminder.intervalKm!, unit: settings.distanceUnit.label)}',
                   ].join(' / ')}',
                   style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withValues(alpha: 0.45)),
                 ),
@@ -225,7 +230,7 @@ class ReminderCard extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onMarkCompleted,
               icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
-              label: const Text('Oznacz jako wykonane'),
+              label: Text(l10n?.remindersMarkDone ?? 'Oznacz jako wykonane'),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(38),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),

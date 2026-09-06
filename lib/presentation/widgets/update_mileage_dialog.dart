@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../../core/utils/formatters.dart';
 
 class UpdateMileageDialog extends StatefulWidget {
@@ -33,9 +34,10 @@ class _UpdateMileageDialogState extends State<UpdateMileageDialog> {
   }
 
   void _submit() {
+    final l10n = AppLocalizations.of(context);
     final value = int.tryParse(_controller.text.trim());
     if (value == null || value < 0) {
-      setState(() => _errorText = 'Wprowadź prawidłowy przebieg');
+      setState(() => _errorText = l10n?.quickMileageInvalid ?? 'Wprowadź prawidłowy przebieg');
       return;
     }
     widget.onConfirm(value);
@@ -50,6 +52,7 @@ class _UpdateMileageDialogState extends State<UpdateMileageDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -57,7 +60,7 @@ class _UpdateMileageDialogState extends State<UpdateMileageDialog> {
         children: [
           Icon(Icons.speed_rounded, color: theme.colorScheme.primary),
           const SizedBox(width: 8),
-          const Text('Aktualizuj przebieg', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(l10n?.quickMileageTitle ?? 'Aktualizuj przebieg', style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
       content: Column(
@@ -65,7 +68,8 @@ class _UpdateMileageDialogState extends State<UpdateMileageDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Obecny stan: ${AppFormatters.mileage(widget.currentMileageKm)}',
+            l10n?.quickMileageCurrent(AppFormatters.mileage(widget.currentMileageKm)) ??
+                'Obecny stan: ${AppFormatters.mileage(widget.currentMileageKm)}',
             style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 16),
@@ -74,7 +78,7 @@ class _UpdateMileageDialogState extends State<UpdateMileageDialog> {
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: InputDecoration(
-              labelText: 'Nowy stan licznika',
+              labelText: l10n?.quickMileageNew ?? 'Nowy stan licznika',
               suffixText: 'km',
               errorText: _errorText,
             ),
@@ -103,14 +107,14 @@ class _UpdateMileageDialogState extends State<UpdateMileageDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Anuluj'),
+          child: Text(l10n?.commonCancel ?? 'Anuluj'),
         ),
         ElevatedButton(
           onPressed: _submit,
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(100, 42),
           ),
-          child: const Text('Zapisz'),
+          child: Text(l10n?.commonSave ?? 'Zapisz'),
         ),
       ],
     );

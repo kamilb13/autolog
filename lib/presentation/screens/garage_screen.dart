@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../widgets/drive_sync_dialog.dart';
 import '../widgets/garage_summary_banner.dart';
@@ -20,12 +21,13 @@ class GarageScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Garaż',
-          style: TextStyle(
+        title: Text(
+          l10n?.garageTitle ?? 'Garaż',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
@@ -33,12 +35,12 @@ class GarageScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Odśwież',
+            tooltip: l10n?.commonRefresh ?? 'Odśwież',
             onPressed: () => ref.read(vehiclesNotifierProvider.notifier).refresh(),
           ),
           IconButton(
             icon: const Icon(Icons.backup_rounded),
-            tooltip: 'Kopia zapasowa i przywracanie',
+            tooltip: l10n?.garageBackupTooltip ?? 'Kopia zapasowa i przywracanie',
             onPressed: () {
               showDialog(
                 context: context,
@@ -57,16 +59,16 @@ class GarageScreen extends ConsumerWidget {
           );
         },
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Dodaj auto', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(l10n?.garageAddVehicle ?? 'Dodaj auto', style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: vehiclesAsync.when(
-        loading: () => const Center(
+        loading: () => Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 12),
-              Text('Wczytywanie pojazdów...'),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 12),
+              Text(l10n?.commonLoading ?? 'Wczytywanie pojazdów...'),
             ],
           ),
         ),
@@ -78,12 +80,12 @@ class GarageScreen extends ConsumerWidget {
               children: [
                 const Icon(Icons.error_outline_rounded, color: Colors.red, size: 48),
                 const SizedBox(height: 12),
-                Text('Błąd: $err', textAlign: TextAlign.center),
+                Text('${l10n?.commonError ?? "Błąd"}: $err', textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: () => ref.read(vehiclesNotifierProvider.notifier).refresh(),
                   icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Spróbuj ponownie'),
+                  label: Text(l10n?.commonRetry ?? 'Spróbuj ponownie'),
                 ),
               ],
             ),
@@ -105,13 +107,13 @@ class GarageScreen extends ConsumerWidget {
                       color: theme.colorScheme.primary.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Twój garaż jest pusty',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    Text(
+                      l10n?.garageEmptyTitle ?? 'Twój garaż jest pusty',
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Dodaj swój pierwszy samochód, aby zarządzać serwisem, wydatkami i terminami.',
+                      l10n?.garageEmptySubtitle ?? 'Dodaj swój pierwszy samochód, aby zarządzać serwisem, wydatkami i terminami.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
@@ -125,7 +127,7 @@ class GarageScreen extends ConsumerWidget {
                         );
                       },
                       icon: const Icon(Icons.add_rounded),
-                      label: const Text('Dodaj pierwsze auto'),
+                      label: Text(l10n?.garageAddFirstVehicle ?? 'Dodaj pierwsze auto'),
                     ),
                   ],
                 ),

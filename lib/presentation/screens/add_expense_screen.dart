@@ -6,6 +6,7 @@ import '../../core/utils/formatters.dart';
 import '../../data/services/expense_suggestions_service.dart';
 import '../../domain/models/expense.dart';
 import '../../domain/models/expense_suggestion.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../widgets/vehicle_selector.dart';
 
@@ -80,7 +81,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now().add(const Duration(days: 365)),
-      locale: const Locale('pl', 'PL'),
     );
     if (picked != null) {
       setState(() {
@@ -146,7 +146,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
     final learnedSuggestionsAsync = ref.watch(expenseSuggestionsProvider);
     final learnedSuggestions = learnedSuggestionsAsync.valueOrNull ?? [];
+    final settings = ref.watch(settingsNotifierProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     final query = _titleController.text.trim();
     final suggestions = ExpenseSuggestionsService.getSuggestions(
@@ -158,7 +160,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nowy Wydatek', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(l10n?.addExpenseTitle ?? 'Nowy Wydatek', style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Form(
         key: _formKey,
@@ -268,17 +270,17 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             // Amount Field
             TextFormField(
               controller: _amountController,
-              decoration: const InputDecoration(
-                labelText: 'Kwota *',
+              decoration: InputDecoration(
+                labelText: l10n?.addExpenseAmount != null ? '${l10n?.addExpenseAmount} *' : 'Kwota *',
                 hintText: 'np. 350.00',
-                suffixText: 'PLN',
-                prefixIcon: Icon(Icons.payments_rounded),
+                suffixText: settings.currency.symbol,
+                prefixIcon: const Icon(Icons.payments_rounded),
               ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Podaj kwotę';
+                if (v == null || v.trim().isEmpty) return l10n?.addExpenseInvalidAmount ?? 'Podaj kwotę';
                 final n = double.tryParse(v.trim().replaceAll(',', '.'));
-                if (n == null || n <= 0) return 'Nieprawidłowa kwota';
+                if (n == null || n <= 0) return l10n?.addExpenseInvalidAmount ?? 'Nieprawidłowa kwota';
                 return null;
               },
             ),
@@ -424,7 +426,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       labelText: _selectedCategory == ExpenseCategory.fuel
                           ? 'Stan licznika *'
                           : 'Przebieg *',
-                      suffixText: 'km',
+                      suffixText: settings.distanceUnit.label,
                       prefixIcon: const Icon(Icons.speed_rounded),
                       helperText: _selectedCategory == ExpenseCategory.fuel
                           ? 'Wymagany do statystyk'

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'core/theme/app_theme.dart';
+import 'package:autolog/l10n/app_localizations.dart';
+import 'presentation/providers/app_providers.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 
 void main() async {
@@ -25,27 +27,27 @@ void main() async {
   );
 }
 
-class AutoLogApp extends StatelessWidget {
+class AutoLogApp extends ConsumerWidget {
   const AutoLogApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsNotifierProvider);
+
     return MaterialApp(
       title: 'AutoLog',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: settings.themeMode,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('pl', 'PL'),
-        Locale('en', 'US'),
-      ],
-      locale: const Locale('pl', 'PL'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: settings.language.locale,
       home: const MainNavigationScreen(),
     );
   }

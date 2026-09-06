@@ -1,12 +1,15 @@
 import 'package:autolog/core/theme/app_theme.dart';
 import 'package:autolog/domain/models/expense.dart';
 import 'package:autolog/domain/models/vehicle.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import 'package:autolog/presentation/providers/app_providers.dart';
 import 'package:autolog/presentation/screens/add_expense_screen.dart';
+import 'package:autolog/presentation/screens/app_settings_screen.dart';
 import 'package:autolog/presentation/screens/expenses_screen.dart';
 import 'package:autolog/presentation/screens/vehicle_dashboard_screen.dart';
 import 'package:autolog/presentation/widgets/polish_license_plate.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -17,17 +20,34 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   });
 
+  Widget createTestWidget({required Widget child, List<dynamic>? overrides}) {
+    return ProviderScope(
+      overrides: [
+        if (overrides != null) ...overrides.cast(),
+      ],
+      child: MaterialApp(
+        theme: AppTheme.lightTheme,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('pl'),
+        home: child,
+      ),
+    );
+  }
+
   group('ExpensesScreen & AddExpenseScreen Widget Tests', () {
     testWidgets('AddExpenseScreen updates category when suggestion is tapped', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderScope(
+        createTestWidget(
           overrides: [
             vehiclesNotifierProvider.overrideWith(() => _MockVehiclesNotifier()),
           ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const AddExpenseScreen(initialVehicleId: 'veh_test_1'),
-          ),
+          child: const AddExpenseScreen(initialVehicleId: 'veh_test_1'),
         ),
       );
 
@@ -65,17 +85,14 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ProviderScope(
+        createTestWidget(
           overrides: [
             expensesNotifierProvider.overrideWith(
               (ref) => _MockExpensesNotifier(testExpense),
             ),
             vehiclesNotifierProvider.overrideWith(() => _MockVehiclesNotifier()),
           ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const ExpensesScreen(),
-          ),
+          child: const ExpensesScreen(),
         ),
       );
 
@@ -95,7 +112,7 @@ void main() {
 
     testWidgets('VehicleDashboardScreen copies license plate and VIN to clipboard on tap', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderScope(
+        createTestWidget(
           overrides: [
             vehiclesNotifierProvider.overrideWith(() => _MockVehiclesNotifier()),
             expensesNotifierProvider.overrideWith((ref) => _MockExpensesNotifier(Expense(
@@ -108,10 +125,7 @@ void main() {
                   mileageKm: 164250,
                 ))),
           ],
-          child: MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: const VehicleDashboardScreen(vehicleId: 'veh_test_1'),
-          ),
+          child: const VehicleDashboardScreen(vehicleId: 'veh_test_1'),
         ),
       );
 
@@ -130,6 +144,39 @@ void main() {
       await tester.tap(find.text('VIN: WBA3A5C55FP123456'));
       await tester.pumpAndSettle();
       expect(find.text('Skopiowano numer VIN: WBA3A5C55FP123456'), findsOneWidget);
+    });
+
+    testWidgets('AppSettingsScreen allows switching language, currency, and distance unit', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          child: const AppSettingsScreen(),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify settings sections exist
+      expect(find.text('Ustawienia'), findsOneWidget);
+      expect(find.text('Język aplikacji'), findsOneWidget);
+      expect(find.text('Waluta'), findsOneWidget);
+      expect(find.text('Jednostka odległości'), findsOneWidget);
+      expect(find.text('English (EN)'), findsOneWidget);
+      expect(find.text('Euro (EUR / €)'), findsOneWidget);
+      expect(find.text('Mile (mi)'), findsOneWidget);
+
+      // Tap English language radio tile
+      await tester.tap(find.text('English (EN)'));
+      await tester.pumpAndSettle();
+
+      // Tap Euro currency
+      await tester.tap(find.text('Euro (EUR / €)'));
+      await tester.pumpAndSettle();
+
+      // Tap Miles unit
+      await tester.ensureVisible(find.text('Mile (mi)'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mile (mi)'));
+      await tester.pumpAndSettle();
     });
   });
 }

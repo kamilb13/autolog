@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../../domain/models/vehicle.dart';
 import '../providers/app_providers.dart';
 import '../widgets/delete_vehicle_dialog.dart';
@@ -142,9 +143,10 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ustawienia Pojazdu', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(l10n?.vehicleEditTitle ?? 'Ustawienia Pojazdu', style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Form(
         key: _formKey,
@@ -153,9 +155,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
           children: [
             TextFormField(
               controller: _brandController,
-              decoration: const InputDecoration(
-                labelText: 'Marka *',
-                prefixIcon: Icon(Icons.directions_car_rounded),
+              decoration: InputDecoration(
+                labelText: '${l10n?.vehicleBrand ?? "Marka"} *',
+                prefixIcon: const Icon(Icons.directions_car_rounded),
               ),
               textCapitalization: TextCapitalization.words,
               validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź markę' : null,
@@ -164,9 +166,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
 
             TextFormField(
               controller: _modelController,
-              decoration: const InputDecoration(
-                labelText: 'Model *',
-                prefixIcon: Icon(Icons.car_repair_rounded),
+              decoration: InputDecoration(
+                labelText: '${l10n?.vehicleModel ?? "Model"} *',
+                prefixIcon: const Icon(Icons.car_repair_rounded),
               ),
               textCapitalization: TextCapitalization.words,
               validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź model' : null,
@@ -175,9 +177,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
 
             TextFormField(
               controller: _generationController,
-              decoration: const InputDecoration(
-                labelText: 'Generacja / Wersja wyposażenia',
-                prefixIcon: Icon(Icons.tune_rounded),
+              decoration: InputDecoration(
+                labelText: l10n?.vehicleGeneration ?? 'Generacja / Wersja wyposażenia',
+                prefixIcon: const Icon(Icons.tune_rounded),
               ),
               textCapitalization: TextCapitalization.words,
             ),
@@ -189,9 +191,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                   flex: 3,
                   child: TextFormField(
                     controller: _licensePlateController,
-                    decoration: const InputDecoration(
-                      labelText: 'Numer rej. *',
-                      prefixIcon: Icon(Icons.badge_rounded),
+                    decoration: InputDecoration(
+                      labelText: '${l10n?.vehiclePlate ?? "Numer rej."} *',
+                      prefixIcon: const Icon(Icons.badge_rounded),
                     ),
                     textCapitalization: TextCapitalization.characters,
                     validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź tablicę' : null,
@@ -202,9 +204,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                   flex: 2,
                   child: TextFormField(
                     controller: _yearController,
-                    decoration: const InputDecoration(
-                      labelText: 'Rocznik *',
-                      prefixIcon: Icon(Icons.calendar_today_rounded),
+                    decoration: InputDecoration(
+                      labelText: '${l10n?.vehicleYear ?? "Rocznik"} *',
+                      prefixIcon: const Icon(Icons.calendar_today_rounded),
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -217,10 +219,10 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
 
             TextFormField(
               controller: _mileageController,
-              decoration: const InputDecoration(
-                labelText: 'Bieżący stan licznika *',
+              decoration: InputDecoration(
+                labelText: '${l10n?.garageCurrentMileage ?? "Bieżący stan licznika"} *',
                 suffixText: 'km',
-                prefixIcon: Icon(Icons.speed_rounded),
+                prefixIcon: const Icon(Icons.speed_rounded),
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -228,9 +230,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
             ),
             const SizedBox(height: 14),
 
-            const Text(
-              'Rodzaj paliwa',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            Text(
+              l10n?.vehicleFuel ?? 'Rodzaj paliwa',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
             SingleChildScrollView(
@@ -255,9 +257,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
 
             TextFormField(
               controller: _vinController,
-              decoration: const InputDecoration(
-                labelText: 'Numer VIN',
-                prefixIcon: Icon(Icons.pin_rounded),
+              decoration: InputDecoration(
+                labelText: l10n?.vehicleVin ?? 'Numer VIN',
+                prefixIcon: const Icon(Icons.pin_rounded),
               ),
               style: const TextStyle(fontFamily: 'monospace'),
               textCapitalization: TextCapitalization.characters,
@@ -266,11 +268,11 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
 
             TextFormField(
               controller: _purchasePriceController,
-              decoration: const InputDecoration(
-                labelText: 'Cena zakupu auta (opcjonalnie)',
+              decoration: InputDecoration(
+                labelText: l10n?.vehiclePurchasePrice ?? 'Cena zakupu auta (opcjonalnie)',
                 hintText: 'np. 85000',
                 suffixText: 'PLN',
-                prefixIcon: Icon(Icons.shopping_bag_outlined),
+                prefixIcon: const Icon(Icons.shopping_bag_outlined),
               ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
@@ -284,7 +286,7 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                       width: 20,
                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                     )
-                  : const Text('Zapisz zmiany'),
+                  : Text(l10n?.commonSave ?? 'Zapisz zmiany'),
             ),
             const SizedBox(height: 20),
             const Divider(),
@@ -295,9 +297,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
               child: TextButton.icon(
                 onPressed: _showDeleteDialog,
                 icon: const Icon(Icons.delete_outline_rounded, size: 20, color: Colors.red),
-                label: const Text(
-                  'Usuń pojazd z garażu',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14),
+                label: Text(
+                  l10n?.vehicleDeleteBtn ?? 'Usuń pojazd z garażu',
+                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/formatters.dart';
 import '../../domain/models/expense.dart';
+import '../providers/app_providers.dart';
 
-class TimelineExpenseItem extends StatelessWidget {
+class TimelineExpenseItem extends ConsumerWidget {
   final Expense expense;
   final VoidCallback? onDelete;
   final VoidCallback? onTap;
@@ -15,9 +17,10 @@ class TimelineExpenseItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final settings = ref.watch(settingsNotifierProvider);
     final category = expense.category;
 
     return Container(
@@ -83,7 +86,7 @@ class TimelineExpenseItem extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          AppFormatters.currency(expense.amountPln),
+                          AppFormatters.currency(expense.amountPln, currencyCode: settings.currency.code),
                           style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w800,
@@ -110,7 +113,7 @@ class TimelineExpenseItem extends StatelessWidget {
                           style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
                         ),
                         Text(
-                          AppFormatters.mileage(expense.mileageKm),
+                          AppFormatters.mileage(expense.mileageKm, unit: settings.distanceUnit.label),
                           style: TextStyle(
                             fontSize: 12,
                             color: theme.colorScheme.onSurface.withValues(alpha: 0.6),

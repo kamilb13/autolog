@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/vehicle.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../widgets/reminder_card.dart';
 import 'add_reminder_dialog.dart';
@@ -25,6 +26,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
   Widget build(BuildContext context) {
     final remindersState = ref.watch(remindersNotifierProvider);
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
+    final l10n = AppLocalizations.of(context);
 
     final criticalCount = remindersState.criticalCount;
     final warningCount = remindersState.warningCount;
@@ -33,7 +35,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
     Color subtitleColor;
 
     if (criticalCount > 0 && warningCount > 0) {
-      subtitleText = '$criticalCount ${criticalCount == 1 ? "krytyczny" : "krytyczne"}, $warningCount ${warningCount == 1 ? "ostrzeżenie" : "ostrzeżenia"}';
+      subtitleText = '$criticalCount krytycznych, $warningCount ostrzeżeń';
       subtitleColor = Colors.red.shade600;
     } else if (criticalCount > 0) {
       subtitleText = '$criticalCount ${criticalCount == 1 ? "przeterminowany termin" : "przeterminowane terminy"}';
@@ -42,7 +44,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
       subtitleText = '$warningCount ${warningCount == 1 ? "zbliżający się termin" : "zbliżające się terminy"}';
       subtitleColor = Colors.orange.shade800;
     } else {
-      subtitleText = 'Wszystkie terminy pod kontrolą';
+      subtitleText = l10n?.remindersEmptyTitle ?? 'Wszystkie terminy pod kontrolą';
       subtitleColor = Colors.grey.shade600;
     }
 
@@ -51,9 +53,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Terminy i Przypomnienia',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            Text(
+              l10n?.remindersTitle ?? 'Terminy i Przypomnienia',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             Text(
               subtitleText,
@@ -68,7 +70,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Odśwież',
+            tooltip: l10n?.commonRefresh ?? 'Odśwież',
             onPressed: () => ref.read(remindersNotifierProvider.notifier).refresh(),
           ),
         ],
@@ -81,7 +83,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
           );
         },
         icon: const Icon(Icons.add_alert_rounded),
-        label: const Text('Nowy termin', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(l10n?.remindersAddBtn ?? 'Nowy termin', style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -90,7 +92,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Szukaj przypomnienia...',
+              hintText: l10n?.commonSearch ?? 'Szukaj przypomnienia...',
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
@@ -102,7 +104,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                     )
                   : null,
             ),
-            onChanged: (q) => ref.read(remindersNotifierProvider.notifier).setSearchQuery(q),
+            onChanged: (val) {
+              ref.read(remindersNotifierProvider.notifier).setSearchQuery(val);
+            },
           ),
           const SizedBox(height: 12),
 

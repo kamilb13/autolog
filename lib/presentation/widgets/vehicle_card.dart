@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/formatters.dart';
 import '../../domain/models/vehicle.dart';
+import 'package:autolog/l10n/app_localizations.dart';
+import '../providers/app_providers.dart';
 import 'polish_license_plate.dart';
 
-class VehicleCard extends StatelessWidget {
+class VehicleCard extends ConsumerWidget {
   final Vehicle vehicle;
   final VoidCallback onClick;
   final VoidCallback? onUpdateMileageClick;
@@ -16,9 +19,11 @@ class VehicleCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final settings = ref.watch(settingsNotifierProvider);
+    final l10n = AppLocalizations.of(context);
 
     return Material(
       color: isDark
@@ -118,7 +123,7 @@ class VehicleCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'Przebieg',
+                            l10n?.garageCurrentMileage ?? 'Przebieg',
                             style: TextStyle(
                               fontSize: 10.5,
                               color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -126,7 +131,7 @@ class VehicleCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            AppFormatters.mileage(vehicle.mileageKm),
+                            AppFormatters.mileage(vehicle.mileageKm, unit: settings.distanceUnit.label),
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -148,7 +153,7 @@ class VehicleCard extends StatelessWidget {
                                 : Colors.black.withValues(alpha: 0.04),
                             foregroundColor: theme.colorScheme.primary,
                           ),
-                          tooltip: 'Zaktualizuj licznik',
+                          tooltip: l10n?.garageQuickMileage ?? 'Zaktualizuj licznik',
                         ),
                       ],
                     ],

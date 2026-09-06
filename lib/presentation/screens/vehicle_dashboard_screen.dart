@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/formatters.dart';
 import '../../domain/models/expense.dart';
+import 'package:autolog/l10n/app_localizations.dart';
 import '../providers/app_providers.dart';
 import '../widgets/polish_license_plate.dart';
 import '../widgets/reminder_card.dart';
@@ -58,8 +59,10 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
     final expensesState = ref.watch(expensesNotifierProvider);
     final remindersState = ref.watch(remindersNotifierProvider);
+    final settings = ref.watch(settingsNotifierProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
 
     return vehiclesAsync.when(
       loading: () => const Scaffold(
@@ -67,7 +70,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
       ),
       error: (err, _) => Scaffold(
         appBar: AppBar(),
-        body: Center(child: Text('Błąd: $err')),
+        body: Center(child: Text('${l10n?.commonError ?? "Błąd"}: $err')),
       ),
       data: (vehicles) {
         final vehicle = vehicles.where((v) => v.id == widget.vehicleId).firstOrNull;
@@ -104,7 +107,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                   style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
                 ),
                 Text(
-                  'Pulpit Pojazdu',
+                  l10n?.dashboardTitle ?? 'Pulpit Pojazdu',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
@@ -112,7 +115,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings_rounded),
-                tooltip: 'Ustawienia pojazdu',
+                tooltip: l10n?.dashboardSettingsTooltip ?? 'Ustawienia pojazdu',
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -132,7 +135,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
               );
             },
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Nowy wydatek', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(l10n?.dashboardNewExpense ?? 'Nowy wydatek', style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           body: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -296,7 +299,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                       Icon(Icons.speed_rounded, size: 13, color: theme.colorScheme.primary),
                                       const SizedBox(width: 3),
                                       Text(
-                                        'LICZNIK',
+                                        l10n?.dashboardMileageKpi ?? 'LICZNIK',
                                         style: TextStyle(
                                           fontSize: 9.5,
                                           fontWeight: FontWeight.bold,
@@ -309,7 +312,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    AppFormatters.mileage(vehicle.mileageKm),
+                                    AppFormatters.mileage(vehicle.mileageKm, unit: settings.distanceUnit.label),
                                     style: TextStyle(
                                       fontSize: vehicle.purchasePricePln != null ? 14 : 16,
                                       fontWeight: FontWeight.w900,
@@ -339,7 +342,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                     Icon(Icons.receipt_long_rounded, size: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                                     const SizedBox(width: 3),
                                     Text(
-                                      'WYDATKI',
+                                      l10n?.dashboardExpensesKpi ?? 'WYDATKI',
                                       style: TextStyle(
                                         fontSize: 9.5,
                                         fontWeight: FontWeight.bold,
@@ -350,7 +353,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  AppFormatters.shortCurrency(totalVehicleExpenses),
+                                  AppFormatters.shortCurrency(totalVehicleExpenses, currencyCode: settings.currency.code),
                                   style: TextStyle(
                                     fontSize: vehicle.purchasePricePln != null ? 14 : 16,
                                     fontWeight: FontWeight.w900,
@@ -380,7 +383,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                       Icon(Icons.shopping_bag_outlined, size: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                                       const SizedBox(width: 3),
                                       Text(
-                                        'ZAKUP',
+                                        l10n?.dashboardPurchaseKpi ?? 'ZAKUP',
                                         style: TextStyle(
                                           fontSize: 9.5,
                                           fontWeight: FontWeight.bold,
@@ -391,7 +394,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    AppFormatters.shortCurrency(vehicle.purchasePricePln!),
+                                    AppFormatters.shortCurrency(vehicle.purchasePricePln!, currencyCode: settings.currency.code),
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w900,

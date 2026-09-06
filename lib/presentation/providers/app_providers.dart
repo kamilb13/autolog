@@ -1,10 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../data/repositories/expense_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
+import '../../data/repositories/settings_repository.dart';
 import '../../data/repositories/stats_repository.dart';
 import '../../data/repositories/vehicle_repository.dart';
 import '../../data/services/google_drive_service.dart';
+import '../../domain/models/app_settings.dart';
 import '../../domain/models/buyer_report.dart';
 import '../../domain/models/expense.dart';
 import '../../domain/models/expense_suggestion.dart';
@@ -485,3 +488,46 @@ class DriveSyncNotifier extends StateNotifier<DriveSyncState> {
 final driveSyncNotifierProvider = StateNotifierProvider<DriveSyncNotifier, DriveSyncState>((ref) {
   return DriveSyncNotifier(ref.read(googleDriveServiceProvider), ref);
 });
+
+// --- App Settings Notifier & Provider --- //
+final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
+  return SettingsRepository();
+});
+
+class SettingsNotifier extends StateNotifier<AppSettings> {
+  final SettingsRepository _repo;
+
+  SettingsNotifier(this._repo) : super(const AppSettings()) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final s = await _repo.loadSettings();
+    state = s;
+  }
+
+  Future<void> setLanguage(AppLanguage language) async {
+    state = state.copyWith(language: language);
+    await _repo.saveSettings(state);
+  }
+
+  Future<void> setCurrency(AppCurrency currency) async {
+    state = state.copyWith(currency: currency);
+    await _repo.saveSettings(state);
+  }
+
+  Future<void> setDistanceUnit(DistanceUnit unit) async {
+    state = state.copyWith(distanceUnit: unit);
+    await _repo.saveSettings(state);
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    state = state.copyWith(themeMode: mode);
+    await _repo.saveSettings(state);
+  }
+}
+
+final settingsNotifierProvider = StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
+  return SettingsNotifier(ref.read(settingsRepositoryProvider));
+});
+
