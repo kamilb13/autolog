@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/utils/formatters.dart';
+import '../../data/services/expense_suggestions_service.dart';
 import '../../domain/models/expense.dart';
+import '../../domain/models/expense_suggestion.dart';
 import '../providers/app_providers.dart';
 import '../widgets/vehicle_selector.dart';
 
@@ -24,6 +26,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
   String? _selectedVehicleId;
   ExpenseCategory _selectedCategory = ExpenseCategory.fuel;
+  bool _userManuallyChangedCategory = false;
+
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
   final _dateController = TextEditingController(
@@ -36,28 +40,20 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
 
-  final Map<ExpenseCategory, List<String>> _categorySuggestions = {
-    ExpenseCategory.fuel: ['Tankowanie Pb95', 'Tankowanie Diesel', 'Tankowanie LPG', 'AdBlue'],
-    ExpenseCategory.service: [
-      'Wymiana oleju i filtrów',
-      'Klocki i tarcze hamulcowe',
-      'Geometria zawieszenia',
-      'Serwis klimatyzacji',
-      'Wymiana rozrządu'
-    ],
-    ExpenseCategory.parts: ['Wycieraczki szyb', 'Płyn do spryskiwaczy', 'Akumulator', 'Żarówki / Oświetlenie'],
-    ExpenseCategory.insurance: ['Polisa OC', 'Pakiet OC + AC + NNW', 'Assistance'],
-    ExpenseCategory.tollsFees: ['Autostrada A4', 'Myjnia detailingowa', 'Badanie techniczne', 'Parkometr'],
-  };
-
   @override
   void initState() {
     super.initState();
     _selectedVehicleId = widget.initialVehicleId;
+    _titleController.addListener(_onTitleChanged);
+  }
+
+  void _onTitleChanged() {
+    setState(() {});
   }
 
   @override
   void dispose() {
+    _titleController.removeListener(_onTitleChanged);
     _titleController.dispose();
     _amountController.dispose();
     _dateController.dispose();
@@ -65,6 +61,17 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     _locationController.dispose();
     _noteController.dispose();
     super.dispose();
+  }
+
+  void _applySuggestion(ExpenseSuggestion suggestion) {
+    setState(() {
+      _titleController.text = suggestion.title;
+      _titleController.selection = TextSelection.fromPosition(
+        TextPosition(offset: suggestion.title.length),
+      );
+      _selectedCategory = suggestion.category;
+      _userManuallyChangedCategory = false;
+    });
   }
 
   Future<void> _pickDate() async {
@@ -137,7 +144,17 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
-    final suggestions = _categorySuggestions[_selectedCategory] ?? [];
+    final learnedSuggestionsAsync = ref.watch(expenseSuggestionsProvider);
+    final learnedSuggestions = learnedSuggestionsAsync.valueOrNull ?? [];
+    final theme = Theme.of(context);
+
+    final query = _titleController.text.trim();
+    final suggestions = ExpenseSuggestionsService.getSuggestions(
+      query: query,
+      categoryFilter: query.isEmpty ? _selectedCategory : null,
+      userSuggestions: learnedSuggestions,
+      limit: 10,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -189,9 +206,36 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             const SizedBox(height: 14),
 
             // Category Selector Chips
-            const Text(
-              'Kategoria wydatku',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                const Text(
+                  'Kategoria wydatku',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: _selectedCategory.color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(_selectedCategory.icon, size: 12, color: _selectedCategory.color),
+                      const SizedBox(width: 4),
+                      Text(
+                        _selectedCategory.displayName,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: _selectedCategory.color,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 6),
             SingleChildScrollView(
@@ -207,7 +251,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       avatar: Icon(cat.icon, size: 16, color: isSelected ? null : cat.color),
                       label: Text(cat.displayName),
                       onSelected: (selected) {
-                        if (selected) setState(() => _selectedCategory = cat);
+                        if (selected) {
+                          setState(() {
+                            _selectedCategory = cat;
+                            _userManuallyChangedCategory = true;
+                          });
+                        }
                       },
                     ),
                   );
@@ -238,29 +287,116 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             // Title & Suggestions
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Tytuł / Nazwa wpisu *',
-                hintText: 'np. Tankowanie Pb95, Serwis olejowy',
-                prefixIcon: Icon(Icons.edit_note_rounded),
+                hintText: 'np. Tankowanie Pb95, Wycieraczki szyb, Wymiana oleju',
+                prefixIcon: const Icon(Icons.edit_note_rounded),
+                suffixIcon: query.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear_rounded, size: 20),
+                        tooltip: 'Wyczyść pole',
+                        onPressed: () {
+                          _titleController.clear();
+                          setState(() {
+                            _userManuallyChangedCategory = false;
+                          });
+                        },
+                      )
+                    : null,
               ),
               textCapitalization: TextCapitalization.sentences,
+              onChanged: (text) {
+                if (!_userManuallyChangedCategory) {
+                  final inferred = ExpenseSuggestionsService.inferCategory(
+                    text,
+                    customSuggestions: learnedSuggestions,
+                  );
+                  if (inferred != null && inferred != _selectedCategory) {
+                    setState(() {
+                      _selectedCategory = inferred;
+                    });
+                  }
+                }
+              },
               validator: (v) => v == null || v.trim().isEmpty ? 'Podaj tytuł wydatku' : null,
             ),
             const SizedBox(height: 8),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: suggestions.map((sug) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: ActionChip(
-                      label: Text(sug, style: const TextStyle(fontSize: 12)),
-                      onPressed: () => _titleController.text = sug,
+
+            // Suggestion Chips / Autocomplete Options
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  query.isEmpty
+                      ? 'Popularne w kategorii (${suggestions.length}):'
+                      : 'Podpowiedzi (${suggestions.length}):',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                if (query.isNotEmpty)
+                  Text(
+                    'Wybór ustawi kategorię',
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      color: theme.colorScheme.primary,
+                      fontStyle: FontStyle.italic,
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+              ],
             ),
+            const SizedBox(height: 6),
+            if (suggestions.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  'Brak pasujących podpowiedzi. Nowy wpis zostanie zapamiętany w historii.',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: Colors.grey.shade600,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              )
+            else
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: suggestions.map((sug) {
+                    final isDifferentCategory = sug.category != _selectedCategory;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ActionChip(
+                        avatar: Icon(
+                          sug.category.icon,
+                          size: 14.5,
+                          color: sug.category.color,
+                        ),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(sug.title, style: const TextStyle(fontSize: 12)),
+                            if (sug.isCustom) ...[
+                              const SizedBox(width: 4),
+                              Icon(Icons.history_rounded, size: 12, color: Colors.grey.shade600),
+                            ],
+                          ],
+                        ),
+                        backgroundColor: isDifferentCategory
+                            ? sug.category.color.withValues(alpha: 0.08)
+                            : null,
+                        side: isDifferentCategory
+                            ? BorderSide(color: sug.category.color.withValues(alpha: 0.35))
+                            : null,
+                        tooltip: 'Kategoria: ${sug.category.displayName}${sug.isCustom ? ' (z Twojej historii)' : ''}',
+                        onPressed: () => _applySuggestion(sug),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
             const SizedBox(height: 14),
 
             // Date & Mileage

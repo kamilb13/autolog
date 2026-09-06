@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import '../../domain/models/expense.dart';
+import '../../domain/models/expense_suggestion.dart';
 import '../database/app_database.dart';
 
 class ExpenseRepository {
@@ -105,5 +106,29 @@ class ExpenseRepository {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<List<ExpenseSuggestion>> getLearnedSuggestions() async {
+    final db = await _appDb.database;
+    try {
+      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+        SELECT title, category, COUNT(*) as usage_count, MAX(created_at) as last_used
+        FROM expenses
+        WHERE title IS NOT NULL AND TRIM(title) != ''
+        GROUP BY title, category
+        ORDER BY usage_count DESC, last_used DESC
+      ''');
+
+      return maps.map((m) {
+        return ExpenseSuggestion(
+          title: m['title'] as String,
+          category: ExpenseCategory.fromString(m['category'] as String?),
+          isCustom: true,
+          count: (m['usage_count'] as num?)?.toInt() ?? 1,
+        );
+      }).toList();
+    } catch (_) {
+      return [];
+    }
   }
 }

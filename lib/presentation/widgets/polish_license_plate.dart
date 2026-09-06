@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class PolishLicensePlate extends StatelessWidget {
   final String plateText;
   final double scale;
+  final VoidCallback? onTap;
 
   const PolishLicensePlate({
     super.key,
     required this.plateText,
     this.scale = 1.0,
+    this.onTap,
   });
 
   @override
@@ -16,7 +18,7 @@ class PolishLicensePlate extends StatelessWidget {
     // Format plate text with space between district code and registration characters if needed
     final cleanText = plateText.trim().toUpperCase();
 
-    return Container(
+    final plateWidget = Container(
       height: 32 * scale,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -88,6 +90,19 @@ class PolishLicensePlate extends StatelessWidget {
         ),
       ),
     );
+
+    if (onTap != null) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(5 * scale),
+          child: plateWidget,
+        ),
+      );
+    }
+
+    return plateWidget;
   }
 }
 

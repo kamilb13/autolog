@@ -249,11 +249,25 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                 child: TimelineExpenseItem(
                   expense: exp,
                   onDelete: () async {
+                    final deletedExpense = exp;
                     final messenger = ScaffoldMessenger.of(context);
-                    await ref.read(expensesNotifierProvider.notifier).deleteExpense(exp.id);
+                    messenger.hideCurrentSnackBar();
+
+                    await ref.read(expensesNotifierProvider.notifier).deleteExpense(deletedExpense.id);
+
                     if (mounted) {
                       messenger.showSnackBar(
-                        SnackBar(content: Text('Usunięto wpis "${exp.title}"')),
+                        SnackBar(
+                          content: Text('Usunięto wpis "${deletedExpense.title}"'),
+                          duration: const Duration(seconds: 5),
+                          action: SnackBarAction(
+                            label: 'COFNIJ',
+                            textColor: Colors.black,
+                            onPressed: () async {
+                              await ref.read(expensesNotifierProvider.notifier).addExpense(deletedExpense);
+                            },
+                          ),
+                        ),
                       );
                     }
                   },

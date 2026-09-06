@@ -37,8 +37,8 @@ class GarageScreen extends ConsumerWidget {
             onPressed: () => ref.read(vehiclesNotifierProvider.notifier).refresh(),
           ),
           IconButton(
-            icon: const Icon(Icons.cloud_sync_rounded),
-            tooltip: 'Kopia w Google Drive',
+            icon: const Icon(Icons.backup_rounded),
+            tooltip: 'Kopia zapasowa i przywracanie',
             onPressed: () {
               showDialog(
                 context: context,

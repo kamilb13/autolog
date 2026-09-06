@@ -9,11 +9,13 @@ class DriveSyncDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final driveState = ref.watch(driveSyncNotifierProvider);
     final driveNotifier = ref.read(driveSyncNotifierProvider.notifier);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 450),
+        constraints: const BoxConstraints(maxWidth: 460),
         padding: const EdgeInsets.all(22),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -23,18 +25,27 @@ class DriveSyncDialog extends ConsumerWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(9),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4285F4).withValues(alpha: 0.12),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.cloud_sync_rounded, color: Color(0xFF4285F4), size: 24),
+                  child: Icon(Icons.backup_rounded, color: theme.colorScheme.primary, size: 24),
                 ),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Text(
-                    'Kopia Zapasowa (Google Drive)',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Kopia Zapasowa',
+                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Lokalny plik JSON',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      ),
+                    ],
                   ),
                 ),
                 IconButton(
@@ -45,154 +56,101 @@ class DriveSyncDialog extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
 
-            // Account status
-            if (driveState.isSignedIn) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.shade200),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundImage: driveState.user?.photoUrl != null
-                          ? NetworkImage(driveState.user!.photoUrl!)
-                          : null,
-                      child: driveState.user?.photoUrl == null
-                          ? const Icon(Icons.person_rounded)
-                          : null,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            driveState.user?.displayName ?? 'Konto Google',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green.shade900, fontSize: 14),
-                          ),
-                          Text(
-                            driveState.user?.email ?? '',
-                            style: TextStyle(fontSize: 12, color: Colors.green.shade800),
-                          ),
-                        ],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => driveNotifier.signOut(),
-                      child: const Text('Wyloguj', style: TextStyle(fontSize: 12)),
-                    ),
-                  ],
-                ),
-              ),
-            ] else ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.cloud_off_rounded, color: Colors.grey, size: 28),
-                    const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text(
-                        'Zaloguj się kontem Google, aby synchronizować bazę pojazdów w bezpiecznej chmurze.',
-                        style: TextStyle(fontSize: 12, color: Colors.black87),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: driveState.isSyncing ? null : () => driveNotifier.signIn(),
-                icon: const Icon(Icons.login_rounded),
-                label: const Text('Zaloguj przez Google'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4285F4),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 8),
-
-            // Backup & Restore Actions
+            // Loading Indicator
             if (driveState.isSyncing) ...[
               const Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: 20),
                   child: Column(
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: 12),
-                      Text('Przetwarzanie synchronizacji z Dyskiem...'),
+                      Text('Przetwarzanie operacji na pliku bazy danych...'),
                     ],
                   ),
                 ),
               )
             ] else ...[
+              // Action 1: Export & Share Backup
               ElevatedButton.icon(
                 onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(context);
-                  final res = await driveNotifier.backup();
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(res.message),
-                      backgroundColor: res.isSuccess ? Colors.green : Colors.red,
-                    ),
-                  );
+                  await driveNotifier.shareLocalBackup();
                 },
-                icon: const Icon(Icons.cloud_upload_rounded),
-                label: const Text('Utwórz kopię na Dysku Google'),
+                icon: const Icon(Icons.file_upload_rounded),
+                label: const Text('Eksportuj kopię bazy'),
                 style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  minimumSize: const Size(double.infinity, 46),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
+
+              // Action 2: Import & Restore Backup
               OutlinedButton.icon(
                 onPressed: () async {
                   final messenger = ScaffoldMessenger.of(context);
-                  final res = await driveNotifier.restore();
+                  final res = await driveNotifier.importLocalBackup();
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text(res.message),
                       backgroundColor: res.isSuccess ? Colors.green : Colors.red,
+                      duration: const Duration(seconds: 4),
                     ),
                   );
+                  if (res.isSuccess && context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 },
-                icon: const Icon(Icons.cloud_download_rounded),
-                label: const Text('Przywróć dane z Dysku Google'),
+                icon: const Icon(Icons.file_download_rounded),
+                label: const Text('Importuj i przywróć bazę'),
                 style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  minimumSize: const Size(double.infinity, 46),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-              ),
-              const SizedBox(height: 8),
-              TextButton.icon(
-                onPressed: () => driveNotifier.shareLocalBackup(),
-                icon: const Icon(Icons.share_rounded, size: 18),
-                label: const Text('Eksportuj plik bazy (JSON / Udostępnij)'),
               ),
             ],
 
-            if (driveState.statusMessage != null && !driveState.isSyncing) ...[
-              const SizedBox(height: 10),
-              Text(
-                driveState.statusMessage!,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                textAlign: TextAlign.center,
+            const SizedBox(height: 16),
+            Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+            const SizedBox(height: 12),
+
+            // Notice about Google Cloud Sync (Disabled for now)
+            Row(
+              children: [
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Twoje dane są zapisane lokalnie w telefonie. Przed odinstalowaniem aplikacji lub zmianą telefonu wyeksportuj plik JSON i zapisz go na dysku lub wyślij mailem.',
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                  ),
+                ),
+              ],
+            ),
+
+            /*
+            // --- GOOGLE DRIVE DIRECT SYNC (Commented out until OAuth SHA-1 client ID is configured in Google Cloud) ---
+            if (driveState.isSignedIn) ...[
+              ElevatedButton.icon(
+                onPressed: () => driveNotifier.backup(),
+                icon: const Icon(Icons.cloud_upload_rounded),
+                label: const Text('Kopia w Google Drive'),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => driveNotifier.restore(),
+                icon: const Icon(Icons.cloud_download_rounded),
+                label: const Text('Przywróć z Google Drive'),
+              ),
+            ] else ...[
+              ElevatedButton.icon(
+                onPressed: () => driveNotifier.signIn(),
+                icon: const Icon(Icons.login_rounded),
+                label: const Text('Zaloguj przez Google'),
               ),
             ],
+            // --------------------------------------------------------------------------------------------------------
+            */
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/formatters.dart';
 import '../../domain/models/expense.dart';
@@ -25,6 +26,32 @@ class VehicleDashboardScreen extends ConsumerStatefulWidget {
 
 class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen> {
   ExpenseCategory? _selectedCategory;
+
+  void _copyToClipboard(BuildContext context, String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    HapticFeedback.lightImpact();
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_outline_rounded, color: Colors.greenAccent, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Skopiowano $label: $text',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,10 +181,85 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                             ],
                           ),
                         ),
-                        PolishLicensePlate(plateText: vehicle.licensePlate, scale: 0.95),
+                        const SizedBox(width: 8),
+                        Tooltip(
+                          message: 'Kliknij, aby skopiować nr rejestracyjny',
+                          child: PolishLicensePlate(
+                            plateText: vehicle.licensePlate,
+                            scale: 0.95,
+                            onTap: () => _copyToClipboard(
+                              context,
+                              vehicle.licensePlate,
+                              'numer rejestracyjny',
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
+
+                    // VIN Row / Chip
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          if (vehicle.vin.trim().isNotEmpty) {
+                            _copyToClipboard(context, vehicle.vin.trim(), 'numer VIN');
+                          } else {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => VehicleSettingsScreen(vehicle: vehicle),
+                              ),
+                            );
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.05)
+                                : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.tag_rounded,
+                                size: 14,
+                                color: theme.colorScheme.primary.withValues(alpha: 0.9),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                vehicle.vin.trim().isNotEmpty
+                                    ? 'VIN: ${vehicle.vin.trim()}'
+                                    : 'VIN: Brak (kliknij, aby dodać)',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: vehicle.vin.trim().isNotEmpty ? 'monospace' : null,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: vehicle.vin.trim().isNotEmpty ? 0.6 : 0,
+                                  color: vehicle.vin.trim().isNotEmpty
+                                      ? theme.colorScheme.onSurface.withValues(alpha: 0.85)
+                                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                vehicle.vin.trim().isNotEmpty ? Icons.copy_rounded : Icons.edit_rounded,
+                                size: 13,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     Divider(height: 1, color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06)),
                     const SizedBox(height: 14),
 
@@ -403,7 +505,7 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                             duration: const Duration(seconds: 5),
                             action: SnackBarAction(
                               label: 'COFNIJ',
-                              textColor: Colors.amberAccent,
+                              textColor: Colors.black,
                               onPressed: () async {
                                 await ref.read(remindersNotifierProvider.notifier).addReminder(deletedReminder);
                               },
@@ -487,11 +589,25 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                     child: TimelineExpenseItem(
                       expense: exp,
                       onDelete: () async {
+                        final deletedExpense = exp;
                         final messenger = ScaffoldMessenger.of(context);
-                        await ref.read(expensesNotifierProvider.notifier).deleteExpense(exp.id);
+                        messenger.hideCurrentSnackBar();
+
+                        await ref.read(expensesNotifierProvider.notifier).deleteExpense(deletedExpense.id);
+
                         if (mounted) {
                           messenger.showSnackBar(
-                            SnackBar(content: Text('Usunięto wpis "${exp.title}"')),
+                            SnackBar(
+                              content: Text('Usunięto wpis "${deletedExpense.title}"'),
+                              duration: const Duration(seconds: 5),
+                              action: SnackBarAction(
+                                label: 'COFNIJ',
+                                textColor: Colors.black,
+                                onPressed: () async {
+                                  await ref.read(expensesNotifierProvider.notifier).addExpense(deletedExpense);
+                                },
+                              ),
+                            ),
                           );
                         }
                       },

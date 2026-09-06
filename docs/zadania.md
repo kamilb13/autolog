@@ -92,6 +92,18 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
 - [x] **Obsługa ceny zakupu pojazdu (`purchase_price_pln`)**:
   - Rozszerzono model `Vehicle`, migrację bazy SQLite do wersji 2, formularz dodawania/edycji auta, pulpit KPI pojazdu oraz raport PDF.
 
+## 💡 Faza 11: Inteligentna kategoryzacja wydatków i opcja Undo
+- [x] **Opcja „COFNIJ” (Undo) przy usuwaniu wydatku z osi czasu (`ExpensesScreen` i `VehicleDashboardScreen`)**:
+  - Dodano 5-sekundowy pasek `SnackBar` z akcją „COFNIJ” przy usuwaniu wpisu wydatku/serwisu z osi czasu, zabezpieczając przed przypadkowym skasowaniem danych.
+- [x] **Inteligentne autouzupełnianie i automatyczna kategoryzacja wydatków (`AddExpenseScreen`)**:
+  - Wdrożono dynamiczne podpowiedzi (autocomplete / sugestie) podczas wpisywania tytułu/opisu wydatku (np. wpisanie *"Wycier"* $\to$ podpowiedź *"Wycieraczki szyb"*).
+  - Automatyczna zmiana kategorii wydatku na odpowiadającą (np. wybór *"Wycieraczki szyb"* $\to$ zmiana kategorii na *Części i eksploatacja*).
+  - Wdrożono serwis `ExpenseSuggestionsService` z bogatą bazą popularnych pozycji kosztowych przypisanych do 5 kategorii oraz algorytm detekcji słów kluczowych.
+  - Zaimplementowano dynamiczne uczenie się na podstawie historii wpisów użytkownika (`getLearnedSuggestions()` w `ExpenseRepository` i `expenseSuggestionsProvider`).
+- [x] **Kopiowanie numeru rejestracyjnego i VIN do schowka (`VehicleDashboardScreen`)**:
+  - Dodano możliwość kliknięcia w tablicę rejestracyjną oraz dedykowany chip VIN w celu natychmiastowego skopiowania wartości do schowka systemowego z potwierdzeniem `SnackBar` i haptyką.
+  - Wyświetlanie numeru VIN na pulpicie pojazdu z opcją szybkiego przejścia do edycji, jeśli VIN nie został jeszcze podany.
+
 ---
 
 ## 🔮 Zadania na przyszłość (Backlog / Rozwój)
@@ -103,3 +115,6 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
   - Obsługa języka **polskiego (PL)** oraz **angielskiego (EN)** z możliwością łatwego dodawania kolejnych języków.
   - Przełącznik języka w ustawieniach aplikacji z opcją wykrywania języka systemowego telefonu.
   - Dostosowanie formatowania walut i jednostek miary (PLN/EUR/USD, km/mi).
+
+
+

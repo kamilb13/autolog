@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:path_provider/path_provider.dart';
@@ -206,5 +207,71 @@ class GoogleDriveService {
       [XFile(file.path)],
       text: 'AutoLog — Kopia zapasowa bazy danych',
     );
+  }
+
+  /// Offline local backup import from picked JSON file
+  Future<GoogleDriveSyncResult> importLocalBackupFromFile() async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.any,
+      );
+
+      if (result == null || result.files.isEmpty) {
+        return const GoogleDriveSyncResult(
+          isSuccess: false,
+          message: 'Anulowano wybór pliku kopii zapasowej.',
+        );
+      }
+
+      final pickedFile = result.files.first;
+      String jsonString;
+
+      if (pickedFile.path != null && File(pickedFile.path!).existsSync()) {
+        jsonString = await File(pickedFile.path!).readAsString();
+      } else if (pickedFile.bytes != null) {
+        jsonString = utf8.decode(pickedFile.bytes!);
+      } else {
+        return const GoogleDriveSyncResult(
+          isSuccess: false,
+          message: 'Nie udało się odczytać zawartości wybranego pliku.',
+        );
+      }
+
+      return await importFromRawJson(jsonString);
+    } catch (e) {
+      return GoogleDriveSyncResult(
+        isSuccess: false,
+        message: 'Błąd podczas wczytywania pliku: $e',
+      );
+    }
+  }
+
+  /// Import database directly from raw JSON string with validation
+  Future<GoogleDriveSyncResult> importFromRawJson(String jsonString) async {
+    try {
+      final decoded = jsonDecode(jsonString);
+      if (decoded is! Map<String, dynamic> || (!decoded.containsKey('vehicles') && !decoded.containsKey('expenses'))) {
+        return const GoogleDriveSyncResult(
+          isSuccess: false,
+          message: 'Wybrany plik nie jest prawidłową kopią zapasową AutoLog.',
+        );
+      }
+
+      final counts = await AppDatabase.instance.importFromJson(jsonString);
+      final vehCount = counts['vehicles'] ?? 0;
+      final expCount = counts['expenses'] ?? 0;
+      final remCount = counts['reminders'] ?? 0;
+
+      return GoogleDriveSyncResult(
+        isSuccess: true,
+        message: 'Pomyślnie przywrócono bazę!\n(Pojazdy: $vehCount, Wydatki: $expCount, Przypomnienia: $remCount)',
+        backupDate: DateTime.now(),
+      );
+    } catch (e) {
+      return GoogleDriveSyncResult(
+        isSuccess: false,
+        message: 'Błąd parsowania pliku JSON: $e',
+      );
+    }
   }
 }

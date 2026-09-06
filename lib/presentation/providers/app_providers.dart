@@ -7,6 +7,7 @@ import '../../data/repositories/vehicle_repository.dart';
 import '../../data/services/google_drive_service.dart';
 import '../../domain/models/buyer_report.dart';
 import '../../domain/models/expense.dart';
+import '../../domain/models/expense_suggestion.dart';
 import '../../domain/models/service_reminder.dart';
 import '../../domain/models/tco_stats.dart';
 import '../../domain/models/vehicle.dart';
@@ -158,21 +159,30 @@ class ExpensesNotifier extends StateNotifier<ExpensesState> {
     _ref.read(vehiclesNotifierProvider.notifier).refresh();
     _ref.read(remindersNotifierProvider.notifier).refresh();
     _ref.read(statsNotifierProvider.notifier).refresh();
+    _ref.invalidate(expenseSuggestionsProvider);
   }
 
   Future<void> deleteExpense(String expenseId) async {
     await _repository.deleteExpense(expenseId);
     await loadExpenses();
     _ref.read(statsNotifierProvider.notifier).refresh();
+    _ref.read(vehiclesNotifierProvider.notifier).refresh();
+    _ref.invalidate(expenseSuggestionsProvider);
   }
 
   Future<void> refresh() async {
     await loadExpenses();
+    _ref.invalidate(expenseSuggestionsProvider);
   }
 }
 
 final expensesNotifierProvider = StateNotifierProvider<ExpensesNotifier, ExpensesState>((ref) {
   return ExpensesNotifier(ref.read(expenseRepositoryProvider), ref);
+});
+
+final expenseSuggestionsProvider = FutureProvider<List<ExpenseSuggestion>>((ref) async {
+  final repo = ref.watch(expenseRepositoryProvider);
+  return repo.getLearnedSuggestions();
 });
 
 // --- Reminders Notifier & State --- //
@@ -451,6 +461,24 @@ class DriveSyncNotifier extends StateNotifier<DriveSyncState> {
 
   Future<void> shareLocalBackup() async {
     await _driveService.exportAndShareLocalBackup();
+  }
+
+  Future<GoogleDriveSyncResult> importLocalBackup() async {
+    state = state.copyWith(isSyncing: true, statusMessage: 'Wczytywanie pliku kopii zapasowej...');
+    final result = await _driveService.importLocalBackupFromFile();
+    state = state.copyWith(
+      isSyncing: false,
+      statusMessage: result.message,
+    );
+    if (result.isSuccess) {
+      // Reload all data in providers
+      _ref.read(vehiclesNotifierProvider.notifier).refresh();
+      _ref.read(expensesNotifierProvider.notifier).refresh();
+      _ref.read(remindersNotifierProvider.notifier).refresh();
+      _ref.read(statsNotifierProvider.notifier).refresh();
+      _ref.invalidate(expenseSuggestionsProvider);
+    }
+    return result;
   }
 }
 

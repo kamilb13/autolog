@@ -8,7 +8,9 @@
 * Szybka aktualizacja bieżącego stanu licznika (+100 / +500 / +1000 km lub wpisanie ręczne).
 
 ### Dziennik wydatków i serwisów
-* Rejestrowanie wydatków z podziałem na kategorie: paliwo, serwis/naprawy, ubezpieczenie, opłaty drogowe/parking, tuning, inne.
+* Rejestrowanie wydatków z podziałem na 5 głównych kategorii (Paliwo, Naprawa/Serwis, Części i eksploatacja, Ubezpieczenie, Opłaty i inne).
+* **Inteligentne autouzupełnianie i automatyczna kategoryzacja**: podpowiedzi w locie na podstawie wpisywanego tekstu (np. "Wycier" $\to$ "Wycieraczki szyb"), automatyczne przypisanie kategorii, słownik popularnych pozycji i dynamiczne uczenie się z historii użytkownika.
+* **Opcja „COFNIJ” (Undo)**: 5-sekundowy pasek SnackBar przy usuwaniu wydatku zapobiegający przypadkowej utracie danych.
 * Wprowadzanie szczegółów: data (format ISO YYYY-MM-DD), przebieg przy zdarzeniu, kwota w PLN, warsztat/stacja, notatka.
 * Filtrowanie wydatków według pojazdu oraz kategorii z podsumowaniem całkowitym (KPI).
 * Automatyczne aktualizowanie przebiegu pojazdu, jeśli wydatek wprowadzono z wyższym stanem licznika.
