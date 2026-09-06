@@ -246,11 +246,24 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
               ),
             )
           else
-            ...expensesState.expenses.map(
-              (exp) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: TimelineExpenseItem(
+            ...expensesState.expenses.asMap().entries.map(
+              (entry) {
+                final index = entry.key;
+                final exp = entry.value;
+                final isFirst = index == 0;
+                final isLast = index == expensesState.expenses.length - 1;
+
+                final currentMonth = AppFormatters.formatMonthYear(exp.date);
+                final prevMonth = index > 0
+                    ? AppFormatters.formatMonthYear(expensesState.expenses[index - 1].date)
+                    : null;
+                final showMonth = isFirst || (currentMonth != prevMonth);
+
+                return TimelineExpenseItem(
                   expense: exp,
+                  isFirst: isFirst,
+                  isLast: isLast,
+                  monthHeader: showMonth ? currentMonth : null,
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -281,8 +294,8 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                       );
                     }
                   },
-                ),
-              ),
+                );
+              },
             ),
           const SizedBox(height: 72),
         ],

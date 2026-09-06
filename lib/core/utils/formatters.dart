@@ -96,6 +96,17 @@ class AppFormatters {
     }
   }
 
+  static String formatMonthYear(String? rawDate) {
+    if (rawDate == null || rawDate.isEmpty) return 'Historia';
+    try {
+      final date = DateTime.parse(rawDate);
+      final monthName = DateFormat('LLLL yyyy', 'pl_PL').format(date);
+      return monthName[0].toUpperCase() + monthName.substring(1);
+    } catch (_) {
+      return 'Historia';
+    }
+  }
+
   static DateTime? parseFlexibleDate(String input) {
     final trimmed = input.trim();
     if (trimmed.isEmpty) return null;

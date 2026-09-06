@@ -764,11 +764,24 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                   ),
                 )
               else
-                ...vehicleExpenses.map(
-                  (exp) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: TimelineExpenseItem(
+                ...vehicleExpenses.asMap().entries.map(
+                  (entry) {
+                    final index = entry.key;
+                    final exp = entry.value;
+                    final isFirst = index == 0;
+                    final isLast = index == vehicleExpenses.length - 1;
+
+                    final currentMonth = AppFormatters.formatMonthYear(exp.date);
+                    final prevMonth = index > 0
+                        ? AppFormatters.formatMonthYear(vehicleExpenses[index - 1].date)
+                        : null;
+                    final showMonth = isFirst || (currentMonth != prevMonth);
+
+                    return TimelineExpenseItem(
                       expense: exp,
+                      isFirst: isFirst,
+                      isLast: isLast,
+                      monthHeader: showMonth ? currentMonth : null,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -799,8 +812,8 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                           );
                         }
                       },
-                    ),
-                  ),
+                    );
+                  },
                 ),
               const SizedBox(height: 72),
             ],
