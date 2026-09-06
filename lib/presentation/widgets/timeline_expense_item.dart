@@ -9,6 +9,7 @@ class TimelineExpenseItem extends ConsumerWidget {
   final bool isFirst;
   final bool isLast;
   final String? monthHeader;
+  final bool showVehicleBadge;
   final VoidCallback? onDelete;
   final VoidCallback? onTap;
 
@@ -18,6 +19,7 @@ class TimelineExpenseItem extends ConsumerWidget {
     this.isFirst = false,
     this.isLast = false,
     this.monthHeader,
+    this.showVehicleBadge = false,
     this.onDelete,
     this.onTap,
   });
@@ -27,6 +29,10 @@ class TimelineExpenseItem extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final settings = ref.watch(settingsNotifierProvider);
+    final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
+    final vehicle = showVehicleBadge
+        ? vehiclesAsync.valueOrNull?.where((v) => v.id == expense.vehicleId).firstOrNull
+        : null;
     final category = expense.category;
     final lineColor = isDark
         ? Colors.white.withValues(alpha: 0.14)
@@ -182,6 +188,62 @@ class TimelineExpenseItem extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Vehicle Badge
+                              if (vehicle != null) ...[
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.05)
+                                        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.08)
+                                          : Colors.black.withValues(alpha: 0.05),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.directions_car_rounded,
+                                        size: 12,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${vehicle.brand} ${vehicle.model}',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
+                                        ),
+                                      ),
+                                      if (vehicle.licensePlate.isNotEmpty) ...[
+                                        Text(
+                                          ' • ',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
+                                          ),
+                                        ),
+                                        Text(
+                                          vehicle.licensePlate,
+                                          style: TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.3,
+                                            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ],
+
                               // Top Row: Title + Amount
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,

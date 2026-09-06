@@ -264,6 +264,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                   isFirst: isFirst,
                   isLast: isLast,
                   monthHeader: showMonth ? currentMonth : null,
+                  showVehicleBadge: true,
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
