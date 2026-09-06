@@ -245,33 +245,41 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                 ],
               ),
             )
-          else
-            ...expensesState.expenses.asMap().entries.map(
-              (entry) {
-                final index = entry.key;
-                final exp = entry.value;
-                final isFirst = index == 0;
-                final isLast = index == expensesState.expenses.length - 1;
+          else ...[
+            ...() {
+              final monthTotals = <String, double>{};
+              for (final exp in expensesState.expenses) {
+                final monthKey = AppFormatters.formatMonthYear(exp.date);
+                monthTotals[monthKey] = (monthTotals[monthKey] ?? 0.0) + exp.amountPln;
+              }
 
-                final currentMonth = AppFormatters.formatMonthYear(exp.date);
-                final prevMonth = index > 0
-                    ? AppFormatters.formatMonthYear(expensesState.expenses[index - 1].date)
-                    : null;
-                final showMonth = isFirst || (currentMonth != prevMonth);
+              return expensesState.expenses.asMap().entries.map(
+                (entry) {
+                  final index = entry.key;
+                  final exp = entry.value;
+                  final isFirst = index == 0;
+                  final isLast = index == expensesState.expenses.length - 1;
 
-                return TimelineExpenseItem(
-                  expense: exp,
-                  isFirst: isFirst,
-                  isLast: isLast,
-                  monthHeader: showMonth ? currentMonth : null,
-                  showVehicleBadge: true,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => AddExpenseScreen(initialExpense: exp),
-                      ),
-                    );
-                  },
+                  final currentMonth = AppFormatters.formatMonthYear(exp.date);
+                  final prevMonth = index > 0
+                      ? AppFormatters.formatMonthYear(expensesState.expenses[index - 1].date)
+                      : null;
+                  final showMonth = isFirst || (currentMonth != prevMonth);
+
+                  return TimelineExpenseItem(
+                    expense: exp,
+                    isFirst: isFirst,
+                    isLast: isLast,
+                    monthHeader: showMonth ? currentMonth : null,
+                    monthTotal: showMonth ? monthTotals[currentMonth] : null,
+                    showVehicleBadge: true,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => AddExpenseScreen(initialExpense: exp),
+                        ),
+                      );
+                    },
                   onDelete: () async {
                     final deletedExpense = exp;
                     final messenger = ScaffoldMessenger.of(context);
@@ -296,8 +304,9 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                     }
                   },
                 );
-              },
-            ),
+              });
+            }(),
+          ],
           const SizedBox(height: 72),
         ],
       ),

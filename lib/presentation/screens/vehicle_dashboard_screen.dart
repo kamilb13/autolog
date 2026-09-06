@@ -763,58 +763,68 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                     ],
                   ),
                 )
-              else
-                ...vehicleExpenses.asMap().entries.map(
-                  (entry) {
-                    final index = entry.key;
-                    final exp = entry.value;
-                    final isFirst = index == 0;
-                    final isLast = index == vehicleExpenses.length - 1;
+              else ...[
+                ...() {
+                  final vehicleMonthTotals = <String, double>{};
+                  for (final exp in vehicleExpenses) {
+                    final monthKey = AppFormatters.formatMonthYear(exp.date);
+                    vehicleMonthTotals[monthKey] = (vehicleMonthTotals[monthKey] ?? 0.0) + exp.amountPln;
+                  }
 
-                    final currentMonth = AppFormatters.formatMonthYear(exp.date);
-                    final prevMonth = index > 0
-                        ? AppFormatters.formatMonthYear(vehicleExpenses[index - 1].date)
-                        : null;
-                    final showMonth = isFirst || (currentMonth != prevMonth);
+                  return vehicleExpenses.asMap().entries.map(
+                    (entry) {
+                      final index = entry.key;
+                      final exp = entry.value;
+                      final isFirst = index == 0;
+                      final isLast = index == vehicleExpenses.length - 1;
 
-                    return TimelineExpenseItem(
-                      expense: exp,
-                      isFirst: isFirst,
-                      isLast: isLast,
-                      monthHeader: showMonth ? currentMonth : null,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => AddExpenseScreen(initialExpense: exp),
-                          ),
-                        );
-                      },
-                      onDelete: () async {
-                        final deletedExpense = exp;
-                        final messenger = ScaffoldMessenger.of(context);
-                        messenger.hideCurrentSnackBar();
+                      final currentMonth = AppFormatters.formatMonthYear(exp.date);
+                      final prevMonth = index > 0
+                          ? AppFormatters.formatMonthYear(vehicleExpenses[index - 1].date)
+                          : null;
+                      final showMonth = isFirst || (currentMonth != prevMonth);
 
-                        await ref.read(expensesNotifierProvider.notifier).deleteExpense(deletedExpense.id);
-
-                        if (mounted) {
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text('Usunięto wpis "${deletedExpense.title}"'),
-                              duration: const Duration(seconds: 5),
-                              action: SnackBarAction(
-                                label: 'COFNIJ',
-                                textColor: Colors.black,
-                                onPressed: () async {
-                                  await ref.read(expensesNotifierProvider.notifier).addExpense(deletedExpense);
-                                },
-                              ),
+                      return TimelineExpenseItem(
+                        expense: exp,
+                        isFirst: isFirst,
+                        isLast: isLast,
+                        monthHeader: showMonth ? currentMonth : null,
+                        monthTotal: showMonth ? vehicleMonthTotals[currentMonth] : null,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => AddExpenseScreen(initialExpense: exp),
                             ),
                           );
-                        }
-                      },
-                    );
-                  },
-                ),
+                        },
+                        onDelete: () async {
+                          final deletedExpense = exp;
+                          final messenger = ScaffoldMessenger.of(context);
+                          messenger.hideCurrentSnackBar();
+
+                          await ref.read(expensesNotifierProvider.notifier).deleteExpense(deletedExpense.id);
+
+                          if (mounted) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text('Usunięto wpis "${deletedExpense.title}"'),
+                                duration: const Duration(seconds: 5),
+                                action: SnackBarAction(
+                                  label: 'COFNIJ',
+                                  textColor: Colors.black,
+                                  onPressed: () async {
+                                    await ref.read(expensesNotifierProvider.notifier).addExpense(deletedExpense);
+                                  },
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    },
+                  );
+                }(),
+              ],
               const SizedBox(height: 72),
             ],
           ),

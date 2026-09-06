@@ -9,6 +9,7 @@ class TimelineExpenseItem extends ConsumerWidget {
   final bool isFirst;
   final bool isLast;
   final String? monthHeader;
+  final double? monthTotal;
   final bool showVehicleBadge;
   final VoidCallback? onDelete;
   final VoidCallback? onTap;
@@ -19,6 +20,7 @@ class TimelineExpenseItem extends ConsumerWidget {
     this.isFirst = false,
     this.isLast = false,
     this.monthHeader,
+    this.monthTotal,
     this.showVehicleBadge = false,
     this.onDelete,
     this.onTap,
@@ -94,6 +96,24 @@ class TimelineExpenseItem extends ConsumerWidget {
                           letterSpacing: 0.2,
                         ),
                       ),
+                      if (monthTotal != null) ...[
+                        Text(
+                          ' • ',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                            color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        Text(
+                          AppFormatters.currency(monthTotal!, currencyCode: settings.currency.code),
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

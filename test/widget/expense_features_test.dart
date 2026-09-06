@@ -258,6 +258,45 @@ void main() {
       // Verify header updated to 100 km
       expect(find.text('Koszt na 100 km'), findsOneWidget);
     });
+
+    testWidgets('ExpensesScreen displays monthly sum in timeline milestone', (WidgetTester tester) async {
+      final exp1 = Expense(
+        id: 'exp_test_1',
+        vehicleId: 'veh_test_1',
+        category: ExpenseCategory.fuel,
+        title: 'Paliwo 1',
+        amountPln: 200.0,
+        date: '2026-09-01',
+        mileageKm: 120000,
+      );
+      final exp2 = Expense(
+        id: 'exp_test_2',
+        vehicleId: 'veh_test_1',
+        category: ExpenseCategory.service,
+        title: 'Serwis 1',
+        amountPln: 300.0,
+        date: '2026-09-10',
+        mileageKm: 120500,
+      );
+
+      await tester.pumpWidget(
+        createTestWidget(
+          overrides: [
+            expensesNotifierProvider.overrideWith(
+              (ref) => _MockMultiExpensesNotifier([exp1, exp2]),
+            ),
+            vehiclesNotifierProvider.overrideWith(() => _MockVehiclesNotifier()),
+          ],
+          child: const ExpensesScreen(),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify month milestone contains "Wrzesień 2026" and total sum "500,00 zł" or formatted amount
+      expect(find.text('Wrzesień 2026'), findsOneWidget);
+      expect(find.textContaining('500,00'), findsWidgets);
+    });
   });
 }
 
@@ -308,6 +347,33 @@ class _MockExpensesNotifier extends StateNotifier<ExpensesState> implements Expe
   Future<void> deleteExpense(String expenseId) async {
     state = state.copyWith(expenses: []);
   }
+
+  @override
+  Future<void> loadExpenses() async {}
+  @override
+  Future<void> refresh() async {}
+  @override
+  Future<void> setCategoryFilter(ExpenseCategory? category) async {}
+  @override
+  Future<void> setSearchQuery(String query) async {}
+  @override
+  Future<void> setVehicleFilter(String? vehicleId) async {}
+}
+
+class _MockMultiExpensesNotifier extends StateNotifier<ExpensesState> implements ExpensesNotifier {
+  _MockMultiExpensesNotifier(List<Expense> expenses)
+      : super(ExpensesState(expenses: expenses));
+
+  @override
+  Future<void> addExpense(Expense expense) async {
+    state = state.copyWith(expenses: [...state.expenses, expense]);
+  }
+
+  @override
+  Future<void> updateExpense(Expense expense) async {}
+
+  @override
+  Future<void> deleteExpense(String expenseId) async {}
 
   @override
   Future<void> loadExpenses() async {}
