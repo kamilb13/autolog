@@ -27,6 +27,7 @@ class VehicleDashboardScreen extends ConsumerStatefulWidget {
 
 class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen> {
   ExpenseCategory? _selectedCategory;
+  int _costDistance = 1;
 
   void _copyToClipboard(BuildContext context, String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
@@ -51,6 +52,95 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
+    );
+  }
+
+  void _showEditDistanceDialog(BuildContext context, String unit) {
+    final controller = TextEditingController(text: _costDistance.toString());
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.calculate_outlined, color: theme.colorScheme.primary, size: 22),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n?.dashboardEditDistanceTitle ?? 'Kalkulator kosztu na dystans',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Wybierz lub wpisz dystans, dla którego chcesz przeliczyć koszt (bez ceny auta):',
+                    style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [1, 10, 100, 1000].map((d) {
+                      final isSelected = controller.text == d.toString();
+                      return ChoiceChip(
+                        label: Text('$d $unit'),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          if (selected) {
+                            setDialogState(() {
+                              controller.text = d.toString();
+                            });
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: l10n?.dashboardEditDistanceLabel(unit) ?? 'Dystans ($unit)',
+                      suffixText: unit,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onChanged: (_) => setDialogState(() {}),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(l10n?.commonCancel ?? 'Anuluj'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final val = int.tryParse(controller.text.trim());
+                    if (val != null && val > 0) {
+                      setState(() {
+                        _costDistance = val;
+                      });
+                      Navigator.of(ctx).pop();
+                    }
+                  },
+                  child: Text(l10n?.dashboardEditDistanceBtn ?? 'Zatwierdź'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -87,15 +177,23 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
             .where((r) => r.vehicleId == vehicle.id && !r.isCompleted)
             .toList();
 
-        // Filter expenses for this vehicle
-        var vehicleExpenses = expensesState.expenses.where((e) => e.vehicleId == vehicle.id).toList();
+        // All and filtered expenses for this vehicle
+        final allVehicleExpenses = expensesState.expenses.where((e) => e.vehicleId == vehicle.id).toList();
+        var vehicleExpenses = List<Expense>.from(allVehicleExpenses);
         if (_selectedCategory != null) {
           vehicleExpenses = vehicleExpenses.where((e) => e.category == _selectedCategory).toList();
         }
 
-        final double totalVehicleExpenses = expensesState.expenses
-            .where((e) => e.vehicleId == vehicle.id)
-            .fold(0.0, (sum, e) => sum + e.amountPln);
+        final double totalVehicleExpenses = allVehicleExpenses.fold(0.0, (sum, e) => sum + e.amountPln);
+        final expenseMileages = allVehicleExpenses.map((e) => e.mileageKm).where((km) => km > 0).toList()..sort();
+        int drivenDistance = 0;
+        if (expenseMileages.isNotEmpty && expenseMileages.last > expenseMileages.first) {
+          drivenDistance = expenseMileages.last - expenseMileages.first;
+        } else {
+          drivenDistance = vehicle.mileageKm;
+        }
+        final double costPer1Unit = drivenDistance > 0 ? (totalVehicleExpenses / drivenDistance) : 0.0;
+        final double calculatedDistanceCost = costPer1Unit * _costDistance;
 
         return Scaffold(
           appBar: AppBar(
@@ -409,6 +507,86 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                         ],
                       ],
                     ),
+
+                    // Small & Simple Cost Per Distance Widget (Excludes vehicle purchase price)
+                    const SizedBox(height: 10),
+                    InkWell(
+                      onTap: () => _showEditDistanceDialog(context, settings.distanceUnit.label),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.04)
+                              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.05),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.trending_up_rounded,
+                              size: 15,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n?.dashboardCostPerDistance(_costDistance, settings.distanceUnit.label) ??
+                                        'Koszt na $_costDistance ${settings.distanceUnit.label}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
+                                    ),
+                                  ),
+                                  Text(
+                                    l10n?.dashboardCostExcludesPrice ?? 'Bez ceny zakupu',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    costPer1Unit > 0
+                                        ? AppFormatters.currency(calculatedDistanceCost, currencyCode: settings.currency.code)
+                                        : '—',
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.edit_outlined,
+                                    size: 11,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -591,6 +769,13 @@ class _VehicleDashboardScreenState extends ConsumerState<VehicleDashboardScreen>
                     padding: const EdgeInsets.only(bottom: 8),
                     child: TimelineExpenseItem(
                       expense: exp,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => AddExpenseScreen(initialExpense: exp),
+                          ),
+                        );
+                      },
                       onDelete: () async {
                         final deletedExpense = exp;
                         final messenger = ScaffoldMessenger.of(context);

@@ -91,12 +91,34 @@ class ExpenseRepository {
 
   Future<void> updateExpense(Expense expense) async {
     final db = await _appDb.database;
-    await db.update(
-      'expenses',
-      expense.toMap(),
-      where: 'id = ?',
-      whereArgs: [expense.id],
-    );
+    await db.transaction((txn) async {
+      await txn.update(
+        'expenses',
+        expense.toMap(),
+        where: 'id = ?',
+        whereArgs: [expense.id],
+      );
+
+      // Auto-update vehicle mileage if expense mileage is higher
+      final List<Map<String, dynamic>> vehMap = await txn.query(
+        'vehicles',
+        columns: ['mileage_km'],
+        where: 'id = ?',
+        whereArgs: [expense.vehicleId],
+      );
+
+      if (vehMap.isNotEmpty) {
+        final currentKm = (vehMap.first['mileage_km'] as num).toInt();
+        if (expense.mileageKm > currentKm) {
+          await txn.update(
+            'vehicles',
+            {'mileage_km': expense.mileageKm},
+            where: 'id = ?',
+            whereArgs: [expense.vehicleId],
+          );
+        }
+      }
+    });
   }
 
   Future<void> deleteExpense(String id) async {

@@ -320,6 +320,34 @@ class AppLocalizationsPl extends AppLocalizations {
   String get addExpenseSaveBtn => 'Zapisz wydatek';
 
   @override
+  String get editExpenseSaveBtn => 'Zapisz zmiany';
+
+  @override
+  String get expenseUpdatedMsg => 'Zaktualizowano wydatek!';
+
+  @override
+  String get expenseSavedMsg => 'Zapisano wydatek!';
+
+  @override
+  String dashboardCostPerDistance(Object distance, Object unit) {
+    return 'Koszt na $distance $unit';
+  }
+
+  @override
+  String get dashboardCostExcludesPrice => 'Bez ceny zakupu';
+
+  @override
+  String get dashboardEditDistanceTitle => 'Kalkulator kosztu na dystans';
+
+  @override
+  String dashboardEditDistanceLabel(Object unit) {
+    return 'Dystans ($unit)';
+  }
+
+  @override
+  String get dashboardEditDistanceBtn => 'Zatwierdź';
+
+  @override
   String get addExpenseInvalidAmount => 'Podaj poprawną kwotę większą od zera';
 
   @override

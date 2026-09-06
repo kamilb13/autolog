@@ -14,11 +14,15 @@ import '../widgets/vehicle_selector.dart';
 
 class AddExpenseScreen extends ConsumerStatefulWidget {
   final String? initialVehicleId;
+  final Expense? initialExpense;
 
   const AddExpenseScreen({
     super.key,
     this.initialVehicleId,
+    this.initialExpense,
   });
+
+  bool get isEditing => initialExpense != null;
 
   @override
   ConsumerState<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -48,7 +52,23 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedVehicleId = widget.initialVehicleId;
+    final editExp = widget.initialExpense;
+    if (editExp != null) {
+      _selectedVehicleId = editExp.vehicleId;
+      _selectedCategory = editExp.category;
+      _userManuallyChangedCategory = true;
+      _titleController.text = editExp.title;
+      _amountController.text = editExp.amountPln % 1 == 0
+          ? editExp.amountPln.toInt().toString()
+          : editExp.amountPln.toStringAsFixed(2);
+      _dateController.text = editExp.date;
+      _selectedDate = DateTime.tryParse(editExp.date) ?? DateTime.now();
+      _mileageController.text = editExp.mileageKm.toString();
+      _locationController.text = editExp.workshopOrLocation ?? '';
+      _noteController.text = editExp.note ?? '';
+    } else {
+      _selectedVehicleId = widget.initialVehicleId;
+    }
     _titleController.addListener(_onTitleChanged);
   }
 
@@ -228,35 +248,63 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     }
 
     setState(() => _isSaving = true);
+    final l10n = AppLocalizations.of(context);
 
     try {
       final amount = double.parse(_amountController.text.trim().replaceAll(',', '.'));
       final mileage = int.parse(_mileageController.text.trim());
 
-      final newExpense = Expense(
-        id: const Uuid().v4(),
-        vehicleId: _selectedVehicleId!,
-        category: _selectedCategory,
-        title: _titleController.text.trim(),
-        amountPln: amount,
-        date: _dateController.text.trim(),
-        mileageKm: mileage,
-        workshopOrLocation: _locationController.text.trim().isNotEmpty
-            ? _locationController.text.trim()
-            : null,
-        note: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
-      );
-
-      await ref.read(expensesNotifierProvider.notifier).addExpense(newExpense);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Zapisano wydatek "${newExpense.title}"!'),
-            backgroundColor: Colors.green,
-          ),
+      if (widget.initialExpense != null) {
+        final updatedExpense = widget.initialExpense!.copyWith(
+          vehicleId: _selectedVehicleId!,
+          category: _selectedCategory,
+          title: _titleController.text.trim(),
+          amountPln: amount,
+          date: _dateController.text.trim(),
+          mileageKm: mileage,
+          workshopOrLocation: _locationController.text.trim().isNotEmpty
+              ? _locationController.text.trim()
+              : null,
+          note: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
         );
-        Navigator.of(context).pop();
+
+        await ref.read(expensesNotifierProvider.notifier).updateExpense(updatedExpense);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n?.expenseUpdatedMsg ?? 'Zaktualizowano wydatek!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      } else {
+        final newExpense = Expense(
+          id: const Uuid().v4(),
+          vehicleId: _selectedVehicleId!,
+          category: _selectedCategory,
+          title: _titleController.text.trim(),
+          amountPln: amount,
+          date: _dateController.text.trim(),
+          mileageKm: mileage,
+          workshopOrLocation: _locationController.text.trim().isNotEmpty
+              ? _locationController.text.trim()
+              : null,
+          note: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+        );
+
+        await ref.read(expensesNotifierProvider.notifier).addExpense(newExpense);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n?.expenseSavedMsg ?? 'Zapisano wydatek "${newExpense.title}"!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -289,7 +337,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n?.addExpenseTitle ?? 'Nowy Wydatek', style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          widget.isEditing
+              ? (l10n?.editExpenseTitle ?? 'Edytuj wydatek')
+              : (l10n?.addExpenseTitle ?? 'Nowy wydatek'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             icon: _isScanningReceipt
@@ -677,7 +730,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       width: 20,
                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                     )
-                  : const Text('Zapisz wydatek'),
+                  : Text(widget.isEditing ? (l10n?.editExpenseSaveBtn ?? 'Zapisz zmiany') : (l10n?.addExpenseSaveBtn ?? 'Zapisz wydatek')),
             ),
             const SizedBox(height: 24),
           ],

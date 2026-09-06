@@ -251,6 +251,13 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: TimelineExpenseItem(
                   expense: exp,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => AddExpenseScreen(initialExpense: exp),
+                      ),
+                    );
+                  },
                   onDelete: () async {
                     final deletedExpense = exp;
                     final messenger = ScaffoldMessenger.of(context);

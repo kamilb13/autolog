@@ -125,5 +125,15 @@ Status: **100% ZREALIZOWANE (Faza 1 - Faza 7)**
   - Wstępne wypełnienie formularza „Nowy wydatek” (`AddExpenseScreen`) z zielonym banerem weryfikacji danych do edycji i akceptacji przez użytkownika (brak automatycznego zapisu w tle).
   - Pełne testy jednostkowe parsera paragonów (`test/unit/receipt_parser_test.dart`) dla stacji Orlen, Shell, warsztatów, myjni i sklepów motoryzacyjnych.
 
+---
+
+## ✏️ Faza 14: Edycja wydatków i kalkulator kosztu na dystans
+- [x] **Możliwość edycji istniejących wydatków**:
+  - Kliknięcie w dowolną pozycję na osi czasu (`ExpensesScreen` oraz `VehicleDashboardScreen`) otwiera formularz w trybie edycji (`AddExpenseScreen` z predefiniowanymi danymi).
+  - Zmiana dowolnych pól (kwota, kategoria, data, przebieg, warsztat, notatka) z aktualizacją w transakcji SQLite i synchronizacją liczników oraz statystyk.
+- [x] **Kompaktowy kalkulator kosztu na dystans w Pulpicie Pojazdu (`VehicleDashboardScreen`)**:
+  - Mały, elegancki i prosty widżet w karcie pojazdu wyliczający koszt eksploatacji pojazdu na 1 km (lub mi) z wyłączeniem ceny zakupu auta.
+  - Szybka edycja dystansu (szybkie chipy 1 km, 10 km, 100 km, 1 000 km lub wpisanie dowolnej wartości) z natychmiastowym przeliczeniem w wybranej walucie (PLN/EUR/USD).
+
 
 

@@ -656,6 +656,54 @@ abstract class AppLocalizations {
   /// **'Zapisz wydatek'**
   String get addExpenseSaveBtn;
 
+  /// No description provided for @editExpenseSaveBtn.
+  ///
+  /// In pl, this message translates to:
+  /// **'Zapisz zmiany'**
+  String get editExpenseSaveBtn;
+
+  /// No description provided for @expenseUpdatedMsg.
+  ///
+  /// In pl, this message translates to:
+  /// **'Zaktualizowano wydatek!'**
+  String get expenseUpdatedMsg;
+
+  /// No description provided for @expenseSavedMsg.
+  ///
+  /// In pl, this message translates to:
+  /// **'Zapisano wydatek!'**
+  String get expenseSavedMsg;
+
+  /// No description provided for @dashboardCostPerDistance.
+  ///
+  /// In pl, this message translates to:
+  /// **'Koszt na {distance} {unit}'**
+  String dashboardCostPerDistance(Object distance, Object unit);
+
+  /// No description provided for @dashboardCostExcludesPrice.
+  ///
+  /// In pl, this message translates to:
+  /// **'Bez ceny zakupu'**
+  String get dashboardCostExcludesPrice;
+
+  /// No description provided for @dashboardEditDistanceTitle.
+  ///
+  /// In pl, this message translates to:
+  /// **'Kalkulator kosztu na dystans'**
+  String get dashboardEditDistanceTitle;
+
+  /// No description provided for @dashboardEditDistanceLabel.
+  ///
+  /// In pl, this message translates to:
+  /// **'Dystans ({unit})'**
+  String dashboardEditDistanceLabel(Object unit);
+
+  /// No description provided for @dashboardEditDistanceBtn.
+  ///
+  /// In pl, this message translates to:
+  /// **'Zatwierdź'**
+  String get dashboardEditDistanceBtn;
+
   /// No description provided for @addExpenseInvalidAmount.
   ///
   /// In pl, this message translates to:

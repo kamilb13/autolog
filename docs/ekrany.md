@@ -15,16 +15,18 @@ Aplikacja posiada 5 głównych modułów w dolnej nawigacji (`BottomNavigationBa
 * Widok szczegółów wybranego auta (karta z licznikiem, wydatkami, kwotą zakupu).
 * Klikalna polska tablica rejestracyjna z szybkim kopiowaniem numeru do schowka.
 * Klikalny numer VIN z kopiowaniem do schowka lub szybkim przejściem do uzupełnienia.
+* **Kalkulator kosztu na dystans**: Prosty, mały widżet w karcie pojazdu prezentujący koszt na 1 km (lub mi) bez ceny zakupu pojazdu, z możliwością natychmiastowej zmiany dystansu (np. na 100 km).
 * Pasek filtrowania zdarzeń po kategoriach.
-* Oś czasu zdarzeń (timeline) z kafelkami wydatków i serwisów oraz opcją „COFNIJ” przy usuwaniu.
+* Oś czasu zdarzeń (timeline) z kafelkami wydatków i serwisów (kliknięcie otwiera edycję wydatku) oraz opcją „COFNIJ” przy usuwaniu.
 * Przycisk ustawień / edycji / usunięcia auta (`VehicleSettingsScreen`).
 
 ## 3. Wydatki (`ExpensesScreen`)
 * Karta KPI z sumą wydatków w wybranej walucie (PLN/EUR/USD) i liczbą pozycji.
 * Wyszukiwarka tekstowa (tytuł, notatka, warsztat).
 * Filtry horyzontalne według pojazdu i kategorii.
+* Kliknięcie w dowolny wydatek otwiera formularz **Edytuj wydatek**.
 * Usuwanie wpisów z osi czasu z 5-sekundowym paskiem **„COFNIJ” (Undo)**.
-* Formularz **Nowy wydatek (`AddExpenseScreen`)**:
+* Formularz **Nowy / Edytuj wydatek (`AddExpenseScreen`)**:
   * **Skaner paragonów i faktur (OCR)**: Przycisk aparatu w pasku i baner w formularzu z wyborem aparatu lub galerii. Rozpoznaje kwotę, datę, nazwę stacji i kategorię bezpośrednio na urządzeniu (On-Device ML Kit) i wstępnie uzupełnia pola.
   * Inteligentne podpowiedzi (autocomplete) podczas wpisywania tytułu (np. "Wycier" $\to$ "Wycieraczki szyb").
   * Automatyczne dopasowanie kategorii (np. wybór "Wycieraczki szyb" $\to$ kategoria *Części i eksploatacja*).

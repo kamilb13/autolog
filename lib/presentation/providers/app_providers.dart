@@ -170,6 +170,15 @@ class ExpensesNotifier extends StateNotifier<ExpensesState> {
     _ref.invalidate(expenseSuggestionsProvider);
   }
 
+  Future<void> updateExpense(Expense expense) async {
+    await _repository.updateExpense(expense);
+    await loadExpenses();
+    _ref.read(vehiclesNotifierProvider.notifier).refresh();
+    _ref.read(remindersNotifierProvider.notifier).refresh();
+    _ref.read(statsNotifierProvider.notifier).refresh();
+    _ref.invalidate(expenseSuggestionsProvider);
+  }
+
   Future<void> deleteExpense(String expenseId) async {
     await _repository.deleteExpense(expenseId);
     await loadExpenses();
