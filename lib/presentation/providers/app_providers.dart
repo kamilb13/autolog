@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
 import '../../data/repositories/expense_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../data/repositories/settings_repository.dart';
@@ -50,7 +51,9 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => ref.read(vehicleRepositoryProvider).getAllVehicles());
+    state = await AsyncValue.guard(
+      () => ref.read(vehicleRepositoryProvider).getAllVehicles(),
+    );
   }
 
   Future<void> addVehicle(Vehicle vehicle) async {
@@ -64,7 +67,9 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
   }
 
   Future<void> updateMileage(String vehicleId, int newMileage) async {
-    await ref.read(vehicleRepositoryProvider).updateMileage(vehicleId, newMileage);
+    await ref
+        .read(vehicleRepositoryProvider)
+        .updateMileage(vehicleId, newMileage);
     await refresh();
     await ref.read(remindersNotifierProvider.notifier).refresh();
     await ref.read(statsNotifierProvider.notifier).refresh();
@@ -79,9 +84,10 @@ class VehiclesNotifier extends AsyncNotifier<List<Vehicle>> {
   }
 }
 
-final vehiclesNotifierProvider = AsyncNotifierProvider<VehiclesNotifier, List<Vehicle>>(
-  VehiclesNotifier.new,
-);
+final vehiclesNotifierProvider =
+    AsyncNotifierProvider<VehiclesNotifier, List<Vehicle>>(
+      VehiclesNotifier.new,
+    );
 
 // --- Expenses Notifier & State --- //
 class ExpensesState {
@@ -112,8 +118,12 @@ class ExpensesState {
   }) {
     return ExpensesState(
       expenses: expenses ?? this.expenses,
-      selectedVehicleId: clearVehicleId ? null : (selectedVehicleId ?? this.selectedVehicleId),
-      selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
+      selectedVehicleId: clearVehicleId
+          ? null
+          : (selectedVehicleId ?? this.selectedVehicleId),
+      selectedCategory: clearCategory
+          ? null
+          : (selectedCategory ?? this.selectedCategory),
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -193,11 +203,14 @@ class ExpensesNotifier extends StateNotifier<ExpensesState> {
   }
 }
 
-final expensesNotifierProvider = StateNotifierProvider<ExpensesNotifier, ExpensesState>((ref) {
-  return ExpensesNotifier(ref.read(expenseRepositoryProvider), ref);
-});
+final expensesNotifierProvider =
+    StateNotifierProvider<ExpensesNotifier, ExpensesState>((ref) {
+      return ExpensesNotifier(ref.read(expenseRepositoryProvider), ref);
+    });
 
-final expenseSuggestionsProvider = FutureProvider<List<ExpenseSuggestion>>((ref) async {
+final expenseSuggestionsProvider = FutureProvider<List<ExpenseSuggestion>>((
+  ref,
+) async {
   final repo = ref.watch(expenseRepositoryProvider);
   return repo.getLearnedSuggestions();
 });
@@ -218,8 +231,10 @@ class RemindersState {
     this.isLoading = false,
   });
 
-  int get criticalCount => reminders.where((r) => r.severity == AlertSeverity.critical).length;
-  int get warningCount => reminders.where((r) => r.severity == AlertSeverity.warning).length;
+  int get criticalCount =>
+      reminders.where((r) => r.severity == AlertSeverity.critical).length;
+  int get warningCount =>
+      reminders.where((r) => r.severity == AlertSeverity.warning).length;
   int get urgentCount => criticalCount + warningCount;
 
   RemindersState copyWith({
@@ -233,8 +248,12 @@ class RemindersState {
   }) {
     return RemindersState(
       reminders: reminders ?? this.reminders,
-      selectedVehicleId: clearVehicleId ? null : (selectedVehicleId ?? this.selectedVehicleId),
-      selectedSeverity: clearSeverity ? null : (selectedSeverity ?? this.selectedSeverity),
+      selectedVehicleId: clearVehicleId
+          ? null
+          : (selectedVehicleId ?? this.selectedVehicleId),
+      selectedSeverity: clearSeverity
+          ? null
+          : (selectedSeverity ?? this.selectedSeverity),
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -245,7 +264,8 @@ class RemindersNotifier extends StateNotifier<RemindersState> {
   final ReminderRepository _repository;
   final Ref _ref;
 
-  RemindersNotifier(this._repository, this._ref) : super(const RemindersState()) {
+  RemindersNotifier(this._repository, this._ref)
+    : super(const RemindersState()) {
     loadReminders();
   }
 
@@ -305,9 +325,10 @@ class RemindersNotifier extends StateNotifier<RemindersState> {
   }
 }
 
-final remindersNotifierProvider = StateNotifierProvider<RemindersNotifier, RemindersState>((ref) {
-  return RemindersNotifier(ref.read(reminderRepositoryProvider), ref);
-});
+final remindersNotifierProvider =
+    StateNotifierProvider<RemindersNotifier, RemindersState>((ref) {
+      return RemindersNotifier(ref.read(reminderRepositoryProvider), ref);
+    });
 
 // --- Stats Notifier & State --- //
 class StatsState {
@@ -335,7 +356,9 @@ class StatsState {
     bool? isGeneratingReport,
   }) {
     return StatsState(
-      selectedVehicleId: clearVehicleId ? null : (selectedVehicleId ?? this.selectedVehicleId),
+      selectedVehicleId: clearVehicleId
+          ? null
+          : (selectedVehicleId ?? this.selectedVehicleId),
       stats: stats ?? this.stats,
       buyerReport: clearBuyerReport ? null : (buyerReport ?? this.buyerReport),
       isLoading: isLoading ?? this.isLoading,
@@ -384,7 +407,9 @@ class StatsNotifier extends StateNotifier<StatsState> {
   }
 }
 
-final statsNotifierProvider = StateNotifierProvider<StatsNotifier, StatsState>((ref) {
+final statsNotifierProvider = StateNotifierProvider<StatsNotifier, StatsState>((
+  ref,
+) {
   return StatsNotifier(ref.read(statsRepositoryProvider));
 });
 
@@ -424,7 +449,8 @@ class DriveSyncNotifier extends StateNotifier<DriveSyncState> {
   final GoogleDriveService _driveService;
   final Ref _ref;
 
-  DriveSyncNotifier(this._driveService, this._ref) : super(const DriveSyncState()) {
+  DriveSyncNotifier(this._driveService, this._ref)
+    : super(const DriveSyncState()) {
     initAuth();
   }
 
@@ -436,9 +462,18 @@ class DriveSyncNotifier extends StateNotifier<DriveSyncState> {
   }
 
   Future<void> signIn() async {
-    state = state.copyWith(isSyncing: true, statusMessage: 'Logowanie do Google...');
+    state = state.copyWith(
+      isSyncing: true,
+      statusMessage: 'Logowanie do Google...',
+    );
     final account = await _driveService.signIn();
-    state = state.copyWith(user: account, isSyncing: false, statusMessage: account != null ? 'Zalogowano: ${account.email}' : 'Anulowano logowanie');
+    state = state.copyWith(
+      user: account,
+      isSyncing: false,
+      statusMessage: account != null
+          ? 'Zalogowano: ${account.email}'
+          : 'Anulowano logowanie',
+    );
   }
 
   Future<void> signOut() async {
@@ -447,7 +482,10 @@ class DriveSyncNotifier extends StateNotifier<DriveSyncState> {
   }
 
   Future<GoogleDriveSyncResult> backup() async {
-    state = state.copyWith(isSyncing: true, statusMessage: 'Zapisywanie kopii zapasowej...');
+    state = state.copyWith(
+      isSyncing: true,
+      statusMessage: 'Zapisywanie kopii zapasowej...',
+    );
     final result = await _driveService.backupToDrive();
     state = state.copyWith(
       isSyncing: false,
@@ -459,7 +497,10 @@ class DriveSyncNotifier extends StateNotifier<DriveSyncState> {
   }
 
   Future<GoogleDriveSyncResult> restore() async {
-    state = state.copyWith(isSyncing: true, statusMessage: 'Pobieranie kopii zapasowej...');
+    state = state.copyWith(
+      isSyncing: true,
+      statusMessage: 'Pobieranie kopii zapasowej...',
+    );
     final result = await _driveService.restoreFromDrive();
     state = state.copyWith(
       isSyncing: false,
@@ -481,12 +522,12 @@ class DriveSyncNotifier extends StateNotifier<DriveSyncState> {
   }
 
   Future<GoogleDriveSyncResult> importLocalBackup() async {
-    state = state.copyWith(isSyncing: true, statusMessage: 'Wczytywanie pliku kopii zapasowej...');
-    final result = await _driveService.importLocalBackupFromFile();
     state = state.copyWith(
-      isSyncing: false,
-      statusMessage: result.message,
+      isSyncing: true,
+      statusMessage: 'Wczytywanie pliku kopii zapasowej...',
     );
+    final result = await _driveService.importLocalBackupFromFile();
+    state = state.copyWith(isSyncing: false, statusMessage: result.message);
     if (result.isSuccess) {
       // Reload all data in providers
       _ref.read(vehiclesNotifierProvider.notifier).refresh();
@@ -499,9 +540,10 @@ class DriveSyncNotifier extends StateNotifier<DriveSyncState> {
   }
 }
 
-final driveSyncNotifierProvider = StateNotifierProvider<DriveSyncNotifier, DriveSyncState>((ref) {
-  return DriveSyncNotifier(ref.read(googleDriveServiceProvider), ref);
-});
+final driveSyncNotifierProvider =
+    StateNotifierProvider<DriveSyncNotifier, DriveSyncState>((ref) {
+      return DriveSyncNotifier(ref.read(googleDriveServiceProvider), ref);
+    });
 
 // --- App Settings Notifier & Provider --- //
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
@@ -541,7 +583,7 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   }
 }
 
-final settingsNotifierProvider = StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
-  return SettingsNotifier(ref.read(settingsRepositoryProvider));
-});
-
+final settingsNotifierProvider =
+    StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
+      return SettingsNotifier(ref.read(settingsRepositoryProvider));
+    });

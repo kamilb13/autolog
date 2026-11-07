@@ -1,7 +1,9 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../domain/models/expense.dart';
 
 class ParsedReceiptData {
@@ -21,7 +23,11 @@ class ParsedReceiptData {
     required this.rawText,
   });
 
-  bool get hasAnyData => amount != null || date != null || location != null || suggestedTitle != null;
+  bool get hasAnyData =>
+      amount != null ||
+      date != null ||
+      location != null ||
+      suggestedTitle != null;
 
   @override
   String toString() {
@@ -127,7 +133,10 @@ class ReceiptParser {
     final allAmounts = <double>[];
     for (final line in lines) {
       // Ignore VAT rates or tax percentage lines like "PTU A 23%"
-      if (RegExp(r'(PTU|VAT|STAWKA|%\s*\d+)', caseSensitive: false).hasMatch(line)) {
+      if (RegExp(
+        r'(PTU|VAT|STAWKA|%\s*\d+)',
+        caseSensitive: false,
+      ).hasMatch(line)) {
         continue;
       }
       for (final match in priceRegex.allMatches(line)) {
@@ -164,9 +173,15 @@ class ReceiptParser {
   static DateTime? _extractDate(String fullText) {
     // Regex for: YYYY-MM-DD, YYYY.MM.DD, DD-MM-YYYY, DD.MM.YYYY, DD/MM/YYYY
     final datePatterns = [
-      RegExp(r'\b(20\d{2})[-.\/](0[1-9]|1[0-2])[-.\/](0[1-9]|[12]\d|3[01])\b'), // YYYY-MM-DD
-      RegExp(r'\b(0[1-9]|[12]\d|3[01])[-.\/](0[1-9]|1[0-2])[-.\/](20\d{2})\b'), // DD-MM-YYYY
-      RegExp(r'\b(0[1-9]|[12]\d|3[01])[-.\/](0[1-9]|1[0-2])[-.\/](\d{2})\b'),     // DD-MM-YY
+      RegExp(
+        r'\b(20\d{2})[-.\/](0[1-9]|1[0-2])[-.\/](0[1-9]|[12]\d|3[01])\b',
+      ), // YYYY-MM-DD
+      RegExp(
+        r'\b(0[1-9]|[12]\d|3[01])[-.\/](0[1-9]|1[0-2])[-.\/](20\d{2})\b',
+      ), // DD-MM-YYYY
+      RegExp(
+        r'\b(0[1-9]|[12]\d|3[01])[-.\/](0[1-9]|1[0-2])[-.\/](\d{2})\b',
+      ), // DD-MM-YY
     ];
 
     for (final pattern in datePatterns) {
@@ -192,7 +207,12 @@ class ReceiptParser {
           }
 
           final now = DateTime.now();
-          if (year >= 2000 && year <= now.year + 1 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+          if (year >= 2000 &&
+              year <= now.year + 1 &&
+              month >= 1 &&
+              month <= 12 &&
+              day >= 1 &&
+              day <= 31) {
             final parsed = DateTime(year, month, day);
             // Ignore future dates beyond tomorrow
             if (parsed.isBefore(now.add(const Duration(days: 2)))) {
@@ -252,11 +272,17 @@ class ReceiptParser {
     return null;
   }
 
-  static (ExpenseCategory, String?) _detectCategoryAndTitle(String fullText, String? location) {
+  static (ExpenseCategory, String?) _detectCategoryAndTitle(
+    String fullText,
+    String? location,
+  ) {
     final upper = fullText.toUpperCase();
 
     // 1. Car wash check (prioritize car wash over general fuel if specific washing keywords exist)
-    if (RegExp(r'(MYJNIA|PROGRAM\s*\d|MYCIE|PIANA|WOSK|SUSZENIE|ODKURZACZ)', caseSensitive: false).hasMatch(upper)) {
+    if (RegExp(
+      r'(MYJNIA|PROGRAM\s*\d|MYCIE|PIANA|WOSK|SUSZENIE|ODKURZACZ)',
+      caseSensitive: false,
+    ).hasMatch(upper)) {
       return (ExpenseCategory.tollsFees, 'Myjnia samochodowa');
     }
 
@@ -268,28 +294,43 @@ class ReceiptParser {
     ).hasMatch(upper);
 
     if (isFuelStation || hasFuelKeywords) {
-      final title = location != null && location.isNotEmpty ? 'Tankowanie ($location)' : 'Tankowanie paliwa';
+      final title = location != null && location.isNotEmpty
+          ? 'Tankowanie ($location)'
+          : 'Tankowanie paliwa';
       return (ExpenseCategory.fuel, title);
     }
 
     // 3. Insurance check
-    if (RegExp(r'(UBEZPIECZENIE|POLISA|OC\/AC|\bOC\b|\bAC\b|NNW|ASSISTANCE|PZU|WARTA|ERGO\s*HESTIA|ALLIANZ|GENERALI|UNIQA)', caseSensitive: false).hasMatch(upper)) {
+    if (RegExp(
+      r'(UBEZPIECZENIE|POLISA|OC\/AC|\bOC\b|\bAC\b|NNW|ASSISTANCE|PZU|WARTA|ERGO\s*HESTIA|ALLIANZ|GENERALI|UNIQA)',
+      caseSensitive: false,
+    ).hasMatch(upper)) {
       return (ExpenseCategory.insurance, 'Ubezpieczenie pojazdu');
     }
 
     // 4. Service / Maintenance check
-    if (RegExp(r'(WYMIANA\s*OLEJU|ROZRZĄD|ROZRZAD|PRZEGLĄD|PRZEGLAD|DIAGNOSTYKA|SERWIS|KLIMATYZACJA|KLIMATYZACJI|NAPRAWA|ROBOCIZNA|USŁUGA|USLUGA|GEOMETRIA)', caseSensitive: false).hasMatch(upper)) {
-      final title = location != null && location.isNotEmpty ? 'Serwis ($location)' : 'Serwis i naprawa';
+    if (RegExp(
+      r'(WYMIANA\s*OLEJU|ROZRZĄD|ROZRZAD|PRZEGLĄD|PRZEGLAD|DIAGNOSTYKA|SERWIS|KLIMATYZACJA|KLIMATYZACJI|NAPRAWA|ROBOCIZNA|USŁUGA|USLUGA|GEOMETRIA)',
+      caseSensitive: false,
+    ).hasMatch(upper)) {
+      final title = location != null && location.isNotEmpty
+          ? 'Serwis ($location)'
+          : 'Serwis i naprawa';
       return (ExpenseCategory.service, title);
     }
 
     // 5. Parts check
-    if (RegExp(r'(KLOCKI|TARCZE|FILTR|OLEJ|WYCIERACZKI|PŁYN|PLYN|AKUMULATOR|ŚWIECE|SWIECE|ŻARÓWKA|ZAROWKA|OPONY|CZĘŚCI|CZESCI|AMORTYZATOR)', caseSensitive: false).hasMatch(upper)) {
+    if (RegExp(
+      r'(KLOCKI|TARCZE|FILTR|OLEJ|WYCIERACZKI|PŁYN|PLYN|AKUMULATOR|ŚWIECE|SWIECE|ŻARÓWKA|ZAROWKA|OPONY|CZĘŚCI|CZESCI|AMORTYZATOR)',
+      caseSensitive: false,
+    ).hasMatch(upper)) {
       return (ExpenseCategory.parts, 'Części i eksploatacja');
     }
 
     // Default
-    final defaultTitle = location != null && location.isNotEmpty ? 'Wydatek ($location)' : 'Wydatek z paragonu';
+    final defaultTitle = location != null && location.isNotEmpty
+        ? 'Wydatek ($location)'
+        : 'Wydatek z paragonu';
     return (ExpenseCategory.tollsFees, defaultTitle);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+
 import '../../domain/models/vehicle.dart';
 import '../../domain/models/service_reminder.dart';
 
@@ -17,7 +18,9 @@ class AppFormatters {
     customPattern: '#,##0 \u00a4',
   );
 
-  static final NumberFormat _mileageFormat = NumberFormat.decimalPattern('pl_PL');
+  static final NumberFormat _mileageFormat = NumberFormat.decimalPattern(
+    'pl_PL',
+  );
 
   static String _getCurrencySymbol(String currencyCode) {
     switch (currencyCode.toUpperCase()) {
@@ -37,7 +40,11 @@ class AppFormatters {
     }
     final symbol = _getCurrencySymbol(currencyCode);
     if (currencyCode == 'USD') {
-      return NumberFormat.currency(locale: 'en_US', symbol: symbol, decimalDigits: 2).format(amount);
+      return NumberFormat.currency(
+        locale: 'en_US',
+        symbol: symbol,
+        decimalDigits: 2,
+      ).format(amount);
     }
     return NumberFormat.currency(
       locale: 'de_DE',
@@ -53,7 +60,11 @@ class AppFormatters {
     }
     final symbol = _getCurrencySymbol(currencyCode);
     if (currencyCode == 'USD') {
-      return NumberFormat.currency(locale: 'en_US', symbol: symbol, decimalDigits: 0).format(amount);
+      return NumberFormat.currency(
+        locale: 'en_US',
+        symbol: symbol,
+        decimalDigits: 0,
+      ).format(amount);
     }
     return NumberFormat.currency(
       locale: 'de_DE',
@@ -72,7 +83,11 @@ class AppFormatters {
     return costPerDistance(cost, currencyCode: currencyCode, unit: 'km');
   }
 
-  static String costPerDistance(double cost, {String currencyCode = 'PLN', String unit = 'km'}) {
+  static String costPerDistance(
+    double cost, {
+    String currencyCode = 'PLN',
+    String unit = 'km',
+  }) {
     return '${currency(cost, currencyCode: currencyCode)}/$unit';
   }
 

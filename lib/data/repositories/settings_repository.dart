@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../../domain/models/app_settings.dart';
 import '../database/app_database.dart';
 
@@ -27,11 +28,10 @@ class SettingsRepository {
     final map = settings.toSettingsMap();
 
     for (final entry in map.entries) {
-      batch.insert(
-        'app_settings',
-        {'key': entry.key, 'value': entry.value},
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      batch.insert('app_settings', {
+        'key': entry.key,
+        'value': entry.value,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
     await batch.commit(noResult: true);
   }

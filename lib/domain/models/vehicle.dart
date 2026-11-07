@@ -152,7 +152,9 @@ class Vehicle {
       mileageKm: mileageKm ?? this.mileageKm,
       fuelType: fuelType ?? this.fuelType,
       vin: vin ?? this.vin,
-      purchasePricePln: clearPurchasePrice ? null : (purchasePricePln ?? this.purchasePricePln),
+      purchasePricePln: clearPurchasePrice
+          ? null
+          : (purchasePricePln ?? this.purchasePricePln),
       alerts: alerts ?? this.alerts,
     );
   }
@@ -172,22 +174,28 @@ class Vehicle {
     };
   }
 
-  factory Vehicle.fromMap(Map<String, dynamic> map, {List<VehicleAlert> alerts = const []}) {
+  factory Vehicle.fromMap(
+    Map<String, dynamic> map, {
+    List<VehicleAlert> alerts = const [],
+  }) {
     return Vehicle(
       id: map['id'] as String,
       brand: map['brand'] as String,
       model: map['model'] as String,
-      generationOrTrim: (map['generation_or_trim'] ?? map['generationOrTrim'] ?? '') as String,
+      generationOrTrim:
+          (map['generation_or_trim'] ?? map['generationOrTrim'] ?? '')
+              as String,
       year: (map['year'] as num).toInt(),
-      licensePlate: (map['license_plate'] ?? map['licensePlate'] ?? '') as String,
+      licensePlate:
+          (map['license_plate'] ?? map['licensePlate'] ?? '') as String,
       mileageKm: (map['mileage_km'] ?? map['mileageKm'] as num).toInt(),
       fuelType: (map['fuel_type'] ?? map['fuelType'] ?? 'Benzyna') as String,
       vin: (map['vin'] ?? '') as String,
       purchasePricePln: map['purchase_price_pln'] != null
           ? (map['purchase_price_pln'] as num).toDouble()
           : (map['purchasePricePln'] != null
-              ? (map['purchasePricePln'] as num).toDouble()
-              : null),
+                ? (map['purchasePricePln'] as num).toDouble()
+                : null),
       alerts: alerts,
     );
   }

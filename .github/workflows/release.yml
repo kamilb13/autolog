@@ -1,0 +1,130 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.47.2'
+
+jobs:
+  release:
+    if: github.repository == 'kamilb13/autolog'
+    environment: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate release source and version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor HEAD origin/main
+          python3 tool/release_metadata.py "$RELEASE_TAG"
+          count=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --exclude-pre-releases --limit 1 --json tagName --jq length)
+          if [ "$count" -gt 0 ]; then
+            mkdir -p "$RUNNER_TEMP/previous-release"
+            gh release download --repo "$GITHUB_REPOSITORY" --pattern update.json --dir "$RUNNER_TEMP/previous-release"
+            python3 tool/release_metadata.py "$RELEASE_TAG" --previous "$RUNNER_TEMP/previous-release/update.json"
+          fi
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Install SQLite for tests
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-0 libsqlite3-dev
+      - name: Resolve locked dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Verify
+        run: bash tool/verify.sh
+      - name: Build and verify signed APK
+        env:
+          AUTOLOG_SIGNING_PROPERTIES: ${{ runner.temp }}/autolog-signing/key.properties
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          trap 'rm -rf "$RUNNER_TEMP/autolog-signing"' EXIT
+          python3 - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+
+          required = ['ANDROID_KEYSTORE_BASE64', 'ANDROID_STORE_PASSWORD',
+                      'ANDROID_KEY_ALIAS', 'ANDROID_KEY_PASSWORD']
+          if any(not os.environ.get(name) for name in required):
+              raise SystemExit('Missing Android signing secrets. See docs/releases.md.')
+          os.umask(0o077)
+          properties = Path(os.environ['AUTOLOG_SIGNING_PROPERTIES'])
+          properties.parent.mkdir(parents=True, exist_ok=True)
+          keystore = properties.parent / 'release.jks'
+          keystore.write_bytes(base64.b64decode(os.environ['ANDROID_KEYSTORE_BASE64'], validate=True))
+          values = {'storeFile': str(keystore),
+                    'storePassword': os.environ['ANDROID_STORE_PASSWORD'],
+                    'keyAlias': os.environ['ANDROID_KEY_ALIAS'],
+                    'keyPassword': os.environ['ANDROID_KEY_PASSWORD']}
+          def escape(value):
+              return value.replace('\\', '\\\\').replace('\n', '\\n').replace('\r', '\\r').replace(' ', '\\ ')
+          properties.write_text(''.join(f'{name}={escape(value)}\n' for name, value in values.items()))
+          PY
+          flutter build apk --release --no-pub
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs build/app/outputs/flutter-apk/app-release.apk > "$RUNNER_TEMP/apk-signature.txt"
+          python3 - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+
+          certificate = subprocess.check_output([
+              'keytool', '-exportcert', '-keystore',
+              str(Path(os.environ['AUTOLOG_SIGNING_PROPERTIES']).parent / 'release.jks'),
+              '-alias', os.environ['ANDROID_KEY_ALIAS'],
+              '-storepass:env', 'ANDROID_STORE_PASSWORD',
+          ])
+          expected = hashlib.sha256(certificate).hexdigest()
+          signature = Path(os.environ['RUNNER_TEMP'], 'apk-signature.txt').read_text()
+          if not re.search(r'certificate SHA-256 digest: ' + expected + r'\b', signature):
+              raise SystemExit('APK signing certificate does not match the release key')
+          print('Release signature verified')
+          PY
+      - name: Package release
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 tool/release_metadata.py "$RELEASE_TAG" --repository "$GITHUB_REPOSITORY" --apk build/app/outputs/flutter-apk/app-release.apk
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft > "$RUNNER_TEMP/existing-release.json" 2>/dev/null; then
+            python3 -c 'import json, sys; sys.exit(0 if json.load(open(sys.argv[1]))["isDraft"] else "Release already published; refusing to replace it")' "$RUNNER_TEMP/existing-release.json"
+            gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+              build/release/autolog.apk build/release/update.json build/release/SHA256SUMS
+          else
+            gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft \
+              --title "AutoLog $RELEASE_TAG" --generate-notes \
+              build/release/autolog.apk build/release/update.json build/release/SHA256SUMS
+          fi
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest

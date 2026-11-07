@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../domain/models/vehicle.dart';
+
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../providers/app_providers.dart';
 import '../widgets/reminder_card.dart';
 import 'add_reminder_dialog.dart';
@@ -38,13 +41,16 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
       subtitleText = '$criticalCount krytycznych, $warningCount ostrzeżeń';
       subtitleColor = Colors.red.shade600;
     } else if (criticalCount > 0) {
-      subtitleText = '$criticalCount ${criticalCount == 1 ? "przeterminowany termin" : "przeterminowane terminy"}';
+      subtitleText =
+          '$criticalCount ${criticalCount == 1 ? "przeterminowany termin" : "przeterminowane terminy"}';
       subtitleColor = Colors.red.shade600;
     } else if (warningCount > 0) {
-      subtitleText = '$warningCount ${warningCount == 1 ? "zbliżający się termin" : "zbliżające się terminy"}';
+      subtitleText =
+          '$warningCount ${warningCount == 1 ? "zbliżający się termin" : "zbliżające się terminy"}';
       subtitleColor = Colors.orange.shade800;
     } else {
-      subtitleText = l10n?.remindersEmptyTitle ?? 'Wszystkie terminy pod kontrolą';
+      subtitleText =
+          l10n?.remindersEmptyTitle ?? 'Wszystkie terminy pod kontrolą';
       subtitleColor = Colors.grey.shade600;
     }
 
@@ -62,7 +68,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
               style: TextStyle(
                 fontSize: 12,
                 color: subtitleColor,
-                fontWeight: (criticalCount > 0 || warningCount > 0) ? FontWeight.bold : FontWeight.normal,
+                fontWeight: (criticalCount > 0 || warningCount > 0)
+                    ? FontWeight.bold
+                    : FontWeight.normal,
               ),
             ),
           ],
@@ -71,7 +79,8 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             tooltip: l10n?.commonRefresh ?? 'Odśwież',
-            onPressed: () => ref.read(remindersNotifierProvider.notifier).refresh(),
+            onPressed: () =>
+                ref.read(remindersNotifierProvider.notifier).refresh(),
           ),
         ],
       ),
@@ -83,7 +92,10 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
           );
         },
         icon: const Icon(Icons.add_alert_rounded),
-        label: Text(l10n?.remindersAddBtn ?? 'Nowy termin', style: const TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(
+          l10n?.remindersAddBtn ?? 'Nowy termin',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -99,7 +111,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                       icon: const Icon(Icons.clear_rounded),
                       onPressed: () {
                         _searchController.clear();
-                        ref.read(remindersNotifierProvider.notifier).setSearchQuery('');
+                        ref
+                            .read(remindersNotifierProvider.notifier)
+                            .setSearchQuery('');
                       },
                     )
                   : null,
@@ -170,42 +184,65 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
-                    selected: remindersState.selectedSeverity == AlertSeverity.critical,
+                    selected:
+                        remindersState.selectedSeverity ==
+                        AlertSeverity.critical,
                     showCheckmark: false,
                     label: const Text('Krytyczne'),
-                    avatar: Icon(Icons.error_outline_rounded, size: 16, color: Colors.red.shade700),
+                    avatar: Icon(
+                      Icons.error_outline_rounded,
+                      size: 16,
+                      color: Colors.red.shade700,
+                    ),
                     onSelected: (selected) {
                       ref
                           .read(remindersNotifierProvider.notifier)
-                          .setSeverityFilter(selected ? AlertSeverity.critical : null);
+                          .setSeverityFilter(
+                            selected ? AlertSeverity.critical : null,
+                          );
                     },
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
-                    selected: remindersState.selectedSeverity == AlertSeverity.warning,
+                    selected:
+                        remindersState.selectedSeverity ==
+                        AlertSeverity.warning,
                     showCheckmark: false,
                     label: const Text('Ostrzeżenia'),
-                    avatar: Icon(Icons.warning_amber_rounded, size: 16, color: Colors.orange.shade700),
+                    avatar: Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: Colors.orange.shade700,
+                    ),
                     onSelected: (selected) {
                       ref
                           .read(remindersNotifierProvider.notifier)
-                          .setSeverityFilter(selected ? AlertSeverity.warning : null);
+                          .setSeverityFilter(
+                            selected ? AlertSeverity.warning : null,
+                          );
                     },
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
                   child: FilterChip(
-                    selected: remindersState.selectedSeverity == AlertSeverity.info,
+                    selected:
+                        remindersState.selectedSeverity == AlertSeverity.info,
                     showCheckmark: false,
                     label: const Text('Informacyjne'),
-                    avatar: Icon(Icons.info_outline_rounded, size: 16, color: Colors.blue.shade700),
+                    avatar: Icon(
+                      Icons.info_outline_rounded,
+                      size: 16,
+                      color: Colors.blue.shade700,
+                    ),
                     onSelected: (selected) {
                       ref
                           .read(remindersNotifierProvider.notifier)
-                          .setSeverityFilter(selected ? AlertSeverity.info : null);
+                          .setSeverityFilter(
+                            selected ? AlertSeverity.info : null,
+                          );
                     },
                   ),
                 ),
@@ -221,7 +258,11 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
               alignment: Alignment.center,
               child: Column(
                 children: [
-                  Icon(Icons.notifications_off_outlined, size: 56, color: Colors.grey.shade400),
+                  Icon(
+                    Icons.notifications_off_outlined,
+                    size: 56,
+                    color: Colors.grey.shade400,
+                  ),
                   const SizedBox(height: 12),
                   const Text(
                     'Brak aktywnych przypomnień',
@@ -240,7 +281,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
               data: (vehicles) {
                 return Column(
                   children: remindersState.reminders.map((reminder) {
-                    final vehicle = vehicles.where((v) => v.id == reminder.vehicleId).firstOrNull;
+                    final vehicle = vehicles
+                        .where((v) => v.id == reminder.vehicleId)
+                        .firstOrNull;
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 10),
@@ -255,7 +298,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                           if (mounted) {
                             messenger.showSnackBar(
                               SnackBar(
-                                content: Text('Oznaczono jako wykonane: ${reminder.title}'),
+                                content: Text(
+                                  'Oznaczono jako wykonane: ${reminder.title}',
+                                ),
                                 backgroundColor: Colors.green,
                               ),
                             );
@@ -273,14 +318,18 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                           if (mounted) {
                             messenger.showSnackBar(
                               SnackBar(
-                                content: Text('Usunięto przypomnienie: ${deletedReminder.title}'),
+                                content: Text(
+                                  'Usunięto przypomnienie: ${deletedReminder.title}',
+                                ),
                                 duration: const Duration(seconds: 5),
                                 action: SnackBarAction(
                                   label: 'COFNIJ',
                                   textColor: Colors.black,
                                   onPressed: () async {
                                     await ref
-                                        .read(remindersNotifierProvider.notifier)
+                                        .read(
+                                          remindersNotifierProvider.notifier,
+                                        )
                                         .addReminder(deletedReminder);
                                   },
                                 ),

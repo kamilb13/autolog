@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../providers/app_providers.dart';
 import '../widgets/drive_sync_dialog.dart';
 import '../widgets/garage_summary_banner.dart';
@@ -12,10 +13,7 @@ import 'vehicle_dashboard_screen.dart';
 class GarageScreen extends ConsumerWidget {
   final VoidCallback onNavigateToReminders;
 
-  const GarageScreen({
-    super.key,
-    required this.onNavigateToReminders,
-  });
+  const GarageScreen({super.key, required this.onNavigateToReminders});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,20 +25,19 @@ class GarageScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           l10n?.garageTitle ?? 'Garaż',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             tooltip: l10n?.commonRefresh ?? 'Odśwież',
-            onPressed: () => ref.read(vehiclesNotifierProvider.notifier).refresh(),
+            onPressed: () =>
+                ref.read(vehiclesNotifierProvider.notifier).refresh(),
           ),
           IconButton(
             icon: const Icon(Icons.backup_rounded),
-            tooltip: l10n?.garageBackupTooltip ?? 'Kopia zapasowa i przywracanie',
+            tooltip:
+                l10n?.garageBackupTooltip ?? 'Kopia zapasowa i przywracanie',
             onPressed: () {
               showDialog(
                 context: context,
@@ -52,14 +49,15 @@ class GarageScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const AddVehicleScreen(),
-            ),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AddVehicleScreen()));
         },
         icon: const Icon(Icons.add_rounded),
-        label: Text(l10n?.garageAddVehicle ?? 'Dodaj auto', style: const TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(
+          l10n?.garageAddVehicle ?? 'Dodaj auto',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: vehiclesAsync.when(
         loading: () => Center(
@@ -78,12 +76,20 @@ class GarageScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline_rounded, color: Colors.red, size: 48),
+                const Icon(
+                  Icons.error_outline_rounded,
+                  color: Colors.red,
+                  size: 48,
+                ),
                 const SizedBox(height: 12),
-                Text('${l10n?.commonError ?? "Błąd"}: $err', textAlign: TextAlign.center),
+                Text(
+                  '${l10n?.commonError ?? "Błąd"}: $err',
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () => ref.read(vehiclesNotifierProvider.notifier).refresh(),
+                  onPressed: () =>
+                      ref.read(vehiclesNotifierProvider.notifier).refresh(),
                   icon: const Icon(Icons.refresh_rounded),
                   label: Text(l10n?.commonRetry ?? 'Spróbuj ponownie'),
                 ),
@@ -92,7 +98,10 @@ class GarageScreen extends ConsumerWidget {
           ),
         ),
         data: (vehicles) {
-          final totalAlerts = vehicles.fold(0, (sum, v) => sum + v.alerts.length);
+          final totalAlerts = vehicles.fold(
+            0,
+            (sum, v) => sum + v.alerts.length,
+          );
 
           if (vehicles.isEmpty) {
             return Center(
@@ -109,7 +118,10 @@ class GarageScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       l10n?.garageEmptyTitle ?? 'Twój garaż jest pusty',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -127,7 +139,9 @@ class GarageScreen extends ConsumerWidget {
                         );
                       },
                       icon: const Icon(Icons.add_rounded),
-                      label: Text(l10n?.garageAddFirstVehicle ?? 'Dodaj pierwsze auto'),
+                      label: Text(
+                        l10n?.garageAddFirstVehicle ?? 'Dodaj pierwsze auto',
+                      ),
                     ),
                   ],
                 ),
@@ -136,7 +150,8 @@ class GarageScreen extends ConsumerWidget {
           }
 
           return RefreshIndicator(
-            onRefresh: () => ref.read(vehiclesNotifierProvider.notifier).refresh(),
+            onRefresh: () =>
+                ref.read(vehiclesNotifierProvider.notifier).refresh(),
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               children: [
@@ -151,7 +166,10 @@ class GarageScreen extends ConsumerWidget {
                 const SizedBox(height: 18),
                 Text(
                   'Twoje Pojazdy (${vehicles.length})',
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 ...vehicles.map(
@@ -162,7 +180,8 @@ class GarageScreen extends ConsumerWidget {
                       onClick: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => VehicleDashboardScreen(vehicleId: vehicle.id),
+                            builder: (_) =>
+                                VehicleDashboardScreen(vehicleId: vehicle.id),
                           ),
                         );
                       },

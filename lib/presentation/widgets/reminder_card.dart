@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/utils/formatters.dart';
 import '../../domain/models/service_reminder.dart';
 import '../../domain/models/vehicle.dart';
+
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../providers/app_providers.dart';
 
 class ReminderCard extends ConsumerWidget {
@@ -34,17 +37,23 @@ class ReminderCard extends ConsumerWidget {
 
     switch (reminder.severity) {
       case AlertSeverity.critical:
-        badgeBg = isDark ? Colors.red.shade900.withValues(alpha: 0.35) : Colors.red.shade50;
+        badgeBg = isDark
+            ? Colors.red.shade900.withValues(alpha: 0.35)
+            : Colors.red.shade50;
         badgeText = isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828);
         severityIcon = Icons.error_outline_rounded;
         break;
       case AlertSeverity.warning:
-        badgeBg = isDark ? Colors.amber.shade900.withValues(alpha: 0.35) : Colors.amber.shade50;
+        badgeBg = isDark
+            ? Colors.amber.shade900.withValues(alpha: 0.35)
+            : Colors.amber.shade50;
         badgeText = isDark ? const Color(0xFFFFD54F) : const Color(0xFFE65100);
         severityIcon = Icons.warning_amber_rounded;
         break;
       case AlertSeverity.info:
-        badgeBg = isDark ? Colors.blue.shade900.withValues(alpha: 0.35) : Colors.blue.shade50;
+        badgeBg = isDark
+            ? Colors.blue.shade900.withValues(alpha: 0.35)
+            : Colors.blue.shade50;
         badgeText = isDark ? const Color(0xFF82B1FF) : const Color(0xFF1565C0);
         severityIcon = Icons.info_outline_rounded;
         break;
@@ -59,8 +68,12 @@ class ReminderCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: reminder.severity == AlertSeverity.critical
-              ? (isDark ? Colors.red.shade800.withValues(alpha: 0.5) : Colors.red.shade200)
-              : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.07)),
+              ? (isDark
+                    ? Colors.red.shade800.withValues(alpha: 0.5)
+                    : Colors.red.shade200)
+              : (isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.07)),
         ),
         boxShadow: [
           BoxShadow(
@@ -95,7 +108,9 @@ class ReminderCard extends ConsumerWidget {
                         '${vehicle!.brand} ${vehicle!.model} • ${vehicle!.licensePlate}',
                         style: TextStyle(
                           fontSize: 12.5,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -108,7 +123,10 @@ class ReminderCard extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: badgeBg,
                       borderRadius: BorderRadius.circular(8),
@@ -135,12 +153,16 @@ class ReminderCard extends ConsumerWidget {
                       icon: Icon(
                         Icons.more_vert_rounded,
                         size: 18,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       tooltip: 'Opcje',
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       onSelected: (val) {
                         if (val == 'delete' && onDelete != null) {
                           onDelete!();
@@ -151,9 +173,19 @@ class ReminderCard extends ConsumerWidget {
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red.shade700),
+                              Icon(
+                                Icons.delete_outline_rounded,
+                                size: 18,
+                                color: Colors.red.shade700,
+                              ),
                               const SizedBox(width: 8),
-                              Text('Usuń termin', style: TextStyle(color: Colors.red.shade700, fontSize: 13)),
+                              Text(
+                                'Usuń termin',
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontSize: 13,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -183,45 +215,69 @@ class ReminderCard extends ConsumerWidget {
           Row(
             children: [
               if (reminder.dueDate != null) ...[
-                Icon(Icons.calendar_today_rounded, size: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+                Icon(
+                  Icons.calendar_today_rounded,
+                  size: 13,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'Termin: ${AppFormatters.formatDisplayDate(reminder.dueDate)}',
-                  style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withValues(alpha: 0.65)),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                  ),
                 ),
                 const SizedBox(width: 12),
               ],
               if (reminder.dueMileageKm != null) ...[
-                Icon(Icons.speed_rounded, size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+                Icon(
+                  Icons.speed_rounded,
+                  size: 14,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'Limit: ${AppFormatters.mileage(reminder.dueMileageKm!, unit: settings.distanceUnit.label)}',
-                  style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withValues(alpha: 0.65)),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                  ),
                 ),
               ],
             ],
           ),
 
           // Cyclic interval
-          if (reminder.intervalMonths != null || reminder.intervalKm != null) ...[
+          if (reminder.intervalMonths != null ||
+              reminder.intervalKm != null) ...[
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.repeat_rounded, size: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
+                Icon(
+                  Icons.repeat_rounded,
+                  size: 13,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                ),
                 const SizedBox(width: 4),
                 Text(
-                  'Cykl: ${[
-                    if (reminder.intervalMonths != null) 'co ${reminder.intervalMonths} msc',
-                    if (reminder.intervalKm != null) 'co ${AppFormatters.mileage(reminder.intervalKm!, unit: settings.distanceUnit.label)}',
-                  ].join(' / ')}',
-                  style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withValues(alpha: 0.45)),
+                  'Cykl: ${[if (reminder.intervalMonths != null) 'co ${reminder.intervalMonths} msc', if (reminder.intervalKm != null) 'co ${AppFormatters.mileage(reminder.intervalKm!, unit: settings.distanceUnit.label)}'].join(' / ')}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+                  ),
                 ),
               ],
             ),
           ],
 
           const SizedBox(height: 12),
-          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06)),
+          Divider(
+            height: 1,
+            color: isDark
+                ? Colors.white10
+                : Colors.black.withValues(alpha: 0.06),
+          ),
           const SizedBox(height: 10),
 
           // Action button
@@ -233,11 +289,19 @@ class ReminderCard extends ConsumerWidget {
               label: Text(l10n?.remindersMarkDone ?? 'Oznacz jako wykonane'),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(38),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 backgroundColor: const Color(0xFF2E7D32),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

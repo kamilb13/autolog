@@ -65,7 +65,8 @@ class GarageSummaryBanner extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      l10n?.garageTotalVehicles(vehicleCount) ?? '$vehicleCount pojazdów',
+                      l10n?.garageTotalVehicles(vehicleCount) ??
+                          '$vehicleCount pojazdów',
                       style: const TextStyle(
                         fontSize: 16.5,
                         fontWeight: FontWeight.w800,
@@ -76,13 +77,19 @@ class GarageSummaryBanner extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   l10n?.garageActiveAlerts(activeAlertsCount) ??
-                      (activeAlertsCount > 0 ? '$activeAlertsCount alertów' : 'Wszystkie terminy aktualne'),
+                      (activeAlertsCount > 0
+                          ? '$activeAlertsCount alertów'
+                          : 'Wszystkie terminy aktualne'),
                   style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
                     color: activeAlertsCount > 0
-                        ? (isDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100))
-                        : (isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32)),
+                        ? (isDark
+                              ? const Color(0xFFFFB74D)
+                              : const Color(0xFFE65100))
+                        : (isDark
+                              ? const Color(0xFF81C784)
+                              : const Color(0xFF2E7D32)),
                   ),
                 ),
               ],
@@ -94,7 +101,8 @@ class GarageSummaryBanner extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: (isDark ? Colors.orange : Colors.orange.shade700).withValues(alpha: 0.15),
+                color: (isDark ? Colors.orange : Colors.orange.shade700)
+                    .withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -103,7 +111,9 @@ class GarageSummaryBanner extends StatelessWidget {
                   Icon(
                     Icons.notifications_active_rounded,
                     size: 14,
-                    color: isDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100),
+                    color: isDark
+                        ? const Color(0xFFFFB74D)
+                        : const Color(0xFFE65100),
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -111,7 +121,9 @@ class GarageSummaryBanner extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100),
+                      color: isDark
+                          ? const Color(0xFFFFB74D)
+                          : const Color(0xFFE65100),
                     ),
                   ),
                 ],

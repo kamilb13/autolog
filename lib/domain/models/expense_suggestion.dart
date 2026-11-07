@@ -25,5 +25,6 @@ class ExpenseSuggestion {
   int get hashCode => title.toLowerCase().hashCode ^ category.hashCode;
 
   @override
-  String toString() => 'ExpenseSuggestion(title: $title, category: ${category.displayName}, isCustom: $isCustom)';
+  String toString() =>
+      'ExpenseSuggestion(title: $title, category: ${category.displayName}, isCustom: $isCustom)';
 }

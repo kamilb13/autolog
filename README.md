@@ -52,3 +52,10 @@ lib/
 ```
 
 Dokumentacja modułów i lista zadań znajdują się w katalogu [`docs/`](docs/).
+
+## Budowanie i wydania
+
+CI sprawdza zmiany i buduje APK po pushu na `main` oraz dla pull requestów.
+Podpisane wydania dla użytkowników powstają po wysłaniu taga wersji.
+Konfigurację klucza, lokalną weryfikację i sposób publikacji opisuje
+[instrukcja wydań](docs/releases.md).

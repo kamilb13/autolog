@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/utils/formatters.dart';
 import '../../domain/models/vehicle.dart';
+
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../providers/app_providers.dart';
 import 'polish_license_plate.dart';
 
@@ -79,7 +82,9 @@ class VehicleCard extends ConsumerWidget {
                               : 'Rocznik: ${vehicle.year}',
                           style: TextStyle(
                             fontSize: 13,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -87,17 +92,23 @@ class VehicleCard extends ConsumerWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: isDark
                           ? theme.colorScheme.surfaceContainerHighest
-                          : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                          : theme.colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       vehicle.fuelType,
                       style: TextStyle(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.8,
+                        ),
                         fontWeight: FontWeight.w600,
                         fontSize: 11.5,
                       ),
@@ -126,12 +137,17 @@ class VehicleCard extends ConsumerWidget {
                             l10n?.garageCurrentMileage ?? 'Przebieg',
                             style: TextStyle(
                               fontSize: 10.5,
-                              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.5,
+                              ),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
-                            AppFormatters.mileage(vehicle.mileageKm, unit: settings.distanceUnit.label),
+                            AppFormatters.mileage(
+                              vehicle.mileageKm,
+                              unit: settings.distanceUnit.label,
+                            ),
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -153,7 +169,8 @@ class VehicleCard extends ConsumerWidget {
                                 : Colors.black.withValues(alpha: 0.04),
                             foregroundColor: theme.colorScheme.primary,
                           ),
-                          tooltip: l10n?.garageQuickMileage ?? 'Zaktualizuj licznik',
+                          tooltip:
+                              l10n?.garageQuickMileage ?? 'Zaktualizuj licznik',
                         ),
                       ],
                     ],
@@ -165,12 +182,20 @@ class VehicleCard extends ConsumerWidget {
               if (vehicle.alerts.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: (vehicle.hasCriticalAlerts
-                            ? (isDark ? Colors.red.shade900 : Colors.red.shade50)
-                            : (isDark ? Colors.amber.shade900 : Colors.amber.shade50))
-                        .withValues(alpha: isDark ? 0.3 : 0.7),
+                    color:
+                        (vehicle.hasCriticalAlerts
+                                ? (isDark
+                                      ? Colors.red.shade900
+                                      : Colors.red.shade50)
+                                : (isDark
+                                      ? Colors.amber.shade900
+                                      : Colors.amber.shade50))
+                            .withValues(alpha: isDark ? 0.3 : 0.7),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -181,19 +206,31 @@ class VehicleCard extends ConsumerWidget {
                             : Icons.warning_amber_rounded,
                         size: 14,
                         color: vehicle.hasCriticalAlerts
-                            ? (isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828))
-                            : (isDark ? const Color(0xFFFFD54F) : const Color(0xFFE65100)),
+                            ? (isDark
+                                  ? const Color(0xFFFF8A80)
+                                  : const Color(0xFFC62828))
+                            : (isDark
+                                  ? const Color(0xFFFFD54F)
+                                  : const Color(0xFFE65100)),
                       ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          '${vehicle.alerts.length} ${vehicle.alerts.length == 1 ? 'aktywny alert' : vehicle.alerts.length < 5 ? 'aktywne alerty' : 'aktywnych alertów'}',
+                          '${vehicle.alerts.length} ${vehicle.alerts.length == 1
+                              ? 'aktywny alert'
+                              : vehicle.alerts.length < 5
+                              ? 'aktywne alerty'
+                              : 'aktywnych alertów'}',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: vehicle.hasCriticalAlerts
-                                ? (isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828))
-                                : (isDark ? const Color(0xFFFFD54F) : const Color(0xFFE65100)),
+                                ? (isDark
+                                      ? const Color(0xFFFF8A80)
+                                      : const Color(0xFFC62828))
+                                : (isDark
+                                      ? const Color(0xFFFFD54F)
+                                      : const Color(0xFFE65100)),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

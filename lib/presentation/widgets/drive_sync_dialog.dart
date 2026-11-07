@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../providers/app_providers.dart';
 
 class DriveSyncDialog extends ConsumerWidget {
@@ -32,7 +33,11 @@ class DriveSyncDialog extends ConsumerWidget {
                     color: theme.colorScheme.primary.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.backup_rounded, color: theme.colorScheme.primary, size: 24),
+                  child: Icon(
+                    Icons.backup_rounded,
+                    color: theme.colorScheme.primary,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -41,11 +46,17 @@ class DriveSyncDialog extends ConsumerWidget {
                     children: [
                       Text(
                         l10n?.backupDialogTitle ?? 'Kopia Zapasowa',
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         l10n?.backupDialogSubtitle ?? 'Lokalny plik JSON',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ],
                   ),
@@ -69,11 +80,14 @@ class DriveSyncDialog extends ConsumerWidget {
                     children: [
                       const CircularProgressIndicator(),
                       const SizedBox(height: 12),
-                      Text(l10n?.backupProcessing ?? 'Przetwarzanie operacji na pliku bazy danych...'),
+                      Text(
+                        l10n?.backupProcessing ??
+                            'Przetwarzanie operacji na pliku bazy danych...',
+                      ),
                     ],
                   ),
                 ),
-              )
+              ),
             ] else ...[
               // Action 1: Export & Share Backup
               ElevatedButton.icon(
@@ -84,7 +98,9 @@ class DriveSyncDialog extends ConsumerWidget {
                 label: Text(l10n?.backupExportBtn ?? 'Eksportuj kopię bazy'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 46),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -97,7 +113,9 @@ class DriveSyncDialog extends ConsumerWidget {
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text(res.message),
-                      backgroundColor: res.isSuccess ? Colors.green : Colors.red,
+                      backgroundColor: res.isSuccess
+                          ? Colors.green
+                          : Colors.red,
                       duration: const Duration(seconds: 4),
                     ),
                   );
@@ -106,10 +124,14 @@ class DriveSyncDialog extends ConsumerWidget {
                   }
                 },
                 icon: const Icon(Icons.file_download_rounded),
-                label: Text(l10n?.backupImportBtn ?? 'Importuj i przywróć bazę'),
+                label: Text(
+                  l10n?.backupImportBtn ?? 'Importuj i przywróć bazę',
+                ),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 46),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -124,8 +146,7 @@ class DriveSyncDialog extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    l10n?.backupLocalNotice ??
-                        'Twoje dane są zapisane lokalnie w telefonie. Przed odinstalowaniem aplikacji lub zmianą telefonu wyeksportuj plik JSON i zapisz go na dysku lub wyślij mailem.',
+                    l10n?.backupLocalNotice ?? 'Twoje dane są zapisane lokalnie w telefonie. Przed odinstalowaniem aplikacji lub zmianą telefonu wyeksportuj plik JSON i zapisz go na dysku lub wyślij mailem.',
                     style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                   ),
                 ),

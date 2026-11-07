@@ -41,10 +41,9 @@ Postman CLI is installed on this device, and can be used for API Engineering wor
   sprawdzaj rollback przy błędzie i zgodność ze starymi kopiami.
   Źródła: `lib/data/database/app_database.dart:157`,
   `lib/data/services/google_drive_service.dart:250`.
-- `test/unit/database_json_sync_test.dart:18` kieruje bazę do katalogu `.`;
-  przypadki współdzielą dane. Przed uruchomieniem tego pliku lub pełnego zestawu
-  odizoluj bazę w katalogu tymczasowym, przygotuj niezależne dane i sprzątanie.
-  Po naprawie zaktualizuj tę instrukcję. Nie używaj bazy użytkownika w testach.
+- Testy SQLite izoluj przez `test/helpers/test_database.dart`: osobny katalog
+  tymczasowy, niezależne dane każdego przypadku i sprzątanie. W testach widgetów
+  używaj `test/helpers/fake_repositories.dart`. Nie używaj bazy użytkownika.
 - Nazwy kluczy SQLite i JSON są kontraktem danych. Zmiany sprawdzaj w toMap,
   fromMap, migracjach, eksporcie, imporcie i istniejących kopiach.
 - `Expense.amountPln` i `mileageKm` określają jednostki przechowywania.
@@ -59,9 +58,11 @@ Postman CLI is installed on this device, and can be used for API Engineering wor
 - Nie edytuj ręcznie rejestratorów pluginów, `.metadata` ani artefaktów
   `build/`, `.dart_tool/` i `ephemeral/`. Manifesty, Gradle i zasoby platform
   są utrzymywaną konfiguracją, którą można zmieniać w zakresie zadania.
-- Release Androida jest obecnie podpisywany kluczem debug. To nie tryb debug.
-  Zmianę klucza lub applicationId rozpatruj z zachowaniem możliwości aktualizacji
-  istniejącej instalacji. Źródło: `android/app/build.gradle.kts:17`.
+- Release wymaga prywatnego klucza poza repo i `AUTOLOG_SIGNING_PROPERTIES`.
+  Sekrety są w środowisku GitHuba `release`, dostępnym dla tagów `v*`.
+  CI buduje niepodpisany APK wyłącznie jako kontrolę kompilacji. Nie publikuj go.
+  Zmiana podpisu wymaga planu przeniesienia danych dawnych instalacji debug.
+  Źródła: `android/app/build.gradle.kts`, `docs/releases.md`.
 - OCR używa Latin. Przy zmianie skryptów sprawdź zależności i reguły R8;
   nie wyłączaj minifikacji jako obejścia brakujących klas.
   Źródła: `lib/data/services/receipt_ocr_service.dart:304`,
@@ -69,8 +70,8 @@ Postman CLI is installed on this device, and can be used for API Engineering wor
 - Płynność mierz na fizycznym telefonie w profile/release. Tryb debug ma narzut;
   podejrzane miejsce w kodzie nie jest potwierdzonym wąskim gardłem.
   Kontroluj tworzenie całych list, start zakładek i przebudowy providerów.
-- Manifesty i lockfile mają pierwszeństwo przy ustalaniu wersji narzędzi.
-  `README.md:23` podaje starsze wymaganie niż `pubspec.lock:981`.
+- Wersje narzędzi CI są przypięte w `.github/workflows/ci.yml` i `release.yml`.
+  Przy aktualizacji Fluttera zmieniaj oba workflowy. Zachowuj lockfile.
   Po zmianie faktu opisanego tutaj aktualizuj też instrukcję i jej źródło.
 
 ## GLOSSARY
@@ -84,29 +85,23 @@ Postman CLI is installed on this device, and can be used for API Engineering wor
 - OCR: `ReceiptOcrService`; interpretacja tekstu: `ReceiptParser`.
 
 ## HOW_TO_VERIFY
-- Pracuj z katalogu zawierającego `pubspec.yaml`. Wymagane są przygotowane
-  zależności zgodne z lockfile, zgodny Flutter i kompletne JDK do Androida.
-  `--no-pub` pomija pobieranie pakietów, ale nie zapisy cache i artefaktów.
+- Pracuj z katalogu zawierającego `pubspec.yaml`. Przygotuj zależności:
+  `flutter pub get --enforce-lockfile`. Narzędzia SDK zapisują cache i artefakty.
 - Zmiana ARB: najpierw `flutter gen-l10n`, potem przegląd wygenerowanego diffu.
-  Źródła komend: `l10n.yaml`, `analysis_options.yaml:6`, pliki `test/`
-  i `android/app/build.gradle.kts`. Kolejność bramek:
-1. Zawsze: `git diff --check`.
-2. Zmiana Dart: `dart format --output=none --set-exit-if-changed lib test`.
-3. Zmiana Dart lub zależności: `flutter analyze --no-pub`.
-4. Szybkie testy logiki:
-   `flutter test --no-pub test/unit/models_test.dart test/unit/formatters_test.dart test/unit/expense_suggestions_test.dart test/unit/receipt_parser_test.dart`.
-5. Zmiana zachowania: pełne `flutter test --no-pub` po izolacji testu bazy
-   wskazanej w LANDMINES. Do tego czasu raportuj brak pełnej weryfikacji.
-6. Zmiana Android/release/pluginów/zależności:
-   `flutter build apk --release --no-pub --target-platform android-arm64`.
-- Na początku można zawęzić formatowanie i testy do konkretnych plików;
-  zmiana wspólnej logiki wymaga też sprawdzenia zależnych obszarów.
+- Jedna lokalna komenda weryfikacji: `bash tool/verify.sh`. Wykonuje kolejno:
+  git diff --check, kontrolę formatu lib/test, flutter analyze --no-pub,
+  pełne flutter test --no-pub i testy skryptu wydań w Pythonie.
+- Zmiana Androida/release/pluginów/zależności wymaga dodatkowo:
+  `flutter build apk --release --no-pub` z prywatną konfiguracją podpisu.
+- Na początku można zawęzić testy; przed końcem zadania uruchom pełną weryfikację.
 - Zmiana płynności: `flutter run --profile` na fizycznym telefonie;
   raportuj scenariusz, rozmiar danych, urządzenie i czasy klatek.
-- W trybie tylko do odczytu nie uruchamiaj powyższych poleceń SDK.
+- W trybie tylko do odczytu nie uruchamiaj poleceń SDK ani skryptu verify.
 - Po błędzie napraw przyczynę i ponów check. Nie usuwaj asercji ani nie wyciszaj
   analizy po to, żeby uzyskać sukces. Błąd środowiska lub wcześniejszy błąd
   zgłoś z dowodem; nie ogłaszaj zielonej weryfikacji bez wykonanych kontroli.
+- Wydawanie wersji i konfiguracja sekretów: `docs/releases.md`.
+  Tag vX.Y.Z musi pasować do pubspec; wersja i build number muszą rosnąć.
 - Raport końcowy: co zmieniono, wykonane checki i wyniki, nieweryfikowany zakres.
   Sprawdź też nowe pliki i końcowy diff; nie commituj bez prośby użytkownika.
 

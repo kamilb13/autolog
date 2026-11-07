@@ -1,8 +1,8 @@
 import 'dart:convert';
+
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-
 
 class AppDatabase {
   static final AppDatabase instance = AppDatabase._init();
@@ -39,7 +39,9 @@ class AppDatabase {
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       try {
-        await db.execute('ALTER TABLE vehicles ADD COLUMN purchase_price_pln REAL');
+        await db.execute(
+          'ALTER TABLE vehicles ADD COLUMN purchase_price_pln REAL',
+        );
       } catch (_) {}
     }
     if (oldVersion < 3) {
@@ -183,7 +185,10 @@ class AppDatabase {
 
       if (data['service_reminders'] != null) {
         for (final r in (data['service_reminders'] as List)) {
-          await txn.insert('service_reminders', Map<String, dynamic>.from(r as Map));
+          await txn.insert(
+            'service_reminders',
+            Map<String, dynamic>.from(r as Map),
+          );
           remindersCount++;
         }
       }

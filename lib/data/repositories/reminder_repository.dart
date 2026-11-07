@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../domain/models/service_reminder.dart';
 import '../../domain/models/vehicle.dart';
 import '../database/app_database.dart';
@@ -7,7 +8,8 @@ import '../database/app_database.dart';
 class ReminderRepository {
   final AppDatabase _appDb;
 
-  ReminderRepository([AppDatabase? appDb]) : _appDb = appDb ?? AppDatabase.instance;
+  ReminderRepository([AppDatabase? appDb])
+    : _appDb = appDb ?? AppDatabase.instance;
 
   Future<List<ServiceReminder>> getReminders({
     String? vehicleId,
@@ -19,7 +21,8 @@ class ReminderRepository {
     // Fetch all vehicles to map mileage
     final List<Map<String, dynamic>> vehMaps = await db.query('vehicles');
     final Map<String, int> vehicleMileages = {
-      for (var v in vehMaps) v['id'] as String: (v['mileage_km'] as num).toInt()
+      for (var v in vehMaps)
+        v['id'] as String: (v['mileage_km'] as num).toInt(),
     };
 
     final whereClauses = <String>['is_completed = 0'];
@@ -58,7 +61,9 @@ class ReminderRepository {
       if (dueDateStr != null) {
         try {
           final due = DateTime.parse(dueDateStr);
-          daysRemaining = due.difference(DateTime(now.year, now.month, now.day)).inDays;
+          daysRemaining = due
+              .difference(DateTime(now.year, now.month, now.day))
+              .inDays;
         } catch (_) {}
       }
 
@@ -68,7 +73,9 @@ class ReminderRepository {
       }
 
       // Calculate severity
-      AlertSeverity severity = AlertSeverity.fromString(map['severity'] as String?);
+      AlertSeverity severity = AlertSeverity.fromString(
+        map['severity'] as String?,
+      );
       if (daysRemaining != null) {
         if (daysRemaining <= 7) {
           severity = AlertSeverity.critical;
@@ -119,7 +126,11 @@ class ReminderRepository {
     final db = await _appDb.database;
     final data = reminder.toMap();
     data['created_at'] = DateTime.now().millisecondsSinceEpoch;
-    await db.insert('service_reminders', data, conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(
+      'service_reminders',
+      data,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<void> markCompleted(String reminderId) async {
@@ -147,12 +158,20 @@ class ReminderRepository {
       final intervalMonths = reminder.intervalMonths;
       final intervalKm = reminder.intervalKm;
 
-      if ((intervalMonths != null && intervalMonths > 0) || (intervalKm != null && intervalKm > 0)) {
+      if ((intervalMonths != null && intervalMonths > 0) ||
+          (intervalKm != null && intervalKm > 0)) {
         String? nextDueDate;
         if (intervalMonths != null && intervalMonths > 0) {
-          final baseDate = reminder.dueDate != null ? DateTime.parse(reminder.dueDate!) : DateTime.now();
-          final nextDate = DateTime(baseDate.year, baseDate.month + intervalMonths, baseDate.day);
-          nextDueDate = "${nextDate.year.toString().padLeft(4, '0')}-${nextDate.month.toString().padLeft(2, '0')}-${nextDate.day.toString().padLeft(2, '0')}";
+          final baseDate = reminder.dueDate != null
+              ? DateTime.parse(reminder.dueDate!)
+              : DateTime.now();
+          final nextDate = DateTime(
+            baseDate.year,
+            baseDate.month + intervalMonths,
+            baseDate.day,
+          );
+          nextDueDate =
+              "${nextDate.year.toString().padLeft(4, '0')}-${nextDate.month.toString().padLeft(2, '0')}-${nextDate.day.toString().padLeft(2, '0')}";
         }
 
         int? nextDueMileage;
@@ -163,7 +182,9 @@ class ReminderRepository {
             where: 'id = ?',
             whereArgs: [reminder.vehicleId],
           );
-          final currentKm = vehMap.isNotEmpty ? (vehMap.first['mileage_km'] as num).toInt() : (reminder.dueMileageKm ?? 0);
+          final currentKm = vehMap.isNotEmpty
+              ? (vehMap.first['mileage_km'] as num).toInt()
+              : (reminder.dueMileageKm ?? 0);
           nextDueMileage = currentKm + intervalKm;
         }
 

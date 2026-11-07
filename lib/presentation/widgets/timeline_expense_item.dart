@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/utils/formatters.dart';
 import '../../domain/models/expense.dart';
 import '../providers/app_providers.dart';
@@ -33,7 +34,9 @@ class TimelineExpenseItem extends ConsumerWidget {
     final settings = ref.watch(settingsNotifierProvider);
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
     final vehicle = showVehicleBadge
-        ? vehiclesAsync.valueOrNull?.where((v) => v.id == expense.vehicleId).firstOrNull
+        ? vehiclesAsync.valueOrNull
+              ?.where((v) => v.id == expense.vehicleId)
+              .firstOrNull
         : null;
     final category = expense.category;
     final lineColor = isDark
@@ -64,7 +67,9 @@ class TimelineExpenseItem extends ConsumerWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.4,
+                            ),
                             blurRadius: 4,
                           ),
                         ],
@@ -74,18 +79,29 @@ class TimelineExpenseItem extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3.5,
+                  ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: isDark ? 0.2 : 0.1),
+                    color: theme.colorScheme.primary.withValues(
+                      alpha: isDark ? 0.2 : 0.1,
+                    ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: theme.colorScheme.primary.withValues(alpha: isDark ? 0.35 : 0.25),
+                      color: theme.colorScheme.primary.withValues(
+                        alpha: isDark ? 0.35 : 0.25,
+                      ),
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.calendar_today_rounded, size: 11, color: theme.colorScheme.primary),
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: 11,
+                        color: theme.colorScheme.primary,
+                      ),
                       const SizedBox(width: 5),
                       Text(
                         monthHeader!,
@@ -102,11 +118,16 @@ class TimelineExpenseItem extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w400,
-                            color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                         ),
                         Text(
-                          AppFormatters.currency(monthTotal!, currencyCode: settings.currency.code),
+                          AppFormatters.currency(
+                            monthTotal!,
+                            currencyCode: settings.currency.code,
+                          ),
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w800,
@@ -136,7 +157,9 @@ class TimelineExpenseItem extends ConsumerWidget {
                     Container(
                       width: 2,
                       height: 10,
-                      color: (isFirst && monthHeader == null) ? Colors.transparent : lineColor,
+                      color: (isFirst && monthHeader == null)
+                          ? Colors.transparent
+                          : lineColor,
                     ),
                     // Timeline Node Circle
                     Container(
@@ -148,7 +171,9 @@ class TimelineExpenseItem extends ConsumerWidget {
                             : category.color.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: category.color.withValues(alpha: isDark ? 0.7 : 0.45),
+                          color: category.color.withValues(
+                            alpha: isDark ? 0.7 : 0.45,
+                          ),
                           width: 1.5,
                         ),
                         boxShadow: [
@@ -184,15 +209,20 @@ class TimelineExpenseItem extends ConsumerWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       color: isDark
-                          ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
+                          ? theme.colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.6)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : Colors.black.withValues(alpha: 0.06),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.03),
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.18 : 0.03,
+                          ),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -212,16 +242,24 @@ class TimelineExpenseItem extends ConsumerWidget {
                               if (vehicle != null) ...[
                                 Container(
                                   margin: const EdgeInsets.only(bottom: 6),
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 2.5,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: isDark
                                         ? Colors.white.withValues(alpha: 0.05)
-                                        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                                        : theme
+                                              .colorScheme
+                                              .surfaceContainerHighest
+                                              .withValues(alpha: 0.5),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
                                       color: isDark
                                           ? Colors.white.withValues(alpha: 0.08)
-                                          : Colors.black.withValues(alpha: 0.05),
+                                          : Colors.black.withValues(
+                                              alpha: 0.05,
+                                            ),
                                     ),
                                   ),
                                   child: Row(
@@ -238,7 +276,8 @@ class TimelineExpenseItem extends ConsumerWidget {
                                         style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
+                                          color: theme.colorScheme.onSurface
+                                              .withValues(alpha: 0.9),
                                         ),
                                       ),
                                       if (vehicle.licensePlate.isNotEmpty) ...[
@@ -246,7 +285,8 @@ class TimelineExpenseItem extends ConsumerWidget {
                                           ' • ',
                                           style: TextStyle(
                                             fontSize: 10,
-                                            color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
+                                            color: theme.colorScheme.onSurface
+                                                .withValues(alpha: 0.35),
                                           ),
                                         ),
                                         Text(
@@ -255,7 +295,8 @@ class TimelineExpenseItem extends ConsumerWidget {
                                             fontSize: 10.5,
                                             fontWeight: FontWeight.w600,
                                             letterSpacing: 0.3,
-                                            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                                            color: theme.colorScheme.onSurface
+                                                .withValues(alpha: 0.65),
                                           ),
                                         ),
                                       ],
@@ -281,7 +322,10 @@ class TimelineExpenseItem extends ConsumerWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    AppFormatters.currency(expense.amountPln, currencyCode: settings.currency.code),
+                                    AppFormatters.currency(
+                                      expense.amountPln,
+                                      currencyCode: settings.currency.code,
+                                    ),
                                     style: TextStyle(
                                       fontSize: 14.5,
                                       fontWeight: FontWeight.w800,
@@ -296,9 +340,14 @@ class TimelineExpenseItem extends ConsumerWidget {
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: category.color.withValues(alpha: isDark ? 0.15 : 0.08),
+                                      color: category.color.withValues(
+                                        alpha: isDark ? 0.15 : 0.08,
+                                      ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
@@ -312,23 +361,33 @@ class TimelineExpenseItem extends ConsumerWidget {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    AppFormatters.formatDisplayDate(expense.date),
+                                    AppFormatters.formatDisplayDate(
+                                      expense.date,
+                                    ),
                                     style: TextStyle(
                                       fontSize: 11.5,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.6),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   if (expense.mileageKm != null) ...[
                                     Text(
                                       ' • ',
-                                      style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface
+                                            .withValues(alpha: 0.3),
+                                      ),
                                     ),
                                     Text(
-                                      AppFormatters.mileage(expense.mileageKm, unit: settings.distanceUnit.label),
+                                      AppFormatters.mileage(
+                                        expense.mileageKm,
+                                        unit: settings.distanceUnit.label,
+                                      ),
                                       style: TextStyle(
                                         fontSize: 11.5,
-                                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                        color: theme.colorScheme.onSurface
+                                            .withValues(alpha: 0.6),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -336,7 +395,10 @@ class TimelineExpenseItem extends ConsumerWidget {
                                   const Spacer(),
                                   if (onDelete != null)
                                     IconButton(
-                                      icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                                      icon: const Icon(
+                                        Icons.delete_outline_rounded,
+                                        size: 16,
+                                      ),
                                       color: Colors.grey.withValues(alpha: 0.5),
                                       onPressed: onDelete,
                                       padding: EdgeInsets.zero,
@@ -354,7 +416,8 @@ class TimelineExpenseItem extends ConsumerWidget {
                                     Icon(
                                       Icons.location_on_outlined,
                                       size: 12,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.45),
                                     ),
                                     const SizedBox(width: 3),
                                     Expanded(
@@ -362,7 +425,8 @@ class TimelineExpenseItem extends ConsumerWidget {
                                         expense.workshopOrLocation!,
                                         style: TextStyle(
                                           fontSize: 11.5,
-                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                                          color: theme.colorScheme.onSurface
+                                              .withValues(alpha: 0.7),
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -373,22 +437,30 @@ class TimelineExpenseItem extends ConsumerWidget {
                               ],
 
                               // Note
-                              if (expense.note != null && expense.note!.isNotEmpty) ...[
+                              if (expense.note != null &&
+                                  expense.note!.isNotEmpty) ...[
                                 const SizedBox(height: 6),
                                 Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: isDark
                                         ? Colors.white.withValues(alpha: 0.04)
-                                        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                                        : theme
+                                              .colorScheme
+                                              .surfaceContainerHighest
+                                              .withValues(alpha: 0.4),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
                                     expense.note!,
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.75),
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),

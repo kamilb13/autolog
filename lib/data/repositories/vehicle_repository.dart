@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../../domain/models/service_reminder.dart';
 import '../../domain/models/vehicle.dart';
 import '../database/app_database.dart';
@@ -6,7 +7,8 @@ import '../database/app_database.dart';
 class VehicleRepository {
   final AppDatabase _appDb;
 
-  VehicleRepository([AppDatabase? appDb]) : _appDb = appDb ?? AppDatabase.instance;
+  VehicleRepository([AppDatabase? appDb])
+    : _appDb = appDb ?? AppDatabase.instance;
 
   Future<List<Vehicle>> getAllVehicles() async {
     final db = await _appDb.database;
@@ -21,7 +23,11 @@ class VehicleRepository {
       final currentMileage = (map['mileage_km'] as num).toInt();
 
       // Fetch reminders for vehicle to calculate alerts
-      final reminders = await _getRemindersForVehicle(db, vehicleId, currentMileage);
+      final reminders = await _getRemindersForVehicle(
+        db,
+        vehicleId,
+        currentMileage,
+      );
       final alerts = _calculateAlerts(reminders);
 
       vehicles.add(Vehicle.fromMap(map, alerts: alerts));
@@ -52,7 +58,11 @@ class VehicleRepository {
     final db = await _appDb.database;
     final data = vehicle.toMap();
     data['created_at'] = DateTime.now().millisecondsSinceEpoch;
-    await db.insert('vehicles', data, conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(
+      'vehicles',
+      data,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<void> updateVehicle(Vehicle vehicle) async {
@@ -77,11 +87,7 @@ class VehicleRepository {
 
   Future<void> deleteVehicle(String id) async {
     final db = await _appDb.database;
-    await db.delete(
-      'vehicles',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await db.delete('vehicles', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<ServiceReminder>> _getRemindersForVehicle(
@@ -105,7 +111,9 @@ class VehicleRepository {
       if (dueDateStr != null) {
         try {
           final due = DateTime.parse(dueDateStr);
-          daysRemaining = due.difference(DateTime(now.year, now.month, now.day)).inDays;
+          daysRemaining = due
+              .difference(DateTime(now.year, now.month, now.day))
+              .inDays;
         } catch (_) {}
       }
 
@@ -115,7 +123,9 @@ class VehicleRepository {
       }
 
       // Calculate severity
-      AlertSeverity severity = AlertSeverity.fromString(map['severity'] as String?);
+      AlertSeverity severity = AlertSeverity.fromString(
+        map['severity'] as String?,
+      );
       if (daysRemaining != null) {
         if (daysRemaining <= 7) {
           severity = AlertSeverity.critical;
@@ -142,30 +152,36 @@ class VehicleRepository {
 
   List<VehicleAlert> _calculateAlerts(List<ServiceReminder> reminders) {
     return reminders
-        .where((r) => r.severity == AlertSeverity.critical || r.severity == AlertSeverity.warning)
+        .where(
+          (r) =>
+              r.severity == AlertSeverity.critical ||
+              r.severity == AlertSeverity.warning,
+        )
         .map((r) {
-      String desc = r.description;
-      if (r.daysRemaining != null && r.daysRemaining! <= 0) {
-        desc = r.daysRemaining == 0
-            ? 'Termin upływa dzisiaj!'
-            : 'Termin minął ${r.daysRemaining!.abs()} dni temu!';
-      } else if (r.daysRemaining != null) {
-        desc = 'Wygasa za ${r.daysRemaining} dni (${r.dueDate ?? ''})';
-      } else if (r.kmRemaining != null && r.kmRemaining! <= 0) {
-        desc = r.kmRemaining == 0
-            ? 'Osiągnięto limit przebiegu (${r.dueMileageKm} km)'
-            : 'Przekroczono limit o ${r.kmRemaining!.abs()} km (limit: ${r.dueMileageKm} km)';
-      } else if (r.kmRemaining != null) {
-        desc = 'Pozostało ${r.kmRemaining} km do limitu (${r.dueMileageKm} km)';
-      }
+          String desc = r.description;
+          if (r.daysRemaining != null && r.daysRemaining! <= 0) {
+            desc = r.daysRemaining == 0
+                ? 'Termin upływa dzisiaj!'
+                : 'Termin minął ${r.daysRemaining!.abs()} dni temu!';
+          } else if (r.daysRemaining != null) {
+            desc = 'Wygasa za ${r.daysRemaining} dni (${r.dueDate ?? ''})';
+          } else if (r.kmRemaining != null && r.kmRemaining! <= 0) {
+            desc = r.kmRemaining == 0
+                ? 'Osiągnięto limit przebiegu (${r.dueMileageKm} km)'
+                : 'Przekroczono limit o ${r.kmRemaining!.abs()} km (limit: ${r.dueMileageKm} km)';
+          } else if (r.kmRemaining != null) {
+            desc =
+                'Pozostało ${r.kmRemaining} km do limitu (${r.dueMileageKm} km)';
+          }
 
-      return VehicleAlert(
-        id: r.id,
-        title: r.title,
-        description: desc,
-        severity: r.severity,
-        type: r.type,
-      );
-    }).toList();
+          return VehicleAlert(
+            id: r.id,
+            title: r.title,
+            description: desc,
+            severity: r.severity,
+            type: r.type,
+          );
+        })
+        .toList();
   }
 }

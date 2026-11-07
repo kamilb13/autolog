@@ -3,12 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../core/utils/formatters.dart';
 import '../../data/services/expense_suggestions_service.dart';
 import '../../data/services/receipt_ocr_service.dart';
 import '../../domain/models/expense.dart';
 import '../../domain/models/expense_suggestion.dart';
+
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../providers/app_providers.dart';
 import '../widgets/vehicle_selector.dart';
 
@@ -63,7 +66,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           : editExp.amountPln.toStringAsFixed(2);
       _dateController.text = editExp.date;
       _selectedDate = DateTime.tryParse(editExp.date) ?? DateTime.now();
-      _mileageController.text = editExp.mileageKm != null ? editExp.mileageKm.toString() : '';
+      _mileageController.text = editExp.mileageKm != null
+          ? editExp.mileageKm.toString()
+          : '';
       _locationController.text = editExp.workshopOrLocation ?? '';
       _noteController.text = editExp.note ?? '';
     } else {
@@ -140,12 +145,19 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                         color: theme.colorScheme.primaryContainer,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.document_scanner_rounded, color: theme.colorScheme.primary, size: 22),
+                      child: Icon(
+                        Icons.document_scanner_rounded,
+                        color: theme.colorScheme.primary,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       l10n?.ocrScanReceipt ?? 'Zeskanuj paragon / fakturę',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
@@ -153,7 +165,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 ListTile(
                   leading: const Icon(Icons.camera_alt_rounded),
                   title: Text(l10n?.ocrSourceCamera ?? 'Zrób zdjęcie aparatem'),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   onTap: () {
                     Navigator.of(ctx).pop();
                     _processReceiptOcr(ImageSource.camera);
@@ -162,7 +176,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 ListTile(
                   leading: const Icon(Icons.photo_library_rounded),
                   title: Text(l10n?.ocrSourceGallery ?? 'Wybierz z galerii'),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   onTap: () {
                     Navigator.of(ctx).pop();
                     _processReceiptOcr(ImageSource.gallery);
@@ -205,7 +221,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             _locationController.text = result.location!;
           }
 
-          if (result.suggestedTitle != null && result.suggestedTitle!.isNotEmpty) {
+          if (result.suggestedTitle != null &&
+              result.suggestedTitle!.isNotEmpty) {
             _titleController.text = result.suggestedTitle!;
           }
 
@@ -215,7 +232,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n?.ocrSuccessBanner ?? 'Odczytano dane z paragonu. Zweryfikuj i zatwierdź.'),
+            content: Text(
+              l10n?.ocrSuccessBanner ??
+                  'Odczytano dane z paragonu. Zweryfikuj i zatwierdź.',
+            ),
             backgroundColor: Colors.green.shade700,
             duration: const Duration(seconds: 4),
           ),
@@ -223,7 +243,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       } else if (result != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n?.ocrNoDataFound ?? 'Nie udało się odczytać kwoty ani daty ze zdjęcia.'),
+            content: Text(
+              l10n?.ocrNoDataFound ??
+                  'Nie udało się odczytać kwoty ani daty ze zdjęcia.',
+            ),
             backgroundColor: Colors.orange.shade800,
           ),
         );
@@ -231,7 +254,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Błąd skanera: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Błąd skanera: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -242,9 +268,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   Future<void> _saveExpense() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedVehicleId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Wybierz pojazd')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Wybierz pojazd')));
       return;
     }
 
@@ -252,7 +277,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final l10n = AppLocalizations.of(context);
 
     try {
-      final amount = double.parse(_amountController.text.trim().replaceAll(',', '.'));
+      final amount = double.parse(
+        _amountController.text.trim().replaceAll(',', '.'),
+      );
       final mileage = _mileageController.text.trim().isNotEmpty
           ? int.tryParse(_mileageController.text.trim())
           : null;
@@ -269,15 +296,21 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           workshopOrLocation: _locationController.text.trim().isNotEmpty
               ? _locationController.text.trim()
               : null,
-          note: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+          note: _noteController.text.trim().isNotEmpty
+              ? _noteController.text.trim()
+              : null,
         );
 
-        await ref.read(expensesNotifierProvider.notifier).updateExpense(updatedExpense);
+        await ref
+            .read(expensesNotifierProvider.notifier)
+            .updateExpense(updatedExpense);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n?.expenseUpdatedMsg ?? 'Zaktualizowano wydatek!'),
+              content: Text(
+                l10n?.expenseUpdatedMsg ?? 'Zaktualizowano wydatek!',
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -295,15 +328,22 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           workshopOrLocation: _locationController.text.trim().isNotEmpty
               ? _locationController.text.trim()
               : null,
-          note: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+          note: _noteController.text.trim().isNotEmpty
+              ? _noteController.text.trim()
+              : null,
         );
 
-        await ref.read(expensesNotifierProvider.notifier).addExpense(newExpense);
+        await ref
+            .read(expensesNotifierProvider.notifier)
+            .addExpense(newExpense);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n?.expenseSavedMsg ?? 'Zapisano wydatek "${newExpense.title}"!'),
+              content: Text(
+                l10n?.expenseSavedMsg ??
+                    'Zapisano wydatek "${newExpense.title}"!',
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -313,7 +353,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Błąd zapisu: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Błąd zapisu: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -325,7 +368,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   Widget build(BuildContext context) {
     final vehiclesAsync = ref.watch(vehiclesNotifierProvider);
     final vehicles = vehiclesAsync.valueOrNull ?? [];
-    final selectedVehicle = vehicles.where((v) => v.id == _selectedVehicleId).firstOrNull;
+    final selectedVehicle = vehicles
+        .where((v) => v.id == _selectedVehicleId)
+        .firstOrNull;
     final learnedSuggestionsAsync = ref.watch(expenseSuggestionsProvider);
     final learnedSuggestions = learnedSuggestionsAsync.valueOrNull ?? [];
     final settings = ref.watch(settingsNotifierProvider);
@@ -358,7 +403,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.document_scanner_rounded),
-            tooltip: l10n?.ocrScanReceiptTooltip ?? 'Zeskanuj paragon lub fakturę aparatem',
+            tooltip:
+                l10n?.ocrScanReceiptTooltip ??
+                'Zeskanuj paragon lub fakturę aparatem',
             onPressed: _isScanningReceipt ? null : _showOcrPickerSheet,
           ),
         ],
@@ -386,7 +433,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   borderRadius: BorderRadius.circular(14),
                   onTap: _isScanningReceipt ? null : _showOcrPickerSheet,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     child: Row(
                       children: [
                         Container(
@@ -395,7 +445,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                             color: theme.colorScheme.primary,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.document_scanner_rounded, color: Colors.white, size: 20),
+                          child: const Icon(
+                            Icons.document_scanner_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -403,8 +457,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l10n?.ocrScanReceipt ?? 'Zeskanuj paragon / fakturę',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                                l10n?.ocrScanReceipt ??
+                                    'Zeskanuj paragon / fakturę',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.5,
+                                ),
                               ),
                             ],
                           ),
@@ -428,20 +486,33 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             if (_lastScanResult != null) ...[
               Container(
                 margin: const EdgeInsets.only(bottom: 14),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green.shade500.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+                  border: Border.all(
+                    color: Colors.green.withValues(alpha: 0.4),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.green,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         l10n?.ocrSuccessBanner ?? 'Odczytano dane z paragonu. Zweryfikuj i zatwierdź.',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.green),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.green,
+                        ),
                       ),
                     ),
                     IconButton(
@@ -464,7 +535,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             vehiclesAsync.when(
               data: (vehicles) {
                 if (vehicles.isEmpty) {
-                  return const Text('Brak pojazdów w garażu. Dodaj auto przed dodaniem wydatku.');
+                  return const Text(
+                    'Brak pojazdów w garażu. Dodaj auto przed dodaniem wydatku.',
+                  );
                 }
 
                 if (_selectedVehicleId == null && vehicles.isNotEmpty) {
@@ -473,7 +546,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
                 return VehicleSelector(
                   vehicles: widget.initialVehicleId != null && !widget.isEditing
-                      ? vehicles.where((v) => v.id == widget.initialVehicleId).toList()
+                      ? vehicles
+                            .where((v) => v.id == widget.initialVehicleId)
+                            .toList()
                       : vehicles,
                   selectedVehicleId: _selectedVehicleId,
                   onSelected: (v) {
@@ -497,7 +572,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: _selectedCategory.color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
@@ -505,7 +583,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(_selectedCategory.icon, size: 12, color: _selectedCategory.color),
+                      Icon(
+                        _selectedCategory.icon,
+                        size: 12,
+                        color: _selectedCategory.color,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         _selectedCategory.displayName,
@@ -540,7 +622,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                         cat.displayName,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           color: isSelected ? Colors.white : null,
                         ),
                       ),
@@ -570,7 +654,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 suffixText: settings.currency.code,
               ),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d{0,2}')),
               ],
@@ -578,7 +664,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 if (v == null || v.trim().isEmpty) return 'Podaj kwotę';
                 final normalized = v.replaceAll(',', '.');
                 final num = double.tryParse(normalized);
-                if (num == null || num <= 0) return 'Wprowadź prawidłową kwotę większą od zera';
+                if (num == null || num <= 0) {
+                  return 'Wprowadź prawidłową kwotę większą od zera';
+                }
                 return null;
               },
             ),
@@ -595,13 +683,16 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               textCapitalization: TextCapitalization.sentences,
               onChanged: (text) {
                 if (!_userManuallyChangedCategory) {
-                  final detectedCat = ExpenseSuggestionsService.inferCategory(text);
+                  final detectedCat = ExpenseSuggestionsService.inferCategory(
+                    text,
+                  );
                   if (detectedCat != null && detectedCat != _selectedCategory) {
                     setState(() => _selectedCategory = detectedCat);
                   }
                 }
               },
-              validator: (v) => v == null || v.trim().isEmpty ? 'Podaj tytuł wydatku' : null,
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Podaj tytuł wydatku' : null,
             ),
 
             // Autocomplete / Suggestions chips bar
@@ -613,7 +704,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.auto_awesome, size: 14, color: theme.colorScheme.primary),
+                        Icon(
+                          Icons.auto_awesome,
+                          size: 14,
+                          color: theme.colorScheme.primary,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           query.isEmpty ? 'Popularne wpisy:' : 'Podpowiedzi:',
@@ -633,8 +728,15 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(right: 6),
                             child: ActionChip(
-                              avatar: Icon(sug.category.icon, size: 14, color: sug.category.color),
-                              label: Text(sug.title, style: const TextStyle(fontSize: 12)),
+                              avatar: Icon(
+                                sug.category.icon,
+                                size: 14,
+                                color: sug.category.color,
+                              ),
+                              label: Text(
+                                sug.title,
+                                style: const TextStyle(fontSize: 12),
+                              ),
                               onPressed: () => _applySuggestion(sug),
                             ),
                           );
@@ -669,16 +771,32 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     controller: _mileageController,
                     decoration: InputDecoration(
                       labelText: 'Przebieg (opcjonalnie)',
-                      hintText: selectedVehicle != null ? 'np. ${selectedVehicle.mileageKm}' : null,
+                      hintText: selectedVehicle != null
+                          ? 'np. ${selectedVehicle.mileageKm}'
+                          : null,
                       suffixText: settings.distanceUnit.label,
                       prefixIcon: const Icon(Icons.speed_rounded),
                       helperText: selectedVehicle != null
                           ? () {
                               final now = DateTime.now();
-                              final today = DateTime(now.year, now.month, now.day);
-                              final expenseDate = DateTime.tryParse(_dateController.text.trim()) ?? today;
-                              final expenseDateOnly = DateTime(expenseDate.year, expenseDate.month, expenseDate.day);
-                              final isHistorical = expenseDateOnly.isBefore(today);
+                              final today = DateTime(
+                                now.year,
+                                now.month,
+                                now.day,
+                              );
+                              final expenseDate =
+                                  DateTime.tryParse(
+                                    _dateController.text.trim(),
+                                  ) ??
+                                  today;
+                              final expenseDateOnly = DateTime(
+                                expenseDate.year,
+                                expenseDate.month,
+                                expenseDate.day,
+                              );
+                              final isHistorical = expenseDateOnly.isBefore(
+                                today,
+                              );
 
                               if (isHistorical) {
                                 return 'Wpis wsteczny (opcjonalny przebieg)';
@@ -701,8 +819,14 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       if (selectedVehicle != null) {
                         final now = DateTime.now();
                         final today = DateTime(now.year, now.month, now.day);
-                        final expenseDate = DateTime.tryParse(_dateController.text.trim()) ?? today;
-                        final expenseDateOnly = DateTime(expenseDate.year, expenseDate.month, expenseDate.day);
+                        final expenseDate =
+                            DateTime.tryParse(_dateController.text.trim()) ??
+                            today;
+                        final expenseDateOnly = DateTime(
+                          expenseDate.year,
+                          expenseDate.month,
+                          expenseDate.day,
+                        );
                         final isHistorical = expenseDateOnly.isBefore(today);
 
                         if (!isHistorical && km < selectedVehicle.mileageKm) {
@@ -734,7 +858,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               controller: _noteController,
               decoration: const InputDecoration(
                 labelText: 'Notatka (opcjonalnie)',
-                hintText: 'Dodatkowe informacje, numery części, ilość litrów...',
+                hintText:
+                    'Dodatkowe informacje, numery części, ilość litrów...',
                 prefixIcon: Icon(Icons.notes_rounded),
               ),
               maxLines: 3,
@@ -749,9 +874,16 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     )
-                  : Text(widget.isEditing ? (l10n?.editExpenseSaveBtn ?? 'Zapisz zmiany') : (l10n?.addExpenseSaveBtn ?? 'Zapisz wydatek')),
+                  : Text(
+                      widget.isEditing
+                          ? (l10n?.editExpenseSaveBtn ?? 'Zapisz zmiany')
+                          : (l10n?.addExpenseSaveBtn ?? 'Zapisz wydatek'),
+                    ),
             ),
             const SizedBox(height: 24),
           ],

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'core/theme/app_theme.dart';
+
 import 'package:autolog/l10n/app_localizations.dart';
+
 import 'presentation/providers/app_providers.dart';
 import 'presentation/screens/main_navigation_screen.dart';
 
@@ -20,11 +23,7 @@ void main() async {
   }
 
   // Non-blocking initialization - database is loaded lazily on first access
-  runApp(
-    const ProviderScope(
-      child: AutoLogApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: AutoLogApp()));
 }
 
 class AutoLogApp extends ConsumerWidget {

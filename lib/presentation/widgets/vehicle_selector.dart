@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/utils/formatters.dart';
 import '../../domain/models/vehicle.dart';
 import 'polish_license_plate.dart';
@@ -28,11 +29,17 @@ class VehicleSelector extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.error.withValues(alpha: 0.3)),
+          border: Border.all(
+            color: theme.colorScheme.error.withValues(alpha: 0.3),
+          ),
         ),
         child: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: theme.colorScheme.error, size: 20),
+            Icon(
+              Icons.warning_amber_rounded,
+              color: theme.colorScheme.error,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -48,7 +55,10 @@ class VehicleSelector extends StatelessWidget {
     if (vehicles.length == 1) {
       final v = vehicles.first;
       return Container(
-        padding: EdgeInsets.symmetric(horizontal: compact ? 12 : 14, vertical: compact ? 8 : 10),
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? 12 : 14,
+          vertical: compact ? 8 : 10,
+        ),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E242B) : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(14),
@@ -65,7 +75,11 @@ class VehicleSelector extends StatelessWidget {
                 color: theme.colorScheme.primary.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.directions_car_rounded, color: theme.colorScheme.primary, size: 20),
+              child: Icon(
+                Icons.directions_car_rounded,
+                color: theme.colorScheme.primary,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -75,7 +89,10 @@ class VehicleSelector extends StatelessWidget {
                 children: [
                   Text(
                     '${v.brand} ${v.model} (${v.year})',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -91,7 +108,10 @@ class VehicleSelector extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            PolishLicensePlate(plateText: v.licensePlate, scale: compact ? 0.65 : 0.72),
+            PolishLicensePlate(
+              plateText: v.licensePlate,
+              scale: compact ? 0.65 : 0.72,
+            ),
           ],
         ),
       );
@@ -106,7 +126,9 @@ class VehicleSelector extends StatelessWidget {
               ? theme.colorScheme.primary
               : (isDark ? Colors.white12 : const Color(0xFFE2E8F0));
           final bgColor = isSelected
-              ? theme.colorScheme.primary.withValues(alpha: isDark ? 0.18 : 0.08)
+              ? theme.colorScheme.primary.withValues(
+                  alpha: isDark ? 0.18 : 0.08,
+                )
               : (isDark ? const Color(0xFF1A2027) : const Color(0xFFF8FAFC));
 
           return Padding(
@@ -130,7 +152,9 @@ class VehicleSelector extends StatelessWidget {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.15,
+                            ),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -141,8 +165,12 @@ class VehicleSelector extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      isSelected ? Icons.check_circle_rounded : Icons.directions_car_rounded,
-                      color: isSelected ? theme.colorScheme.primary : (isDark ? Colors.white38 : Colors.black38),
+                      isSelected
+                          ? Icons.check_circle_rounded
+                          : Icons.directions_car_rounded,
+                      color: isSelected
+                          ? theme.colorScheme.primary
+                          : (isDark ? Colors.white38 : Colors.black38),
                       size: compact ? 18 : 20,
                     ),
                     const SizedBox(width: 10),
@@ -153,9 +181,13 @@ class VehicleSelector extends StatelessWidget {
                         Text(
                           '${v.brand} ${v.model}',
                           style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w600,
                             fontSize: compact ? 13 : 14,
-                            color: isSelected ? theme.colorScheme.primary : null,
+                            color: isSelected
+                                ? theme.colorScheme.primary
+                                : null,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -169,7 +201,10 @@ class VehicleSelector extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(width: 12),
-                    PolishLicensePlate(plateText: v.licensePlate, scale: compact ? 0.6 : 0.68),
+                    PolishLicensePlate(
+                      plateText: v.licensePlate,
+                      scale: compact ? 0.6 : 0.68,
+                    ),
                   ],
                 ),
               ),

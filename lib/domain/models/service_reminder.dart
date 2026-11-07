@@ -94,14 +94,25 @@ class ServiceReminder {
       title: map['title'] as String,
       description: (map['description'] ?? '') as String,
       dueDate: map['due_date'] ?? map['dueDate'] as String?,
-      dueMileageKm: (map['due_mileage_km'] ?? map['dueMileageKm'] as num?)?.toInt(),
-      daysRemaining: daysRemaining ?? (map['days_remaining'] ?? map['daysRemaining'] as num?)?.toInt(),
-      kmRemaining: kmRemaining ?? (map['km_remaining'] ?? map['kmRemaining'] as num?)?.toInt(),
-      severity: calculatedSeverity ?? AlertSeverity.fromString(map['severity'] as String?),
+      dueMileageKm: (map['due_mileage_km'] ?? map['dueMileageKm'] as num?)
+          ?.toInt(),
+      daysRemaining:
+          daysRemaining ??
+          (map['days_remaining'] ?? map['daysRemaining'] as num?)?.toInt(),
+      kmRemaining:
+          kmRemaining ??
+          (map['km_remaining'] ?? map['kmRemaining'] as num?)?.toInt(),
+      severity:
+          calculatedSeverity ??
+          AlertSeverity.fromString(map['severity'] as String?),
       type: AlertType.fromString(map['type'] as String?),
-      intervalMonths: (map['interval_months'] ?? map['intervalMonths'] as num?)?.toInt(),
+      intervalMonths: (map['interval_months'] ?? map['intervalMonths'] as num?)
+          ?.toInt(),
       intervalKm: (map['interval_km'] ?? map['intervalKm'] as num?)?.toInt(),
-      isCompleted: (map['is_completed'] == 1 || map['is_completed'] == true || map['isCompleted'] == true),
+      isCompleted:
+          (map['is_completed'] == 1 ||
+          map['is_completed'] == true ||
+          map['isCompleted'] == true),
     );
   }
 }

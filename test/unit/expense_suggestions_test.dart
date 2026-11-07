@@ -9,11 +9,21 @@ void main() {
       final suggestions = ExpenseSuggestionsService.predefinedSuggestions;
       expect(suggestions.isNotEmpty, isTrue);
 
-      final hasFuel = suggestions.any((s) => s.category == ExpenseCategory.fuel);
-      final hasService = suggestions.any((s) => s.category == ExpenseCategory.service);
-      final hasParts = suggestions.any((s) => s.category == ExpenseCategory.parts);
-      final hasInsurance = suggestions.any((s) => s.category == ExpenseCategory.insurance);
-      final hasTolls = suggestions.any((s) => s.category == ExpenseCategory.tollsFees);
+      final hasFuel = suggestions.any(
+        (s) => s.category == ExpenseCategory.fuel,
+      );
+      final hasService = suggestions.any(
+        (s) => s.category == ExpenseCategory.service,
+      );
+      final hasParts = suggestions.any(
+        (s) => s.category == ExpenseCategory.parts,
+      );
+      final hasInsurance = suggestions.any(
+        (s) => s.category == ExpenseCategory.insurance,
+      );
+      final hasTolls = suggestions.any(
+        (s) => s.category == ExpenseCategory.tollsFees,
+      );
 
       expect(hasFuel, isTrue);
       expect(hasService, isTrue);
@@ -23,15 +33,42 @@ void main() {
     });
 
     test('Infer category correctly detects categories based on keywords', () {
-      expect(ExpenseSuggestionsService.inferCategory('Tankowanie Pb95'), ExpenseCategory.fuel);
-      expect(ExpenseSuggestionsService.inferCategory('Orlen diesel do pełna'), ExpenseCategory.fuel);
-      expect(ExpenseSuggestionsService.inferCategory('Wymiana klocków i tarcz'), ExpenseCategory.service);
-      expect(ExpenseSuggestionsService.inferCategory('Serwis klimatyzacji'), ExpenseCategory.service);
-      expect(ExpenseSuggestionsService.inferCategory('Wycieraczki Bosch'), ExpenseCategory.parts);
-      expect(ExpenseSuggestionsService.inferCategory('Płyn do spryskiwaczy zimowy'), ExpenseCategory.parts);
-      expect(ExpenseSuggestionsService.inferCategory('Polisa OC PZU'), ExpenseCategory.insurance);
-      expect(ExpenseSuggestionsService.inferCategory('Autostrada A4 bilet'), ExpenseCategory.tollsFees);
-      expect(ExpenseSuggestionsService.inferCategory('Badanie techniczne SKP'), ExpenseCategory.tollsFees);
+      expect(
+        ExpenseSuggestionsService.inferCategory('Tankowanie Pb95'),
+        ExpenseCategory.fuel,
+      );
+      expect(
+        ExpenseSuggestionsService.inferCategory('Orlen diesel do pełna'),
+        ExpenseCategory.fuel,
+      );
+      expect(
+        ExpenseSuggestionsService.inferCategory('Wymiana klocków i tarcz'),
+        ExpenseCategory.service,
+      );
+      expect(
+        ExpenseSuggestionsService.inferCategory('Serwis klimatyzacji'),
+        ExpenseCategory.service,
+      );
+      expect(
+        ExpenseSuggestionsService.inferCategory('Wycieraczki Bosch'),
+        ExpenseCategory.parts,
+      );
+      expect(
+        ExpenseSuggestionsService.inferCategory('Płyn do spryskiwaczy zimowy'),
+        ExpenseCategory.parts,
+      );
+      expect(
+        ExpenseSuggestionsService.inferCategory('Polisa OC PZU'),
+        ExpenseCategory.insurance,
+      );
+      expect(
+        ExpenseSuggestionsService.inferCategory('Autostrada A4 bilet'),
+        ExpenseCategory.tollsFees,
+      );
+      expect(
+        ExpenseSuggestionsService.inferCategory('Badanie techniczne SKP'),
+        ExpenseCategory.tollsFees,
+      );
     });
 
     test('getSuggestions returns prefix matching items for query "Wycier"', () {
@@ -64,20 +101,29 @@ void main() {
       expect(results.first.isCustom, isTrue);
     });
 
-    test('getSuggestions with empty query returns items for specified category', () {
-      final fuelResults = ExpenseSuggestionsService.getSuggestions(
-        query: '',
-        categoryFilter: ExpenseCategory.fuel,
-      );
+    test(
+      'getSuggestions with empty query returns items for specified category',
+      () {
+        final fuelResults = ExpenseSuggestionsService.getSuggestions(
+          query: '',
+          categoryFilter: ExpenseCategory.fuel,
+        );
 
-      expect(fuelResults.every((s) => s.category == ExpenseCategory.fuel), isTrue);
+        expect(
+          fuelResults.every((s) => s.category == ExpenseCategory.fuel),
+          isTrue,
+        );
 
-      final partsResults = ExpenseSuggestionsService.getSuggestions(
-        query: '',
-        categoryFilter: ExpenseCategory.parts,
-      );
+        final partsResults = ExpenseSuggestionsService.getSuggestions(
+          query: '',
+          categoryFilter: ExpenseCategory.parts,
+        );
 
-      expect(partsResults.every((s) => s.category == ExpenseCategory.parts), isTrue);
-    });
+        expect(
+          partsResults.every((s) => s.category == ExpenseCategory.parts),
+          isTrue,
+        );
+      },
+    );
   });
 }

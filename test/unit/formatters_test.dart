@@ -90,14 +90,23 @@ void main() {
     test('multi-currency formatting supports EUR and USD', () {
       expect(AppFormatters.currency(50.0, currencyCode: 'EUR'), contains('€'));
       expect(AppFormatters.currency(50.0, currencyCode: 'USD'), contains('\$'));
-      expect(AppFormatters.shortCurrency(1200.0, currencyCode: 'USD'), contains('1,200'));
-      expect(AppFormatters.shortCurrency(1200.0, currencyCode: 'EUR'), contains('€'));
+      expect(
+        AppFormatters.shortCurrency(1200.0, currencyCode: 'USD'),
+        contains('1,200'),
+      );
+      expect(
+        AppFormatters.shortCurrency(1200.0, currencyCode: 'EUR'),
+        contains('€'),
+      );
     });
 
     test('distance unit formatting supports miles', () {
       expect(AppFormatters.mileage(12500, unit: 'mi'), contains('12'));
       expect(AppFormatters.mileage(12500, unit: 'mi'), contains('mi'));
-      expect(AppFormatters.costPerDistance(0.35, currencyCode: 'USD', unit: 'mi'), contains('/mi'));
+      expect(
+        AppFormatters.costPerDistance(0.35, currencyCode: 'USD', unit: 'mi'),
+        contains('/mi'),
+      );
     });
   });
 }

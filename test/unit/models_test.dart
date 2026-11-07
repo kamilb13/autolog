@@ -63,35 +63,38 @@ void main() {
       expect(fromMap.title, 'Tankowanie Orlen');
     });
 
-    test('ServiceReminder serialization and fromMap with calculated metrics', () {
-      final reminder = const ServiceReminder(
-        id: 'r1',
-        vehicleId: 'v1',
-        title: 'Wymiana oleju',
-        description: 'Castrol Edge 5W30',
-        dueDate: '2026-10-01',
-        dueMileageKm: 220000,
-        daysRemaining: 25,
-        kmRemaining: 5000,
-        severity: AlertSeverity.warning,
-        type: AlertType.oilService,
-      );
+    test(
+      'ServiceReminder serialization and fromMap with calculated metrics',
+      () {
+        final reminder = const ServiceReminder(
+          id: 'r1',
+          vehicleId: 'v1',
+          title: 'Wymiana oleju',
+          description: 'Castrol Edge 5W30',
+          dueDate: '2026-10-01',
+          dueMileageKm: 220000,
+          daysRemaining: 25,
+          kmRemaining: 5000,
+          severity: AlertSeverity.warning,
+          type: AlertType.oilService,
+        );
 
-      final map = reminder.toMap();
-      expect(map['title'], 'Wymiana oleju');
-      expect(map['severity'], 'WARNING');
-      expect(map['type'], 'OIL_SERVICE');
+        final map = reminder.toMap();
+        expect(map['title'], 'Wymiana oleju');
+        expect(map['severity'], 'WARNING');
+        expect(map['type'], 'OIL_SERVICE');
 
-      final fromMap = ServiceReminder.fromMap(
-        map,
-        daysRemaining: 25,
-        kmRemaining: 5000,
-        calculatedSeverity: AlertSeverity.warning,
-      );
-      expect(fromMap.daysRemaining, 25);
-      expect(fromMap.kmRemaining, 5000);
-      expect(fromMap.isMileageBased, isTrue);
-      expect(fromMap.isDateBased, isTrue);
-    });
+        final fromMap = ServiceReminder.fromMap(
+          map,
+          daysRemaining: 25,
+          kmRemaining: 5000,
+          calculatedSeverity: AlertSeverity.warning,
+        );
+        expect(fromMap.daysRemaining, 25);
+        expect(fromMap.kmRemaining, 5000);
+        expect(fromMap.isMileageBased, isTrue);
+        expect(fromMap.isDateBased, isTrue);
+      },
+    );
   });
 }

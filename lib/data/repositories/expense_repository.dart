@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../../domain/models/expense.dart';
 import '../../domain/models/expense_suggestion.dart';
 import '../database/app_database.dart';
@@ -6,7 +7,8 @@ import '../database/app_database.dart';
 class ExpenseRepository {
   final AppDatabase _appDb;
 
-  ExpenseRepository([AppDatabase? appDb]) : _appDb = appDb ?? AppDatabase.instance;
+  ExpenseRepository([AppDatabase? appDb])
+    : _appDb = appDb ?? AppDatabase.instance;
 
   Future<List<Expense>> getExpenses({
     String? vehicleId,
@@ -30,13 +32,17 @@ class ExpenseRepository {
 
     if (searchQuery != null && searchQuery.trim().isNotEmpty) {
       final query = '%${searchQuery.trim()}%';
-      whereClauses.add('(title LIKE ? OR workshop_or_location LIKE ? OR note LIKE ?)');
+      whereClauses.add(
+        '(title LIKE ? OR workshop_or_location LIKE ? OR note LIKE ?)',
+      );
       whereArgs.add(query);
       whereArgs.add(query);
       whereArgs.add(query);
     }
 
-    final whereString = whereClauses.isNotEmpty ? whereClauses.join(' AND ') : null;
+    final whereString = whereClauses.isNotEmpty
+        ? whereClauses.join(' AND ')
+        : null;
 
     final List<Map<String, dynamic>> maps = await db.query(
       'expenses',
@@ -65,7 +71,11 @@ class ExpenseRepository {
     data['created_at'] = DateTime.now().millisecondsSinceEpoch;
 
     await db.transaction((txn) async {
-      await txn.insert('expenses', data, conflictAlgorithm: ConflictAlgorithm.replace);
+      await txn.insert(
+        'expenses',
+        data,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
 
       // Auto-update vehicle mileage if expense mileage is higher
       final List<Map<String, dynamic>> vehMap = await txn.query(
@@ -123,11 +133,7 @@ class ExpenseRepository {
 
   Future<void> deleteExpense(String id) async {
     final db = await _appDb.database;
-    await db.delete(
-      'expenses',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await db.delete('expenses', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<ExpenseSuggestion>> getLearnedSuggestions() async {

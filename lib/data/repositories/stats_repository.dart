@@ -12,8 +12,8 @@ class StatsRepository {
   StatsRepository({
     ExpenseRepository? expenseRepository,
     VehicleRepository? vehicleRepository,
-  })  : _expenseRepository = expenseRepository ?? ExpenseRepository(),
-        _vehicleRepository = vehicleRepository ?? VehicleRepository();
+  }) : _expenseRepository = expenseRepository ?? ExpenseRepository(),
+       _vehicleRepository = vehicleRepository ?? VehicleRepository();
 
   Future<TcoStats> getTcoStats(String? vehicleId) async {
     final expenses = await _expenseRepository.getExpenses(vehicleId: vehicleId);
@@ -37,7 +37,11 @@ class StatsRepository {
     if (vehicleId != null && vehicleId.isNotEmpty) {
       final vehicle = vehicles.where((v) => v.id == vehicleId).firstOrNull;
       if (vehicle != null && vehicle.mileageKm > 0) {
-        final mileages = expenses.map((e) => e.mileageKm).whereType<int>().where((km) => km > 0).toList();
+        final mileages = expenses
+            .map((e) => e.mileageKm)
+            .whereType<int>()
+            .where((km) => km > 0)
+            .toList();
         if (mileages.isNotEmpty) {
           mileages.sort();
           final delta = mileages.last - mileages.first;
@@ -69,15 +73,16 @@ class StatsRepository {
     final List<CategoryBreakdownItem> breakdown = ExpenseCategory.values
         .where((cat) => (sums[cat] ?? 0.0) > 0)
         .map((cat) {
-      final amount = sums[cat] ?? 0.0;
-      final percentage = totalCost > 0 ? (amount / totalCost) : 0.0;
-      return CategoryBreakdownItem(
-        category: cat,
-        totalAmountPln: amount,
-        percentage: percentage,
-        count: counts[cat] ?? 0,
-      );
-    }).toList();
+          final amount = sums[cat] ?? 0.0;
+          final percentage = totalCost > 0 ? (amount / totalCost) : 0.0;
+          return CategoryBreakdownItem(
+            category: cat,
+            totalAmountPln: amount,
+            percentage: percentage,
+            count: counts[cat] ?? 0,
+          );
+        })
+        .toList();
 
     breakdown.sort((a, b) => b.totalAmountPln.compareTo(a.totalAmountPln));
 

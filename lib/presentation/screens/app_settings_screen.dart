@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../domain/models/app_settings.dart';
+
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../providers/app_providers.dart';
 import '../widgets/drive_sync_dialog.dart';
 
@@ -26,7 +29,11 @@ class AppSettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
           // 1. Language Section
-          _buildSectionHeader(context, Icons.language_rounded, l10n?.settingsLanguageSection ?? 'Język aplikacji'),
+          _buildSectionHeader(
+            context,
+            Icons.language_rounded,
+            l10n?.settingsLanguageSection ?? 'Język aplikacji',
+          ),
           _buildSettingsCard(
             context,
             isDark,
@@ -48,7 +55,11 @@ class AppSettingsScreen extends ConsumerWidget {
                   value: AppLanguage.pl,
                   groupValue: settings.language,
                   onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setLanguage(val);
+                    if (val != null) {
+                      ref
+                          .read(settingsNotifierProvider.notifier)
+                          .setLanguage(val);
+                    }
                   },
                 ),
                 // const Divider(height: 1, indent: 16, endIndent: 16),
@@ -67,7 +78,11 @@ class AppSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
 
           // 2. Currency Section
-          _buildSectionHeader(context, Icons.payments_outlined, l10n?.settingsCurrencySection ?? 'Waluta'),
+          _buildSectionHeader(
+            context,
+            Icons.payments_outlined,
+            l10n?.settingsCurrencySection ?? 'Waluta',
+          ),
           _buildSettingsCard(
             context,
             isDark,
@@ -78,7 +93,11 @@ class AppSettingsScreen extends ConsumerWidget {
                   value: AppCurrency.pln,
                   groupValue: settings.currency,
                   onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setCurrency(val);
+                    if (val != null) {
+                      ref
+                          .read(settingsNotifierProvider.notifier)
+                          .setCurrency(val);
+                    }
                   },
                 ),
                 // const Divider(height: 1, indent: 16, endIndent: 16),
@@ -105,7 +124,11 @@ class AppSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
 
           // 3. Distance Unit Section
-          _buildSectionHeader(context, Icons.straighten_rounded, l10n?.settingsUnitSection ?? 'Jednostka odległości'),
+          _buildSectionHeader(
+            context,
+            Icons.straighten_rounded,
+            l10n?.settingsUnitSection ?? 'Jednostka odległości',
+          ),
           _buildSettingsCard(
             context,
             isDark,
@@ -116,7 +139,11 @@ class AppSettingsScreen extends ConsumerWidget {
                   value: DistanceUnit.km,
                   groupValue: settings.distanceUnit,
                   onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setDistanceUnit(val);
+                    if (val != null) {
+                      ref
+                          .read(settingsNotifierProvider.notifier)
+                          .setDistanceUnit(val);
+                    }
                   },
                 ),
                 // const Divider(height: 1, indent: 16, endIndent: 16),
@@ -134,7 +161,11 @@ class AppSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
 
           // 4. Visual Theme Section
-          _buildSectionHeader(context, Icons.palette_outlined, l10n?.settingsThemeSection ?? 'Motyw graficzny'),
+          _buildSectionHeader(
+            context,
+            Icons.palette_outlined,
+            l10n?.settingsThemeSection ?? 'Motyw graficzny',
+          ),
           _buildSettingsCard(
             context,
             isDark,
@@ -142,31 +173,49 @@ class AppSettingsScreen extends ConsumerWidget {
               children: [
                 _buildRadioTile<ThemeMode>(
                   title: l10n?.settingsThemeSystem ?? 'Systemowy',
-                  subtitle: l10n?.settingsThemeSystemSubtitle ?? 'Dopasuj do motywu telefonu',
+                  subtitle:
+                      l10n?.settingsThemeSystemSubtitle ??
+                      'Dopasuj do motywu telefonu',
                   value: ThemeMode.system,
                   groupValue: settings.themeMode,
                   onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setThemeMode(val);
+                    if (val != null) {
+                      ref
+                          .read(settingsNotifierProvider.notifier)
+                          .setThemeMode(val);
+                    }
                   },
                 ),
                 const Divider(height: 1, indent: 16, endIndent: 16),
                 _buildRadioTile<ThemeMode>(
                   title: l10n?.settingsThemeLight ?? 'Jasny',
-                  subtitle: l10n?.settingsThemeLightSubtitle ?? 'Jasny motyw interfejsu',
+                  subtitle:
+                      l10n?.settingsThemeLightSubtitle ??
+                      'Jasny motyw interfejsu',
                   value: ThemeMode.light,
                   groupValue: settings.themeMode,
                   onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setThemeMode(val);
+                    if (val != null) {
+                      ref
+                          .read(settingsNotifierProvider.notifier)
+                          .setThemeMode(val);
+                    }
                   },
                 ),
                 const Divider(height: 1, indent: 16, endIndent: 16),
                 _buildRadioTile<ThemeMode>(
                   title: l10n?.settingsThemeDark ?? 'Ciemny',
-                  subtitle: l10n?.settingsThemeDarkSubtitle ?? 'Ciemny motyw (oszczędza baterię)',
+                  subtitle:
+                      l10n?.settingsThemeDarkSubtitle ??
+                      'Ciemny motyw (oszczędza baterię)',
                   value: ThemeMode.dark,
                   groupValue: settings.themeMode,
                   onChanged: (val) {
-                    if (val != null) ref.read(settingsNotifierProvider.notifier).setThemeMode(val);
+                    if (val != null) {
+                      ref
+                          .read(settingsNotifierProvider.notifier)
+                          .setThemeMode(val);
+                    }
                   },
                 ),
               ],
@@ -175,17 +224,27 @@ class AppSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
 
           // 5. Backup Section
-          _buildSectionHeader(context, Icons.backup_outlined, l10n?.settingsBackupSection ?? 'Kopia zapasowa i dane'),
+          _buildSectionHeader(
+            context,
+            Icons.backup_outlined,
+            l10n?.settingsBackupSection ?? 'Kopia zapasowa i dane',
+          ),
           _buildSettingsCard(
             context,
             isDark,
             child: ListTile(
-              leading: Icon(Icons.cloud_sync_rounded, color: theme.colorScheme.primary),
+              leading: Icon(
+                Icons.cloud_sync_rounded,
+                color: theme.colorScheme.primary,
+              ),
               title: Text(
                 l10n?.settingsBackupDialogBtn ?? 'Zarządzaj kopią zapasową',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              subtitle: Text(l10n?.settingsBackupSubtitle ?? 'Eksportuj lub importuj bazę danych (JSON)'),
+              subtitle: Text(
+                l10n?.settingsBackupSubtitle ??
+                    'Eksportuj lub importuj bazę danych (JSON)',
+              ),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () {
                 showDialog(
@@ -198,7 +257,11 @@ class AppSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
 
           // 6. About Section
-          _buildSectionHeader(context, Icons.info_outline_rounded, l10n?.settingsAboutSection ?? 'O aplikacji'),
+          _buildSectionHeader(
+            context,
+            Icons.info_outline_rounded,
+            l10n?.settingsAboutSection ?? 'O aplikacji',
+          ),
           _buildSettingsCard(
             context,
             isDark,
@@ -215,7 +278,11 @@ class AppSettingsScreen extends ConsumerWidget {
                           color: theme.colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(Icons.directions_car_rounded, color: theme.colorScheme.primary, size: 24),
+                        child: Icon(
+                          Icons.directions_car_rounded,
+                          color: theme.colorScheme.primary,
+                          size: 24,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       Column(
@@ -223,11 +290,19 @@ class AppSettingsScreen extends ConsumerWidget {
                         children: [
                           const Text(
                             'AutoLog',
-                            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 18,
+                            ),
                           ),
                           Text(
                             '${l10n?.settingsVersion ?? "Wersja"} 1.0.0 (Build 1)',
-                            style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -235,8 +310,12 @@ class AppSettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    l10n?.settingsAppDesc ?? 'Lokalny, dziennik serwisowy i kosztów pojazdów.',
-                    style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
+                    l10n?.settingsAppDesc ??
+                        'Lokalny, dziennik serwisowy i kosztów pojazdów.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
                   ),
                 ],
               ),
@@ -248,7 +327,11 @@ class AppSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, IconData icon, String title) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    IconData icon,
+    String title,
+  ) {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
@@ -270,15 +353,23 @@ class AppSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSettingsCard(BuildContext context, bool isDark, {required Widget child}) {
+  Widget _buildSettingsCard(
+    BuildContext context,
+    bool isDark, {
+    required Widget child,
+  }) {
     final theme = Theme.of(context);
     return Card(
       elevation: 0,
-      color: isDark ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6) : Colors.white,
+      color: isDark
+          ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
+          : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.06),
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -295,8 +386,13 @@ class AppSettingsScreen extends ConsumerWidget {
     required ValueChanged<T?> onChanged,
   }) {
     return RadioListTile<T>(
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5)),
-      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 12)) : null,
+      title: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5),
+      ),
+      subtitle: subtitle != null
+          ? Text(subtitle, style: const TextStyle(fontSize: 12))
+          : null,
       value: value,
       // ignore: deprecated_member_use
       groupValue: groupValue,

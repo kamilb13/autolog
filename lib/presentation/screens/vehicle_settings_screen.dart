@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../../domain/models/vehicle.dart';
 import '../providers/app_providers.dart';
 import '../widgets/delete_vehicle_dialog.dart';
@@ -9,13 +10,11 @@ import '../widgets/delete_vehicle_dialog.dart';
 class VehicleSettingsScreen extends ConsumerStatefulWidget {
   final Vehicle vehicle;
 
-  const VehicleSettingsScreen({
-    super.key,
-    required this.vehicle,
-  });
+  const VehicleSettingsScreen({super.key, required this.vehicle});
 
   @override
-  ConsumerState<VehicleSettingsScreen> createState() => _VehicleSettingsScreenState();
+  ConsumerState<VehicleSettingsScreen> createState() =>
+      _VehicleSettingsScreenState();
 }
 
 class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
@@ -55,8 +54,8 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
     _purchasePriceController = TextEditingController(
       text: v.purchasePricePln != null
           ? (v.purchasePricePln! % 1 == 0
-              ? v.purchasePricePln!.toInt().toString()
-              : v.purchasePricePln!.toString())
+                ? v.purchasePricePln!.toInt().toString()
+                : v.purchasePricePln!.toString())
           : '',
     );
     _selectedFuelType = v.fuelType;
@@ -82,7 +81,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
 
     try {
       final purchasePrice = _purchasePriceController.text.trim().isNotEmpty
-          ? double.tryParse(_purchasePriceController.text.trim().replaceAll(',', '.'))
+          ? double.tryParse(
+              _purchasePriceController.text.trim().replaceAll(',', '.'),
+            )
           : null;
 
       final updated = widget.vehicle.copyWith(
@@ -112,7 +113,10 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Błąd zapisu: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Błąd zapisu: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -126,11 +130,15 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
       builder: (_) => DeleteVehicleDialog(
         vehicle: widget.vehicle,
         onConfirmDelete: () async {
-          await ref.read(vehiclesNotifierProvider.notifier).deleteVehicle(widget.vehicle.id);
+          await ref
+              .read(vehiclesNotifierProvider.notifier)
+              .deleteVehicle(widget.vehicle.id);
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Usunięto pojazd ${widget.vehicle.brand} ${widget.vehicle.model}'),
+                content: Text(
+                  'Usunięto pojazd ${widget.vehicle.brand} ${widget.vehicle.model}',
+                ),
               ),
             );
             // Pop back to garage
@@ -146,7 +154,10 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n?.vehicleEditTitle ?? 'Ustawienia Pojazdu', style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          l10n?.vehicleEditTitle ?? 'Ustawienia Pojazdu',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -160,7 +171,8 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                 prefixIcon: const Icon(Icons.directions_car_rounded),
               ),
               textCapitalization: TextCapitalization.words,
-              validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź markę' : null,
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Wprowadź markę' : null,
             ),
             const SizedBox(height: 14),
 
@@ -171,14 +183,16 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                 prefixIcon: const Icon(Icons.car_repair_rounded),
               ),
               textCapitalization: TextCapitalization.words,
-              validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź model' : null,
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Wprowadź model' : null,
             ),
             const SizedBox(height: 14),
 
             TextFormField(
               controller: _generationController,
               decoration: InputDecoration(
-                labelText: l10n?.vehicleGeneration ?? 'Generacja / Wersja wyposażenia',
+                labelText:
+                    l10n?.vehicleGeneration ?? 'Generacja / Wersja wyposażenia',
                 prefixIcon: const Icon(Icons.tune_rounded),
               ),
               textCapitalization: TextCapitalization.words,
@@ -196,7 +210,9 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                       prefixIcon: const Icon(Icons.badge_rounded),
                     ),
                     textCapitalization: TextCapitalization.characters,
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź tablicę' : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Wprowadź tablicę'
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -210,7 +226,8 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => int.tryParse(v ?? '') == null ? 'Błędny rok' : null,
+                    validator: (v) =>
+                        int.tryParse(v ?? '') == null ? 'Błędny rok' : null,
                   ),
                 ),
               ],
@@ -220,13 +237,15 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
             TextFormField(
               controller: _mileageController,
               decoration: InputDecoration(
-                labelText: '${l10n?.garageCurrentMileage ?? "Bieżący stan licznika"} *',
+                labelText:
+                    '${l10n?.garageCurrentMileage ?? "Bieżący stan licznika"} *',
                 suffixText: 'km',
                 prefixIcon: const Icon(Icons.speed_rounded),
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              validator: (v) => int.tryParse(v ?? '') == null ? 'Podaj stan licznika' : null,
+              validator: (v) =>
+                  int.tryParse(v ?? '') == null ? 'Podaj stan licznika' : null,
             ),
             const SizedBox(height: 14),
 
@@ -269,12 +288,16 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
             TextFormField(
               controller: _purchasePriceController,
               decoration: InputDecoration(
-                labelText: l10n?.vehiclePurchasePrice ?? 'Cena zakupu auta (opcjonalnie)',
+                labelText:
+                    l10n?.vehiclePurchasePrice ??
+                    'Cena zakupu auta (opcjonalnie)',
                 hintText: 'np. 85000',
                 suffixText: 'PLN',
                 prefixIcon: const Icon(Icons.shopping_bag_outlined),
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -284,7 +307,10 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     )
                   : Text(l10n?.commonSave ?? 'Zapisz zmiany'),
             ),
@@ -296,13 +322,24 @@ class _VehicleSettingsScreenState extends ConsumerState<VehicleSettingsScreen> {
             Center(
               child: TextButton.icon(
                 onPressed: _showDeleteDialog,
-                icon: const Icon(Icons.delete_outline_rounded, size: 20, color: Colors.red),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  size: 20,
+                  color: Colors.red,
+                ),
                 label: Text(
                   l10n?.vehicleDeleteBtn ?? 'Usuń pojazd z garażu',
-                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14),
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ),

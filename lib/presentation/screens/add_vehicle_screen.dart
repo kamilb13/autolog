@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../../core/utils/formatters.dart';
 import '../../domain/models/vehicle.dart';
 import '../providers/app_providers.dart';
@@ -21,7 +22,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
   final _brandController = TextEditingController();
   final _modelController = TextEditingController();
   final _generationController = TextEditingController();
-  final _yearController = TextEditingController(text: DateTime.now().year.toString());
+  final _yearController = TextEditingController(
+    text: DateTime.now().year.toString(),
+  );
   final _licensePlateController = TextEditingController();
   final _mileageController = TextEditingController();
   final _vinController = TextEditingController();
@@ -58,7 +61,15 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
     'Audi': ['A4', 'A6', 'A3', 'Q5', 'Q7', 'A5', 'Q3'],
     'Mercedes-Benz': ['Klasa C', 'Klasa E', 'Klasa A', 'GLC', 'GLE', 'CLA'],
     'Toyota': ['Corolla', 'Yaris', 'RAV4', 'C-HR', 'Avensis', 'Camry', 'Auris'],
-    'Volkswagen': ['Golf', 'Passat', 'Tiguan', 'Polo', 'Arteon', 'Touran', 'T-Roc'],
+    'Volkswagen': [
+      'Golf',
+      'Passat',
+      'Tiguan',
+      'Polo',
+      'Arteon',
+      'Touran',
+      'T-Roc',
+    ],
     'Skoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Karoq', 'Scala'],
     'Ford': ['Focus', 'Mondeo', 'Fiesta', 'Kuga', 'Puma', 'Mustang'],
     'Volvo': ['XC60', 'V60', 'XC90', 'V40', 'S60', 'XC40'],
@@ -115,7 +126,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
 
     try {
       final purchasePrice = _purchasePriceController.text.trim().isNotEmpty
-          ? double.tryParse(_purchasePriceController.text.trim().replaceAll(',', '.'))
+          ? double.tryParse(
+              _purchasePriceController.text.trim().replaceAll(',', '.'),
+            )
           : null;
 
       final newVehicle = Vehicle(
@@ -136,7 +149,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Dodano pojazd ${newVehicle.brand} ${newVehicle.model} do garażu!'),
+            content: Text(
+              'Dodano pojazd ${newVehicle.brand} ${newVehicle.model} do garażu!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -168,10 +183,14 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
     final brandQuery = brand.toLowerCase();
     final filteredBrands = brandQuery.isEmpty
         ? _popularBrands
-        : _popularBrands.where((b) => b.toLowerCase().contains(brandQuery)).toList();
+        : _popularBrands
+              .where((b) => b.toLowerCase().contains(brandQuery))
+              .toList();
 
     final matchedBrandKey = _popularModelsByBrand.keys.firstWhere(
-      (k) => k.toLowerCase() == brandQuery || (brandQuery.isNotEmpty && brandQuery.contains(k.toLowerCase())),
+      (k) =>
+          k.toLowerCase() == brandQuery ||
+          (brandQuery.isNotEmpty && brandQuery.contains(k.toLowerCase())),
       orElse: () => '',
     );
     final availableModels = matchedBrandKey.isNotEmpty
@@ -180,11 +199,16 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
     final modelQuery = model.toLowerCase();
     final filteredModels = modelQuery.isEmpty
         ? availableModels
-        : availableModels.where((m) => m.toLowerCase().contains(modelQuery)).toList();
+        : availableModels
+              .where((m) => m.toLowerCase().contains(modelQuery))
+              .toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n?.vehicleAddTitle ?? 'Dodaj Pojazd', style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          l10n?.vehicleAddTitle ?? 'Dodaj Pojazd',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -194,7 +218,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             // Live Preview Card
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -211,14 +237,21 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                               Text(
                                 brand.isNotEmpty || model.isNotEmpty
                                     ? '$brand $model'.trim()
-                                    : (l10n?.garageAddFirstVehicle ?? 'Nowy Pojazd'),
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                                    : (l10n?.garageAddFirstVehicle ??
+                                          'Nowy Pojazd'),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
                               Text(
                                 _generationController.text.trim().isNotEmpty
                                     ? '${_generationController.text.trim()} • ${_yearController.text}'
                                     : 'Podgląd karty pojazdu',
-                                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
                               ),
                             ],
                           ),
@@ -233,26 +266,38 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             '${l10n?.vehicleYear ?? "Rocznik"}: ${_yearController.text}',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             _selectedFuelType,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                         const Spacer(),
@@ -281,7 +326,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                 prefixIcon: const Icon(Icons.directions_car_rounded),
               ),
               textCapitalization: TextCapitalization.words,
-              validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź markę pojazdu' : null,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? 'Wprowadź markę pojazdu'
+                  : null,
             ),
             if (filteredBrands.isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -295,9 +342,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                         label: Text(b, style: const TextStyle(fontSize: 12)),
                         onPressed: () {
                           _brandController.text = b;
-                          _brandController.selection = TextSelection.fromPosition(
-                            TextPosition(offset: b.length),
-                          );
+                          _brandController.selection =
+                              TextSelection.fromPosition(
+                                TextPosition(offset: b.length),
+                              );
                         },
                       ),
                     );
@@ -316,7 +364,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                 prefixIcon: const Icon(Icons.car_repair_rounded),
               ),
               textCapitalization: TextCapitalization.words,
-              validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź model pojazdu' : null,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? 'Wprowadź model pojazdu'
+                  : null,
             ),
             if (filteredModels.isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -330,9 +380,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                         label: Text(m, style: const TextStyle(fontSize: 12)),
                         onPressed: () {
                           _modelController.text = m;
-                          _modelController.selection = TextSelection.fromPosition(
-                            TextPosition(offset: m.length),
-                          );
+                          _modelController.selection =
+                              TextSelection.fromPosition(
+                                TextPosition(offset: m.length),
+                              );
                         },
                       ),
                     );
@@ -346,7 +397,8 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             TextFormField(
               controller: _generationController,
               decoration: InputDecoration(
-                labelText: l10n?.vehicleGeneration ?? 'Generacja / Wersja wyposażenia',
+                labelText:
+                    l10n?.vehicleGeneration ?? 'Generacja / Wersja wyposażenia',
                 hintText: 'np. 320d xDrive (G21), 1.8 Hybrid GR Sport',
                 prefixIcon: const Icon(Icons.tune_rounded),
               ),
@@ -367,7 +419,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                       prefixIcon: const Icon(Icons.badge_rounded),
                     ),
                     textCapitalization: TextCapitalization.characters,
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Wprowadź tablicę' : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Wprowadź tablicę'
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -383,7 +437,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     validator: (v) {
                       final y = int.tryParse(v ?? '');
-                      if (y == null || y < 1900 || y > DateTime.now().year + 1) {
+                      if (y == null ||
+                          y < 1900 ||
+                          y > DateTime.now().year + 1) {
                         return 'Błędny rok';
                       }
                       return null;
@@ -398,14 +454,16 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             TextFormField(
               controller: _mileageController,
               decoration: InputDecoration(
-                labelText: '${l10n?.garageCurrentMileage ?? "Bieżący stan licznika"} *',
+                labelText:
+                    '${l10n?.garageCurrentMileage ?? "Bieżący stan licznika"} *',
                 hintText: 'np. 164250',
                 suffixText: 'km',
                 prefixIcon: const Icon(Icons.speed_rounded),
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              validator: (v) => int.tryParse(v ?? '') == null ? 'Podaj stan licznika' : null,
+              validator: (v) =>
+                  int.tryParse(v ?? '') == null ? 'Podaj stan licznika' : null,
             ),
             const SizedBox(height: 14),
 
@@ -453,12 +511,16 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
             TextFormField(
               controller: _purchasePriceController,
               decoration: InputDecoration(
-                labelText: l10n?.vehiclePurchasePrice ?? 'Cena zakupu auta (opcjonalnie)',
+                labelText:
+                    l10n?.vehiclePurchasePrice ??
+                    'Cena zakupu auta (opcjonalnie)',
                 hintText: 'np. 85000',
                 suffixText: 'PLN',
                 prefixIcon: const Icon(Icons.shopping_bag_outlined),
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -469,7 +531,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     )
                   : Text(l10n?.commonSave ?? 'Zapisz i dodaj do Garażu'),
             ),

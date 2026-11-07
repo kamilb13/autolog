@@ -34,8 +34,10 @@ DZIĘKUJEMY ZA ZAKUPY!
       expect(parsed.suggestedTitle, contains('Tankowanie'));
     });
 
-    test('parses Shell receipt with dot date format and European price syntax', () {
-      const shellReceipt = '''
+    test(
+      'parses Shell receipt with dot date format and European price syntax',
+      () {
+        const shellReceipt = '''
 SHELL POLSKA SP. Z O.O.
 STACJA 1024 WARSZAWA
 NIP 526-030-91-24
@@ -46,13 +48,14 @@ DO ZAPŁATY                 214.50 PLN
 ZAPŁACONO KARTĄ:           214.50
 ''';
 
-      final parsed = ReceiptParser.parse(shellReceipt);
+        final parsed = ReceiptParser.parse(shellReceipt);
 
-      expect(parsed.amount, equals(214.50));
-      expect(parsed.date, equals(DateTime(2026, 8, 12)));
-      expect(parsed.location, contains('SHELL'));
-      expect(parsed.suggestedCategory, equals(ExpenseCategory.fuel));
-    });
+        expect(parsed.amount, equals(214.50));
+        expect(parsed.date, equals(DateTime(2026, 8, 12)));
+        expect(parsed.location, contains('SHELL'));
+        expect(parsed.suggestedCategory, equals(ExpenseCategory.fuel));
+      },
+    );
 
     test('parses Car Service & Repair workshop invoice/receipt', () {
       const workshopReceipt = '''

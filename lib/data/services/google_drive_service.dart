@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+
 import '../database/app_database.dart';
 
 class GoogleDriveSyncResult {
@@ -26,10 +28,7 @@ class GoogleDriveService {
   GoogleDriveService._();
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      drive.DriveApi.driveAppdataScope,
-      drive.DriveApi.driveFileScope,
-    ],
+    scopes: [drive.DriveApi.driveAppdataScope, drive.DriveApi.driveFileScope],
   );
 
   GoogleSignInAccount? _currentUser;
@@ -64,7 +63,10 @@ class GoogleDriveService {
   /// Backup local data to Google Drive AppData folder
   Future<GoogleDriveSyncResult> backupToDrive() async {
     try {
-      var account = _currentUser ?? await _googleSignIn.signInSilently() ?? await _googleSignIn.signIn();
+      var account =
+          _currentUser ??
+          await _googleSignIn.signInSilently() ??
+          await _googleSignIn.signIn();
       if (account == null) {
         return const GoogleDriveSyncResult(
           isSuccess: false,
@@ -105,7 +107,8 @@ class GoogleDriveService {
         await driveApi.files.update(
           drive.File(
             name: 'autolog_backup.json',
-            description: 'Kopia zapasowa AutoLog z dnia ${now.toIso8601String()}',
+            description:
+                'Kopia zapasowa AutoLog z dnia ${now.toIso8601String()}',
           ),
           existingFile.id!,
           uploadMedia: media,
@@ -117,10 +120,7 @@ class GoogleDriveService {
           parents: ['appDataFolder'],
           description: 'Kopia zapasowa AutoLog z dnia ${now.toIso8601String()}',
         );
-        await driveApi.files.create(
-          driveFile,
-          uploadMedia: media,
-        );
+        await driveApi.files.create(driveFile, uploadMedia: media);
       }
 
       return GoogleDriveSyncResult(
@@ -139,7 +139,10 @@ class GoogleDriveService {
   /// Restore database from Google Drive AppData folder
   Future<GoogleDriveSyncResult> restoreFromDrive() async {
     try {
-      var account = _currentUser ?? await _googleSignIn.signInSilently() ?? await _googleSignIn.signIn();
+      var account =
+          _currentUser ??
+          await _googleSignIn.signInSilently() ??
+          await _googleSignIn.signIn();
       if (account == null) {
         return const GoogleDriveSyncResult(
           isSuccess: false,
@@ -200,21 +203,20 @@ class GoogleDriveService {
   Future<void> exportAndShareLocalBackup() async {
     final jsonContent = await AppDatabase.instance.exportToJson();
     final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/autolog_backup_${DateTime.now().millisecondsSinceEpoch}.json');
+    final file = File(
+      '${tempDir.path}/autolog_backup_${DateTime.now().millisecondsSinceEpoch}.json',
+    );
     await file.writeAsString(jsonContent);
 
-    await Share.shareXFiles(
-      [XFile(file.path)],
-      text: 'AutoLog — Kopia zapasowa bazy danych',
-    );
+    await Share.shareXFiles([
+      XFile(file.path),
+    ], text: 'AutoLog — Kopia zapasowa bazy danych');
   }
 
   /// Offline local backup import from picked JSON file
   Future<GoogleDriveSyncResult> importLocalBackupFromFile() async {
     try {
-      final result = await FilePicker.pickFiles(
-        type: FileType.any,
-      );
+      final result = await FilePicker.pickFiles(type: FileType.any);
 
       if (result == null || result.files.isEmpty) {
         return const GoogleDriveSyncResult(
@@ -250,7 +252,9 @@ class GoogleDriveService {
   Future<GoogleDriveSyncResult> importFromRawJson(String jsonString) async {
     try {
       final decoded = jsonDecode(jsonString);
-      if (decoded is! Map<String, dynamic> || (!decoded.containsKey('vehicles') && !decoded.containsKey('expenses'))) {
+      if (decoded is! Map<String, dynamic> ||
+          (!decoded.containsKey('vehicles') &&
+              !decoded.containsKey('expenses'))) {
         return const GoogleDriveSyncResult(
           isSuccess: false,
           message: 'Wybrany plik nie jest prawidłową kopią zapasową AutoLog.',
@@ -264,7 +268,8 @@ class GoogleDriveService {
 
       return GoogleDriveSyncResult(
         isSuccess: true,
-        message: 'Pomyślnie przywrócono bazę!\n(Pojazdy: $vehCount, Wydatki: $expCount, Przypomnienia: $remCount)',
+        message:
+            'Pomyślnie przywrócono bazę!\n(Pojazdy: $vehCount, Wydatki: $expCount, Przypomnienia: $remCount)',
         backupDate: DateTime.now(),
       );
     } catch (e) {

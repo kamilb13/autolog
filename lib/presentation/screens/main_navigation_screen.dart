@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:autolog/l10n/app_localizations.dart';
+
 import '../providers/app_providers.dart';
 import 'app_settings_screen.dart';
 import 'expenses_screen.dart';
@@ -12,7 +13,8 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
 
   @override
-  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() =>
+      _MainNavigationScreenState();
 }
 
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
@@ -31,9 +33,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final l10n = AppLocalizations.of(context);
 
     final screens = [
-      GarageScreen(
-        onNavigateToReminders: () => _navigateToTab(2),
-      ),
+      GarageScreen(onNavigateToReminders: () => _navigateToTab(2)),
       const ExpensesScreen(),
       const RemindersScreen(),
       const StatsScreen(),
@@ -41,10 +41,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),

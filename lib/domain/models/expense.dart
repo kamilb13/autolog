@@ -143,7 +143,8 @@ class Expense {
       mileageKm: (map['mileage_km'] ?? map['mileageKm']) != null
           ? ((map['mileage_km'] ?? map['mileageKm']) as num).toInt()
           : null,
-      workshopOrLocation: map['workshop_or_location'] ?? map['workshopOrLocation'] as String?,
+      workshopOrLocation:
+          map['workshop_or_location'] ?? map['workshopOrLocation'] as String?,
       note: map['note'] as String?,
     );
   }
