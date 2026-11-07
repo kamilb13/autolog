@@ -95,57 +95,10 @@ class StatsRepository {
     if (vehicle == null) return null;
 
     final expenses = await _expenseRepository.getExpenses(vehicleId: vehicleId);
-    final stats = await getTcoStats(vehicleId);
-
-    final sortedExpenses = List<Expense>.from(expenses)
-      ..sort((a, b) {
-        final dateCmp = b.date.compareTo(a.date);
-        if (dateCmp != 0) return dateCmp;
-        return (b.mileageKm ?? 0).compareTo(a.mileageKm ?? 0);
-      });
-
-    final nowStr = AppFormatters.formatDate(DateTime.now());
-
-    final buffer = StringBuffer();
-    buffer.writeln('🚗 RAPORT HISTORII SERWISOWEJ — AUTOLOG');
-    buffer.writeln('Pojazd: ${vehicle.brand} ${vehicle.model} ${vehicle.generationOrTrim}'.trim());
-    buffer.writeln('Rocznik: ${vehicle.year} | Nr rej.: ${vehicle.licensePlate}');
-    if (vehicle.vin.isNotEmpty) {
-      buffer.writeln('VIN: ${vehicle.vin}');
-    }
-    buffer.writeln('Stan licznika: ${AppFormatters.mileage(vehicle.mileageKm)}');
-    buffer.writeln('Wygenerowano: $nowStr');
-    buffer.writeln('----------------------------------------');
-    buffer.writeln('📊 PODSUMOWANIE KOSZTÓW:');
-    buffer.writeln('Łączna liczba wpisów: ${sortedExpenses.length}');
-    buffer.writeln('Całkowita suma wydatków: ${AppFormatters.currency(stats.totalCostPln)}');
-    buffer.writeln('----------------------------------------');
-    buffer.writeln('🛠️ HISTORIA SERWISOWA I WYDATKÓW:');
-
-    for (final exp in sortedExpenses) {
-      final dateStr = AppFormatters.formatDisplayDate(exp.date);
-      final mileageStr = exp.mileageKm != null ? ' | ${AppFormatters.mileage(exp.mileageKm)}' : '';
-      buffer.writeln('• $dateStr$mileageStr: ${exp.title}');
-      buffer.writeln('  Kwota: ${AppFormatters.currency(exp.amountPln)} [${exp.category.displayName}]');
-      if (exp.workshopOrLocation != null && exp.workshopOrLocation!.isNotEmpty) {
-        buffer.writeln('  Miejsce/Warsztat: ${exp.workshopOrLocation}');
-      }
-      if (exp.note != null && exp.note!.isNotEmpty) {
-        buffer.writeln('  Notatka: ${exp.note}');
-      }
-      buffer.writeln('');
-    }
-
-    buffer.writeln('Raport wygenerowany przez aplikację AutoLog.');
-
     return BuyerReport(
       vehicle: vehicle,
-      generatedAt: nowStr,
-      totalExpensesCount: sortedExpenses.length,
-      totalCostPln: stats.totalCostPln,
-      expenses: sortedExpenses,
-      categoryBreakdown: stats.categoryBreakdown,
-      formattedSummary: buffer.toString(),
+      generatedAt: AppFormatters.formatDate(DateTime.now()),
+      expenses: expenses,
     );
   }
 }

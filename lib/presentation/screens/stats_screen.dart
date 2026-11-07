@@ -299,7 +299,7 @@ class StatsScreen extends ConsumerWidget {
                                 const SizedBox(width: 12),
                                 const Expanded(
                                   child: Text(
-                                    'Wybierz konkretne auto powyżej, aby wygenerować ustrukturyzowany Raport dla Kupującego.',
+                                    'Wybierz auto, aby przygotować raport dla kupującego.',
                                     style: TextStyle(fontSize: 13),
                                   ),
                                 ),
@@ -348,7 +348,7 @@ class StatsScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                'Wygeneruj ustrukturyzowane podsumowanie wszystkich napraw, wymian i przeglądów na potrzeby sprzedaży pojazdu.',
+                                'Wybierz wpisy i dane, które chcesz dołączyć do PDF.',
                                 style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 14),
@@ -378,7 +378,7 @@ class StatsScreen extends ConsumerWidget {
                                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                       )
                                     : const Icon(Icons.description_rounded, size: 18),
-                                label: Text(statsState.isGeneratingReport ? 'Generowanie...' : 'Generuj raport pojazdu'),
+                                label: Text(statsState.isGeneratingReport ? 'Generowanie...' : 'Przygotuj raport'),
                               ),
                             ],
                           ),
