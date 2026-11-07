@@ -1,4 +1,6 @@
 import 'package:autolog/core/theme/app_theme.dart';
+import 'package:autolog/data/repositories/settings_repository.dart';
+import 'package:autolog/domain/models/app_settings.dart';
 import 'package:autolog/domain/models/expense.dart';
 import 'package:autolog/domain/models/vehicle.dart';
 import 'package:autolog/l10n/app_localizations.dart';
@@ -8,6 +10,7 @@ import 'package:autolog/presentation/screens/app_settings_screen.dart';
 import 'package:autolog/presentation/screens/expenses_screen.dart';
 import 'package:autolog/presentation/screens/vehicle_dashboard_screen.dart';
 import 'package:autolog/presentation/widgets/polish_license_plate.dart';
+import 'package:autolog/presentation/widgets/vehicle_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,6 +44,53 @@ void main() {
   }
 
   group('ExpensesScreen & AddExpenseScreen Widget Tests', () {
+    for (final fromVehicle in [true, false]) {
+      testWidgets('vehicle context: fromVehicle=$fromVehicle', (tester) async {
+        const volvo = Vehicle(
+          id: 'volvo',
+          brand: 'Volvo',
+          model: 'V60',
+          year: 2020,
+          licensePlate: 'WA 12345',
+          mileageKm: 90000,
+          fuelType: 'Diesel',
+        );
+        final vehicles = [
+          ...(await _MockVehiclesNotifier().build()),
+          volvo,
+        ];
+        await tester.pumpWidget(createTestWidget(
+          overrides: [
+            vehiclesNotifierProvider.overrideWith(
+              () => _MockVehiclesNotifier(vehicles),
+            ),
+            settingsRepositoryProvider.overrideWith(
+              (ref) => _TestSettingsRepository(),
+            ),
+            expenseSuggestionsProvider.overrideWith((ref) async => []),
+          ],
+          child: AddExpenseScreen(initialVehicleId: fromVehicle ? volvo.id : null),
+        ));
+        await tester.pumpAndSettle();
+
+        final selector = tester.widget<VehicleSelector>(find.byType(VehicleSelector));
+        if (fromVehicle) {
+          expect(selector.vehicles.map((v) => v.id), [volvo.id]);
+          expect(selector.selectedVehicleId, volvo.id);
+          expect(find.text('Volvo V60 (2020)'), findsOneWidget);
+          expect(find.text('BMW Seria 3'), findsNothing);
+        } else {
+          expect(selector.vehicles.length, 2);
+          await tester.tap(find.text('Volvo V60'));
+          await tester.pumpAndSettle();
+          expect(
+            tester.widget<VehicleSelector>(find.byType(VehicleSelector)).selectedVehicleId,
+            volvo.id,
+          );
+        }
+      });
+    }
+
     testWidgets('AddExpenseScreen updates category when suggestion is tapped', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
@@ -254,9 +304,13 @@ void main() {
 }
 
 class _MockVehiclesNotifier extends AsyncNotifier<List<Vehicle>> implements VehiclesNotifier {
+  final List<Vehicle>? _vehicles;
+
+  _MockVehiclesNotifier([this._vehicles]);
+
   @override
   Future<List<Vehicle>> build() async {
-    return [
+    return _vehicles ?? [
       const Vehicle(
         id: 'veh_test_1',
         brand: 'BMW',
@@ -280,6 +334,11 @@ class _MockVehiclesNotifier extends AsyncNotifier<List<Vehicle>> implements Vehi
   Future<void> updateMileage(String vehicleId, int newMileage) async {}
   @override
   Future<void> updateVehicle(Vehicle vehicle) async {}
+}
+
+class _TestSettingsRepository extends SettingsRepository {
+  @override
+  Future<AppSettings> loadSettings() async => const AppSettings();
 }
 
 class _MockExpensesNotifier extends StateNotifier<ExpensesState> implements ExpensesNotifier {

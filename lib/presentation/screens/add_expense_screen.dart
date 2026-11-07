@@ -472,7 +472,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 }
 
                 return VehicleSelector(
-                  vehicles: vehicles,
+                  vehicles: widget.initialVehicleId != null && !widget.isEditing
+                      ? vehicles.where((v) => v.id == widget.initialVehicleId).toList()
+                      : vehicles,
                   selectedVehicleId: _selectedVehicleId,
                   onSelected: (v) {
                     setState(() {
