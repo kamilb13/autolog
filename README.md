@@ -2,6 +2,9 @@
 
 Aplikacja do prowadzenia dziennika wydatków i serwisu samochodów.
 
+Strona produktu znajduje się w [`site/`](site/index.html).
+[Publikacja na GitHub Pages i aktualizacja zrzutów ekranów](docs/website.md).
+
 Dane są zapisywane na telefonie w bazie SQLite. Do prowadzenia dziennika nie potrzebujesz internetu ani konta. Opcjonalna kopia zapasowa w Google Drive wymaga połączenia z internetem i zalogowania do Google.
 
 ---
