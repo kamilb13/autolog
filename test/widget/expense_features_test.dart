@@ -9,6 +9,7 @@ import 'package:autolog/presentation/screens/expenses_screen.dart';
 import 'package:autolog/presentation/screens/vehicle_dashboard_screen.dart';
 import 'package:autolog/presentation/widgets/polish_license_plate.dart';
 import 'package:autolog/presentation/widgets/vehicle_selector.dart';
+import 'package:autolog/presentation/widgets/timeline_expense_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,52 +41,72 @@ void main() {
 
   group('ExpensesScreen & AddExpenseScreen Widget Tests', () {
     for (final fromVehicle in [true, false]) {
-      testWidgets('vehicle context: fromVehicle=$fromVehicle', (tester) async {
-        const volvo = Vehicle(
-          id: 'volvo',
-          brand: 'Volvo',
-          model: 'V60',
-          year: 2020,
-          licensePlate: 'WA 12345',
-          mileageKm: 90000,
-          fuelType: 'Diesel',
-        );
-        final vehicles = [...(await _MockVehiclesNotifier().build()), volvo];
-        await tester.pumpWidget(
-          createTestWidget(
-            overrides: [
-              vehiclesNotifierProvider.overrideWith(
-                () => _MockVehiclesNotifier(vehicles),
+      for (final editing in [true, false]) {
+        testWidgets(
+          'vehicle context: fromVehicle=$fromVehicle, editing=$editing',
+          (tester) async {
+            const volvo = Vehicle(
+              id: 'volvo',
+              brand: 'Volvo',
+              model: 'V60',
+              year: 2020,
+              licensePlate: 'WA 12345',
+              mileageKm: 90000,
+              fuelType: 'Diesel',
+            );
+            final vehicles = [
+              ...(await _MockVehiclesNotifier().build()),
+              volvo,
+            ];
+            await tester.pumpWidget(
+              createTestWidget(
+                overrides: [
+                  vehiclesNotifierProvider.overrideWith(
+                    () => _MockVehiclesNotifier(vehicles),
+                  ),
+                  expenseSuggestionsProvider.overrideWith((ref) async => []),
+                ],
+                child: AddExpenseScreen(
+                  initialVehicleId: fromVehicle ? volvo.id : null,
+                  initialExpense: editing
+                      ? const Expense(
+                          id: 'edit_context',
+                          vehicleId: 'volvo',
+                          category: ExpenseCategory.fuel,
+                          title: 'Tankowanie',
+                          amountPln: 100,
+                          date: '2026-09-06',
+                        )
+                      : null,
+                ),
               ),
-              expenseSuggestionsProvider.overrideWith((ref) async => []),
-            ],
-            child: AddExpenseScreen(
-              initialVehicleId: fromVehicle ? volvo.id : null,
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
+            );
+            await tester.pumpAndSettle();
 
-        final selector = tester.widget<VehicleSelector>(
-          find.byType(VehicleSelector),
+            final selector = tester.widget<VehicleSelector>(
+              find.byType(VehicleSelector),
+            );
+            if (fromVehicle) {
+              expect(selector.vehicles.map((v) => v.id), [volvo.id]);
+              expect(selector.selectedVehicleId, volvo.id);
+              expect(find.text('Volvo V60 (2020)'), findsOneWidget);
+              expect(find.text('BMW Seria 3'), findsNothing);
+            } else {
+              expect(selector.vehicles.length, 2);
+              await tester.tap(
+                find.text(editing ? 'BMW Seria 3' : 'Volvo V60'),
+              );
+              await tester.pumpAndSettle();
+              expect(
+                tester
+                    .widget<VehicleSelector>(find.byType(VehicleSelector))
+                    .selectedVehicleId,
+                editing ? vehicles.first.id : volvo.id,
+              );
+            }
+          },
         );
-        if (fromVehicle) {
-          expect(selector.vehicles.map((v) => v.id), [volvo.id]);
-          expect(selector.selectedVehicleId, volvo.id);
-          expect(find.text('Volvo V60 (2020)'), findsOneWidget);
-          expect(find.text('BMW Seria 3'), findsNothing);
-        } else {
-          expect(selector.vehicles.length, 2);
-          await tester.tap(find.text('Volvo V60'));
-          await tester.pumpAndSettle();
-          expect(
-            tester
-                .widget<VehicleSelector>(find.byType(VehicleSelector))
-                .selectedVehicleId,
-            volvo.id,
-          );
-        }
-      });
+      }
     }
 
     testWidgets('AddExpenseScreen updates category when suggestion is tapped', (
@@ -126,47 +147,119 @@ void main() {
       expect(find.text('Wycieraczki szyb'), findsWidgets);
     });
 
-    testWidgets(
-      'ExpensesScreen shows SnackBar with COFNIJ button on deletion',
-      (WidgetTester tester) async {
-        final testExpense = Expense(
-          id: 'exp_test_1',
-          vehicleId: 'veh_test_1',
-          category: ExpenseCategory.fuel,
-          title: 'Tankowanie testowe',
-          amountPln: 250.0,
-          date: '2026-09-06',
-          mileageKm: 120000,
-        );
+    for (final fromVehicle in [false, true]) {
+      testWidgets(
+        'expense deletion requires confirmation and supports undo: fromVehicle=$fromVehicle',
+        (tester) async {
+          const expense = Expense(
+            id: 'exp_test_1',
+            vehicleId: 'veh_test_1',
+            category: ExpenseCategory.fuel,
+            title: 'Tankowanie testowe',
+            amountPln: 250,
+            date: '2026-09-06',
+            mileageKm: 120000,
+          );
+          await tester.pumpWidget(
+            createTestWidget(
+              overrides: [
+                expensesNotifierProvider.overrideWith(
+                  (ref) => _MockExpensesNotifier(expense),
+                ),
+                vehiclesNotifierProvider.overrideWith(
+                  () => _MockVehiclesNotifier(),
+                ),
+              ],
+              child: fromVehicle
+                  ? const VehicleDashboardScreen(vehicleId: 'veh_test_1')
+                  : const ExpensesScreen(),
+            ),
+          );
+          await tester.pumpAndSettle();
+          final entry = find.byType(TimelineExpenseItem);
+          final deleteButton = find.byTooltip('Usuń wydatek');
+          await tester.ensureVisible(deleteButton);
+          await tester.pumpAndSettle();
+          await tester.tap(deleteButton);
+          await tester.pumpAndSettle();
+          expect(find.text('Usunąć wydatek?'), findsOneWidget);
+          expect(find.textContaining('250,00'), findsWidgets);
+          expect(entry, findsOneWidget);
+          expect(find.text('COFNIJ'), findsNothing);
 
+          await tester.tap(find.text('Anuluj'));
+          await tester.pumpAndSettle();
+          expect(entry, findsOneWidget);
+          expect(find.text('COFNIJ'), findsNothing);
+
+          await tester.tap(deleteButton);
+          await tester.pumpAndSettle();
+          Navigator.of(tester.element(find.byType(AlertDialog))).pop();
+          await tester.pumpAndSettle();
+          expect(entry, findsOneWidget);
+
+          await tester.tap(deleteButton);
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('Usuń'));
+          await tester.pumpAndSettle();
+          expect(entry, findsNothing);
+          expect(
+            find.text('Usunięto wpis "Tankowanie testowe"'),
+            findsOneWidget,
+          );
+          await tester.tap(find.text('COFNIJ'));
+          await tester.pumpAndSettle();
+          expect(entry, findsOneWidget);
+        },
+      );
+    }
+
+    for (final badge in [false, true]) {
+      testWidgets('expense item stays compact: vehicleBadge=$badge', (
+        tester,
+      ) async {
         await tester.pumpWidget(
           createTestWidget(
             overrides: [
-              expensesNotifierProvider.overrideWith(
-                (ref) => _MockExpensesNotifier(testExpense),
-              ),
               vehiclesNotifierProvider.overrideWith(
                 () => _MockVehiclesNotifier(),
               ),
             ],
-            child: const ExpensesScreen(),
+            child: Scaffold(
+              body: Align(
+                alignment: Alignment.topLeft,
+                child: SizedBox(
+                  width: 360,
+                  child: TimelineExpenseItem(
+                    expense: const Expense(
+                      id: 'compact',
+                      vehicleId: 'veh_test_1',
+                      category: ExpenseCategory.fuel,
+                      title: 'Tankowanie',
+                      amountPln: 250,
+                      date: '2026-09-06',
+                      mileageKm: 120000,
+                    ),
+                    showVehicleBadge: badge,
+                    onDelete: () {},
+                  ),
+                ),
+              ),
+            ),
           ),
         );
-
         await tester.pumpAndSettle();
-
-        expect(find.text('Tankowanie testowe'), findsOneWidget);
-
-        // Tap delete button on the expense item
-        final deleteBtn = find.byIcon(Icons.delete_outline_rounded).first;
-        await tester.tap(deleteBtn);
-        await tester.pumpAndSettle();
-
-        // Verify SnackBar with 'COFNIJ' is shown
-        expect(find.text('COFNIJ'), findsOneWidget);
-        expect(find.text('Usunięto wpis "Tankowanie testowe"'), findsOneWidget);
-      },
-    );
+        expect(
+          tester.getSize(find.byType(TimelineExpenseItem)).height,
+          lessThanOrEqualTo(badge ? 90 : 68),
+        );
+        expect(
+          tester.getSize(find.byTooltip('Usuń wydatek')).height,
+          greaterThanOrEqualTo(48),
+        );
+        expect(tester.takeException(), isNull);
+      });
+    }
 
     testWidgets(
       'VehicleDashboardScreen copies license plate and VIN to clipboard on tap',
@@ -197,11 +290,36 @@ void main() {
 
         await tester.pumpAndSettle();
 
+        final timelineEntry = find.byType(TimelineExpenseItem);
+        expect(
+          find.descendant(
+            of: timelineEntry,
+            matching: find.byIcon(ExpenseCategory.fuel.icon),
+          ),
+          findsOneWidget,
+        );
+        final expenseTitle = find.descendant(
+          of: timelineEntry,
+          matching: find.text('Paliwo'),
+        );
+        await tester.ensureVisible(expenseTitle);
+        await tester.tap(expenseTitle);
+        await tester.pumpAndSettle();
+        final editor = tester.widget<AddExpenseScreen>(
+          find.byType(AddExpenseScreen),
+        );
+        expect(editor.initialVehicleId, 'veh_test_1');
+        expect(editor.initialExpense?.id, 'exp_dummy');
+        Navigator.of(tester.element(find.byType(AddExpenseScreen))).pop();
+        await tester.pumpAndSettle();
+
         // Check displayed plate and VIN
         expect(find.text('KR 7AK89'), findsOneWidget);
         expect(find.text('VIN: WBA3A5C55FP123456'), findsOneWidget);
 
         // Tap PolishLicensePlate to copy
+        await tester.ensureVisible(find.byType(PolishLicensePlate));
+        await tester.pumpAndSettle();
         await tester.tap(find.byType(PolishLicensePlate));
         await tester.pumpAndSettle();
         expect(

@@ -5,8 +5,6 @@ import '../../core/utils/formatters.dart';
 import '../../domain/models/service_reminder.dart';
 import '../../domain/models/vehicle.dart';
 
-import 'package:autolog/l10n/app_localizations.dart';
-
 import '../providers/app_providers.dart';
 
 class ReminderCard extends ConsumerWidget {
@@ -28,12 +26,10 @@ class ReminderCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final settings = ref.watch(settingsNotifierProvider);
-    final l10n = AppLocalizations.of(context);
     final statusLabel = AppFormatters.reminderStatusLabel(reminder);
 
     Color badgeBg;
     Color badgeText;
-    IconData severityIcon;
 
     switch (reminder.severity) {
       case AlertSeverity.critical:
@@ -41,21 +37,18 @@ class ReminderCard extends ConsumerWidget {
             ? Colors.red.shade900.withValues(alpha: 0.35)
             : Colors.red.shade50;
         badgeText = isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828);
-        severityIcon = Icons.error_outline_rounded;
         break;
       case AlertSeverity.warning:
         badgeBg = isDark
             ? Colors.amber.shade900.withValues(alpha: 0.35)
             : Colors.amber.shade50;
         badgeText = isDark ? const Color(0xFFFFD54F) : const Color(0xFFE65100);
-        severityIcon = Icons.warning_amber_rounded;
         break;
       case AlertSeverity.info:
         badgeBg = isDark
             ? Colors.blue.shade900.withValues(alpha: 0.35)
             : Colors.blue.shade50;
         badgeText = isDark ? const Color(0xFF82B1FF) : const Color(0xFF1565C0);
-        severityIcon = Icons.info_outline_rounded;
         break;
     }
 
@@ -87,9 +80,9 @@ class ReminderCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Row: Title & Badge & 3-dots Menu
+          // Top Row: Title & Date (left) + Badge & Wykonane Button (right)
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Column(
@@ -98,23 +91,31 @@ class ReminderCard extends ConsumerWidget {
                     Text(
                       reminder.title,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    if (vehicle != null) ...[
-                      const SizedBox(height: 2),
+                    const SizedBox(height: 3),
+                    if (reminder.dueDate != null)
                       Text(
-                        '${vehicle!.brand} ${vehicle!.model} • ${vehicle!.licensePlate}',
+                        'Termin: ${AppFormatters.formatDisplayDate(reminder.dueDate)}',
                         style: TextStyle(
-                          fontSize: 12.5,
+                          fontSize: 12,
                           color: theme.colorScheme.onSurface.withValues(
                             alpha: 0.6,
                           ),
-                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    else if (reminder.dueMileageKm != null)
+                      Text(
+                        'Limit: ${AppFormatters.mileage(reminder.dueMileageKm!, unit: settings.distanceUnit.label)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
-                    ],
                   ],
                 ),
               ),
@@ -125,27 +126,42 @@ class ReminderCard extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
-                      vertical: 4,
+                      vertical: 5,
                     ),
                     decoration: BoxDecoration(
                       color: badgeBg,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(severityIcon, size: 13, color: badgeText),
-                        const SizedBox(width: 4),
-                        Text(
-                          statusLabel,
-                          style: TextStyle(
-                            color: badgeText,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11.5,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      statusLabel,
+                      style: TextStyle(
+                        color: badgeText,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11.5,
+                      ),
                     ),
+                  ),
+                  const SizedBox(width: 6),
+                  FilledButton(
+                    onPressed: onMarkCompleted,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF2E7D32),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      minimumSize: const Size(0, 30),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    child: const Text('Wykonane'),
                   ),
                   if (onDelete != null) ...[
                     const SizedBox(width: 2),
@@ -197,114 +213,31 @@ class ReminderCard extends ConsumerWidget {
             ],
           ),
 
-          // Description
-          if (reminder.description.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              reminder.description,
-              style: TextStyle(
-                fontSize: 13,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 10),
-
-          // Target Date / Mileage info
-          Row(
-            children: [
-              if (reminder.dueDate != null) ...[
-                Icon(
-                  Icons.calendar_today_rounded,
-                  size: 13,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Termin: ${AppFormatters.formatDisplayDate(reminder.dueDate)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ],
-              if (reminder.dueMileageKm != null) ...[
-                Icon(
-                  Icons.speed_rounded,
-                  size: 14,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Limit: ${AppFormatters.mileage(reminder.dueMileageKm!, unit: settings.distanceUnit.label)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
-                  ),
-                ),
-              ],
-            ],
-          ),
-
-          // Cyclic interval
-          if (reminder.intervalMonths != null ||
+          // Description & cyclic interval (if any)
+          if (reminder.description.isNotEmpty ||
+              reminder.intervalMonths != null ||
               reminder.intervalKm != null) ...[
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(
-                  Icons.repeat_rounded,
-                  size: 13,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Cykl: ${[if (reminder.intervalMonths != null) 'co ${reminder.intervalMonths} msc', if (reminder.intervalKm != null) 'co ${AppFormatters.mileage(reminder.intervalKm!, unit: settings.distanceUnit.label)}'].join(' / ')}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          const SizedBox(height: 12),
-          Divider(
-            height: 1,
-            color: isDark
-                ? Colors.white10
-                : Colors.black.withValues(alpha: 0.06),
-          ),
-          const SizedBox(height: 10),
-
-          // Action button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: onMarkCompleted,
-              icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
-              label: Text(l10n?.remindersMarkDone ?? 'Oznacz jako wykonane'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(38),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                backgroundColor: const Color(0xFF2E7D32),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                textStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
+            const SizedBox(height: 6),
+            if (reminder.description.isNotEmpty)
+              Text(
+                reminder.description,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
-            ),
-          ),
+            if (reminder.intervalMonths != null ||
+                reminder.intervalKm != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                'Cykl: ${[if (reminder.intervalMonths != null) 'co ${reminder.intervalMonths} msc', if (reminder.intervalKm != null) 'co ${AppFormatters.mileage(reminder.intervalKm!, unit: settings.distanceUnit.label)}'].join(' / ')}',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+                ),
+              ),
+            ],
+          ],
         ],
       ),
     );

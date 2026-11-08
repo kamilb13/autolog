@@ -41,7 +41,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
   final _dateController = TextEditingController(
-    text: AppFormatters.formatIsoDate(DateTime.now()),
+    text: AppFormatters.formatDate(DateTime.now()),
   );
   final _mileageController = TextEditingController();
   final _locationController = TextEditingController();
@@ -64,8 +64,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       _amountController.text = editExp.amountPln % 1 == 0
           ? editExp.amountPln.toInt().toString()
           : editExp.amountPln.toStringAsFixed(2);
-      _dateController.text = editExp.date;
       _selectedDate = DateTime.tryParse(editExp.date) ?? DateTime.now();
+      _dateController.text = AppFormatters.formatDate(_selectedDate);
       _mileageController.text = editExp.mileageKm != null
           ? editExp.mileageKm.toString()
           : '';
@@ -114,7 +114,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
-        _dateController.text = AppFormatters.formatIsoDate(picked);
+        _dateController.text = AppFormatters.formatDate(picked);
       });
       _formKey.currentState?.validate();
     }
@@ -214,7 +214,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
           if (result.date != null) {
             _selectedDate = result.date!;
-            _dateController.text = AppFormatters.formatIsoDate(result.date!);
+            _dateController.text = AppFormatters.formatDate(result.date!);
           }
 
           if (result.location != null && result.location!.isNotEmpty) {
@@ -284,13 +284,15 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           ? int.tryParse(_mileageController.text.trim())
           : null;
 
+      final dateString = AppFormatters.formatIsoDate(_selectedDate);
+
       if (widget.initialExpense != null) {
         final updatedExpense = widget.initialExpense!.copyWith(
           vehicleId: _selectedVehicleId!,
           category: _selectedCategory,
           title: _titleController.text.trim(),
           amountPln: amount,
-          date: _dateController.text.trim(),
+          date: dateString,
           mileageKm: mileage,
           clearMileage: mileage == null,
           workshopOrLocation: _locationController.text.trim().isNotEmpty
@@ -323,7 +325,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           category: _selectedCategory,
           title: _titleController.text.trim(),
           amountPln: amount,
-          date: _dateController.text.trim(),
+          date: dateString,
           mileageKm: mileage,
           workshopOrLocation: _locationController.text.trim().isNotEmpty
               ? _locationController.text.trim()
@@ -374,8 +376,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final learnedSuggestionsAsync = ref.watch(expenseSuggestionsProvider);
     final learnedSuggestions = learnedSuggestionsAsync.valueOrNull ?? [];
     final settings = ref.watch(settingsNotifierProvider);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context);
 
     final query = _titleController.text.trim();
@@ -402,7 +402,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.document_scanner_rounded),
+                : const Icon(Icons.crop_free_rounded, size: 26),
             tooltip:
                 l10n?.ocrScanReceiptTooltip ??
                 'Zeskanuj paragon lub fakturę aparatem',
@@ -410,85 +410,52 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              onPressed: _isSaving ? null : _saveExpense,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: _isSaving
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      widget.isEditing
+                          ? (l10n?.editExpenseSaveBtn ?? 'Zapisz zmiany')
+                          : (l10n?.addExpenseSaveBtn ?? 'Zapisz wydatek'),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           children: [
-            // OCR Scan Prompt Banner Card
-            Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? theme.colorScheme.primaryContainer.withValues(alpha: 0.35)
-                    : theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.25),
-                ),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: _isScanningReceipt ? null : _showOcrPickerSheet,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.document_scanner_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n?.ocrScanReceipt ??
-                                    'Zeskanuj paragon / fakturę',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (_isScanningReceipt)
-                          const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        else
-                          const Icon(Icons.chevron_right_rounded, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
             // OCR Extraction Result Banner
             if (_lastScanResult != null) ...[
               Container(
-                margin: const EdgeInsets.only(bottom: 14),
+                margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
-                  vertical: 10,
+                  vertical: 8,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.green.shade500.withValues(alpha: 0.15),
@@ -527,11 +494,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             ],
 
             // Vehicle Selector
-            const Text(
-              'Pojazd',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 6),
             vehiclesAsync.when(
               data: (vehicles) {
                 if (vehicles.isEmpty) {
@@ -545,7 +507,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 }
 
                 return VehicleSelector(
-                  vehicles: widget.initialVehicleId != null && !widget.isEditing
+                  compact: true,
+                  vehicles: widget.initialVehicleId != null
                       ? vehicles
                             .where((v) => v.id == widget.initialVehicleId)
                             .toList()
@@ -561,48 +524,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               loading: () => const LinearProgressIndicator(),
               error: (err, _) => Text('Błąd: $err'),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // Category Selector Chips
-            Row(
-              children: [
-                const Text(
-                  'Kategoria wydatku',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _selectedCategory.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _selectedCategory.icon,
-                        size: 12,
-                        color: _selectedCategory.color,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _selectedCategory.displayName,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: _selectedCategory.color,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -642,16 +566,14 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 }).toList(),
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // Amount Field
             TextFormField(
               controller: _amountController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Kwota *',
                 hintText: '0.00',
-                prefixIcon: const Icon(Icons.payments_outlined),
-                suffixText: settings.currency.code,
               ),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               keyboardType: const TextInputType.numberWithOptions(
@@ -670,7 +592,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // Title / Description Field (with Auto-categorization listener)
             TextFormField(
@@ -678,7 +600,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               decoration: const InputDecoration(
                 labelText: 'Tytuł / Usługa *',
                 hintText: 'np. Tankowanie, Wymiana oleju, Wycieraczki...',
-                prefixIcon: Icon(Icons.edit_note_rounded),
               ),
               textCapitalization: TextCapitalization.sentences,
               onChanged: (text) {
@@ -698,69 +619,44 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             // Autocomplete / Suggestions chips bar
             if (suggestions.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.auto_awesome,
-                          size: 14,
-                          color: theme.colorScheme.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          query.isEmpty ? 'Popularne wpisy:' : 'Podpowiedzi:',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.primary,
+                padding: const EdgeInsets.only(top: 4),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: suggestions.map((sug) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: ActionChip(
+                          avatar: Icon(
+                            sug.category.icon,
+                            size: 14,
+                            color: sug.category.color,
                           ),
+                          label: Text(
+                            sug.title,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          onPressed: () => _applySuggestion(sug),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: suggestions.map((sug) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: ActionChip(
-                              avatar: Icon(
-                                sug.category.icon,
-                                size: 14,
-                                color: sug.category.color,
-                              ),
-                              label: Text(
-                                sug.title,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              onPressed: () => _applySuggestion(sug),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // Date & Mileage
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: InkWell(
                     onTap: _pickDate,
+                    borderRadius: BorderRadius.circular(14),
                     child: IgnorePointer(
                       child: TextFormField(
                         controller: _dateController,
-                        decoration: const InputDecoration(
-                          labelText: 'Data *',
-                          prefixIcon: Icon(Icons.calendar_today_rounded),
-                        ),
+                        decoration: const InputDecoration(labelText: 'Data *'),
                       ),
                     ),
                   ),
@@ -770,12 +666,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   child: TextFormField(
                     controller: _mileageController,
                     decoration: InputDecoration(
-                      labelText: 'Przebieg (opcjonalnie)',
+                      labelText: 'Przebieg (opc.)',
                       hintText: selectedVehicle != null
                           ? 'np. ${selectedVehicle.mileageKm}'
                           : null,
                       suffixText: settings.distanceUnit.label,
-                      prefixIcon: const Icon(Icons.speed_rounded),
                       helperText: selectedVehicle != null
                           ? () {
                               final now = DateTime.now();
@@ -784,15 +679,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                                 now.month,
                                 now.day,
                               );
-                              final expenseDate =
-                                  DateTime.tryParse(
-                                    _dateController.text.trim(),
-                                  ) ??
-                                  today;
                               final expenseDateOnly = DateTime(
-                                expenseDate.year,
-                                expenseDate.month,
-                                expenseDate.day,
+                                _selectedDate.year,
+                                _selectedDate.month,
+                                _selectedDate.day,
                               );
                               final isHistorical = expenseDateOnly.isBefore(
                                 today,
@@ -819,13 +709,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       if (selectedVehicle != null) {
                         final now = DateTime.now();
                         final today = DateTime(now.year, now.month, now.day);
-                        final expenseDate =
-                            DateTime.tryParse(_dateController.text.trim()) ??
-                            today;
                         final expenseDateOnly = DateTime(
-                          expenseDate.year,
-                          expenseDate.month,
-                          expenseDate.day,
+                          _selectedDate.year,
+                          _selectedDate.month,
+                          _selectedDate.day,
                         );
                         final isHistorical = expenseDateOnly.isBefore(today);
 
@@ -839,7 +726,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // Workshop / Location
             TextFormField(
@@ -847,11 +734,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               decoration: const InputDecoration(
                 labelText: 'Lokalizacja / Warsztat (opcjonalnie)',
                 hintText: 'np. Orlen, Bimmer Serwis, Allegro',
-                prefixIcon: Icon(Icons.location_on_outlined),
               ),
               textCapitalization: TextCapitalization.words,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // Note
             TextFormField(
@@ -860,32 +746,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 labelText: 'Notatka (opcjonalnie)',
                 hintText:
                     'Dodatkowe informacje, numery części, ilość litrów...',
-                prefixIcon: Icon(Icons.notes_rounded),
               ),
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,
             ),
-            const SizedBox(height: 24),
-
-            // Submit Button
-            ElevatedButton(
-              onPressed: _isSaving ? null : _saveExpense,
-              child: _isSaving
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : Text(
-                      widget.isEditing
-                          ? (l10n?.editExpenseSaveBtn ?? 'Zapisz zmiany')
-                          : (l10n?.addExpenseSaveBtn ?? 'Zapisz wydatek'),
-                    ),
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
           ],
         ),
       ),

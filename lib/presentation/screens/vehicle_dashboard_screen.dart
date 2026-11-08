@@ -144,7 +144,7 @@ class _VehicleDashboardScreenState
               ),
             ],
           ),
-          floatingActionButton: FloatingActionButton.extended(
+          floatingActionButton: FloatingActionButton(
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -153,11 +153,8 @@ class _VehicleDashboardScreenState
                 ),
               );
             },
-            icon: const Icon(Icons.add_rounded),
-            label: Text(
-              l10n?.dashboardNewExpense ?? 'Nowy wydatek',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            tooltip: l10n?.dashboardNewExpense ?? 'Nowy wydatek',
+            child: const Icon(Icons.add_rounded, size: 28),
           ),
           body: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -186,35 +183,25 @@ class _VehicleDashboardScreenState
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${vehicle.brand} ${vehicle.model}',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
                                 vehicle.generationOrTrim.isNotEmpty
-                                    ? '${vehicle.generationOrTrim} • ${vehicle.year} • ${vehicle.fuelType}'
-                                    : 'Rocznik: ${vehicle.year} • ${vehicle.fuelType}',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.6,
-                                  ),
+                                    ? '${vehicle.year} · ${vehicle.fuelType} · ${vehicle.generationOrTrim}'
+                                    : '${vehicle.year} · ${vehicle.fuelType}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
                             ],
@@ -235,7 +222,7 @@ class _VehicleDashboardScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
 
                     // VIN Row / Chip
                     Material(
@@ -260,8 +247,8 @@ class _VehicleDashboardScreenState
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
+                            horizontal: 8,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
                             color: isDark
@@ -280,24 +267,24 @@ class _VehicleDashboardScreenState
                             children: [
                               Icon(
                                 Icons.tag_rounded,
-                                size: 14,
+                                size: 12,
                                 color: theme.colorScheme.primary.withValues(
                                   alpha: 0.9,
                                 ),
                               ),
-                              const SizedBox(width: 6),
+                              const SizedBox(width: 5),
                               Text(
                                 vehicle.vin.trim().isNotEmpty
                                     ? 'VIN: ${vehicle.vin.trim()}'
                                     : 'VIN: Brak (kliknij, aby dodać)',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 11,
                                   fontFamily: vehicle.vin.trim().isNotEmpty
                                       ? 'monospace'
                                       : null,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: vehicle.vin.trim().isNotEmpty
-                                      ? 0.6
+                                      ? 0.5
                                       : 0,
                                   color: vehicle.vin.trim().isNotEmpty
                                       ? theme.colorScheme.onSurface.withValues(
@@ -308,14 +295,14 @@ class _VehicleDashboardScreenState
                                         ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 6),
                               Icon(
                                 vehicle.vin.trim().isNotEmpty
                                     ? Icons.copy_rounded
                                     : Icons.edit_rounded,
-                                size: 13,
+                                size: 11,
                                 color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.45,
+                                  alpha: 0.4,
                                 ),
                               ),
                             ],
@@ -323,14 +310,14 @@ class _VehicleDashboardScreenState
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
                     Divider(
                       height: 1,
                       color: isDark
                           ? Colors.white10
                           : Colors.black.withValues(alpha: 0.06),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
 
                     // Mileage & Total Spent & Purchase Price KPI
                     Row(
@@ -776,8 +763,10 @@ class _VehicleDashboardScreenState
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) =>
-                                AddExpenseScreen(initialExpense: exp),
+                            builder: (_) => AddExpenseScreen(
+                              initialVehicleId: vehicle.id,
+                              initialExpense: exp,
+                            ),
                           ),
                         );
                       },
