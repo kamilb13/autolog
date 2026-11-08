@@ -105,6 +105,27 @@ Postman CLI is installed on this device, and can be used for API Engineering wor
 - Raport końcowy: co zmieniono, wykonane checki i wyniki, nieweryfikowany zakres.
   Sprawdź też nowe pliki i końcowy diff; nie commituj bez prośby użytkownika.
 
+## WERSJONOWANIE I WYDANIA
+- Przed zmianą aplikacji sprawdź `version` w `pubspec.yaml`, tagi Git i ostatnie
+  opublikowane wydanie. Nie zakładaj, że wersja w pliku czeka jeszcze na wydanie.
+  Jeśli nie możesz ustalić stanu publikacji, zgłoś to zamiast zgadywać numer.
+- Przygotowując zmianę dla użytkownika, sam zaktualizuj `version: X.Y.Z+BUILD`:
+  poprawka błędu podnosi PATCH; nowa funkcja podnosi MINOR i zeruje PATCH.
+  MAJOR zmieniaj po uzgodnieniu niezgodności. BUILD zawsze rośnie, bez resetowania.
+- Podbijaj wersję raz na przygotowywane wydanie, nie przy każdym commicie,
+  ponownym buildzie lub poprawce w tej samej niewydanej wersji. Oba numery muszą
+  być większe od ostatniego wydania. Nie zmieniaj już opublikowanych tagów.
+- Zmiany wyłącznie dokumentacji, harnessu, testów lub formatowania nie wymagają
+  podbicia wersji. Zmiany CI wymagają go, jeśli zmieniają wynikowy APK.
+- Źródłem wersji jest `pubspec.yaml`, nie `android/local.properties` ani ręczne
+  nadpisanie flagami Fluttera. Wersja schematu SQLite to osobny licznik.
+- Przed wydaniem sprawdź `python3 tool/release_metadata.py vX.Y.Z`, pełną
+  weryfikację i podpisany build. Tag musi wskazywać sprawdzony commit na `main`.
+- Push na `main` uruchamia CI; push taga `vX.Y.Z` publikuje APK po kontrolach.
+  Nie twórz ani nie wysyłaj taga bez zgody obejmującej publikację wydania.
+- W podsumowaniu podaj wersję aplikacji i pasujący tag. Rozróżniaj lokalny build,
+  zielone CI i opublikowany Release; potwierdzaj sukces na GitHubie, nie sam push.
+
 ## ROLE POMOCNICZE CODEXA
 - Deleguj konkretny, ograniczony zakres, gdy izolacja kontekstu pomoże zadaniu.
   Dla drobnej zmiany pracuj samodzielnie. Nie uruchamiaj wszystkich ról rutynowo.
