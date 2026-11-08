@@ -23,7 +23,7 @@ Postman CLI is installed on this device, and can be used for API Engineering wor
   Źródła: `docs/technologie.md:3`, `lib/data/database/app_database.dart:24`.
 - Utrzymuj obecne warstwy i Riverpod. Logikę zapisu umieszczaj w repozytoriach,
   koordynację stanu w notifierach; nie dodawaj drugiego systemu stanu.
-  Źródła: `README.md:37`, `lib/presentation/providers/app_providers.dart`.
+  Źródła: `docs/technologie.md:38`, `lib/presentation/providers/app_providers.dart`.
 - Po zapisie sprawdzaj zależne widoki: odświeżanie providerów jest ręczne,
   a zapis wydatku może zwiększyć licznik auta.
   Źródła: `lib/presentation/providers/app_providers.dart:164`,
