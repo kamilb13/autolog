@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="AutoLog — dziennik samochodu na Androida. Zapisuj tankowania i naprawy. Pilnuj terminów przeglądu i ubezpieczenia. Pobierz APK.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AutoLog — dziennik samochodu na Androida">
+  <meta property="og:description" content="Zapisuj tankowania i naprawy. Pilnuj terminów przeglądu i ubezpieczenia.">
+  <meta property="og:url" content="https://kamilb13.github.io/autolog/">
+  <meta property="og:image" content="https://kamilb13.github.io/autolog/assets/dashboard.png">
+  <title>AutoLog — dziennik samochodu na Androida</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Przejdź do treści</a>
+  <header class="wrap header">
+    <a class="brand" href="#" aria-label="AutoLog — początek strony">
+      <img src="assets/icon.svg" width="36" height="36" alt="">AutoLog
+    </a>
+    <nav aria-label="Nawigacja główna">
+      <a class="nav-download" href="https://github.com/kamilb13/autolog/releases/latest/download/autolog.apk">Pobierz AutoLog <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">Twoje auto.<br>Wszystko<br>pod kontrolą.</h1>
+        <p class="intro">Tankowania, naprawy i ważne terminy.<br>W jednym miejscu, zawsze pod ręką.</p>
+        <a id="pobierz" class="button" href="https://github.com/kamilb13/autolog/releases/latest/download/autolog.apk">Pobierz na Androida <span aria-hidden="true">↗</span></a>
+        <p class="requirement"></p>
+      </div>
+      <div class="hero-product">
+        <div class="product-note note-left">
+          <span class="note-icon" aria-hidden="true">↗</span>
+          <p>Wydatki<br><span>Wiesz, na co wydajesz.</span></p>
+        </div>
+        <figure class="hero-screen">
+          <a class="phone" href="assets/dashboard.png" aria-label="Powiększ przykładowy ekran pulpitu pojazdu">
+            <img src="assets/dashboard.png" width="824" height="1784" alt="Przykładowy pulpit Volvo V60 z licznikiem, terminem przeglądu i historią wydatków" fetchpriority="high">
+          </a>
+        </figure>
+        <div class="product-note note-right">
+          <span class="note-icon" aria-hidden="true">✓</span>
+          <p>Terminy<br><span>Łatwiej o nich pamiętać.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide wrap" aria-label="Możliwości i instalacja AutoLog">
+      <div class="benefits">
+        <div class="benefit" data-reveal>
+          <h2>Historia wydatków</h2>
+          <p>Tankowania i naprawy z datą, kwotą i przebiegiem.</p>
+        </div>
+        <div class="benefit" data-reveal>
+          <h2>Ważne terminy</h2>
+          <p>Przegląd i ubezpieczenie obok historii auta.</p>
+        </div>
+        <div class="benefit" data-reveal>
+          <h2>Cały Twój garaż</h2>
+          <p>Wiele pojazdów. Osobna historia każdego z nich.</p>
+        </div>
+        <div class="benefit" data-reveal>
+          <h2>Offline, bez konta</h2>
+          <p>Dziennik działa bez internetu. Dane zapisują się na telefonie.</p>
+        </div>
+      </div>
+      <div class="installation">
+        <h2 data-reveal>Trzy kroki.<br>I możesz ruszać.</h2>
+        <ol class="steps">
+          <li data-reveal>
+            <span class="step-number" aria-hidden="true">01</span>
+            <div><h3><a href="https://github.com/kamilb13/autolog/releases/latest/download/autolog.apk">Pobierz APK <span aria-hidden="true">↗</span></a></h3><p>Z najnowszego wydania na GitHubie.</p></div>
+          </li>
+          <li data-reveal>
+            <span class="step-number" aria-hidden="true">02</span>
+            <div><h3>Otwórz plik</h3><p>Jeśli Android poprosi, zezwól na instalację z tego źródła.</p></div>
+          </li>
+          <li data-reveal>
+            <span class="step-number" aria-hidden="true">03</span>
+            <div><h3>Dodaj swoje auto</h3><p>Wpisz pierwszy pojazd i zacznij zapisywać jego historię.</p></div>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <a href="https://github.com/kamilb13/autolog">GitHub <span aria-hidden="true">↗</span></a>
+    <a href="https://github.com/kamilb13/autolog/releases/latest">Informacje o wydaniu</a>
+  </footer>
+</body>
+</html>
